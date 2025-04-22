@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { Container } from '@mui/material';
+import { Box } from '@mui/material';
 import Layout from './components/layout/Layout';
 
 // Import pages
@@ -20,14 +20,14 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="*" element={
-          <Container 
-            maxWidth="lg" 
+          <Box 
             sx={{ 
-              py: { xs: 2, md: 4 },
-              mt: 0,
-              pt: { xs: '70px', md: '80px' } // Add top padding to account for fixed header
+              width: '100%',
+              height: '100%',
+              margin: 0,
+              padding: 0,
+              overflow: 'hidden'
             }}
-            disableGutters
           >
             <Routes>
               <Route path="/dogs" element={<DogsPage />} />
@@ -38,7 +38,7 @@ function App() {
               <Route path="/contact" element={<ContactPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
-          </Container>
+          </Box>
         } />
       </Routes>
     </Layout>
