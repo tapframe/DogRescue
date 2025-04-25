@@ -955,7 +955,7 @@ const VolunteerPage = () => {
                 />
               </Typography>
 
-              <Grid container spacing={3}>
+              <Grid container spacing={3} sx={{ '& .MuiGrid-item': { display: 'flex' } }}>
                 {[
                   {
                     step: 1,
@@ -987,12 +987,16 @@ const VolunteerPage = () => {
                       variants={cardVariant}
                       onMouseEnter={() => setActiveSection(index)}
                       onMouseLeave={() => setActiveSection(null)}
+                      style={{ width: '100%', display: 'flex' }}
                     >
                       <Paper
                         elevation={activeSection === index ? 8 : 0}
                         sx={{
                           p: 3,
-                          height: '100%',
+                          height: 200,
+                          width: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
                           borderRadius: 3,
                           border: '1px solid',
                           borderColor: activeSection === index 
@@ -1054,7 +1058,18 @@ const VolunteerPage = () => {
                             </Typography>
                           </Box>
                         </Box>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis', 
+                            display: '-webkit-box', 
+                            WebkitLineClamp: 4, 
+                            WebkitBoxOrient: 'vertical',
+                            mt: 'auto' 
+                          }}
+                        >
                           {step.description}
                         </Typography>
                       </Paper>
