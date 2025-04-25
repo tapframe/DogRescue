@@ -113,13 +113,18 @@ This is the admin system for the Dog Rescue site, allowing for management of dog
 
 ## Accessing the Admin Panel
 
-For security reasons, the admin panel is accessed through a secret URL:
+For security reasons, the admin panel can be accessed in two ways:
 
+1. Through a secret URL:
 ```
 /admin-login-7a91b523e61
 ```
 
-This URL is not linked from the main website and should be shared only with authorized personnel.
+2. By entering a special keyboard code anywhere in the application:
+   - Type the sequence `815787` on your keyboard
+   - You will be automatically redirected to the admin login page
+
+These access methods are not linked from the main website and should be shared only with authorized personnel.
 
 ### First-time Admin Registration
 

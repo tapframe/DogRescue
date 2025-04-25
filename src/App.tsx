@@ -20,9 +20,15 @@ import SecretLoginPage from './pages/admin/SecretLoginPage';
 // Import protected route component
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
+// Import keyboard shortcut listener
+import KeyboardShortcutListener from './components/auth/KeyboardShortcutListener';
+
 function App() {
   return (
     <>
+      {/* Keyboard shortcut listener for admin access */}
+      <KeyboardShortcutListener />
+      
       {/* Admin and secret routes rendered outside of main layout */}
       <Routes>
         {/* Secret Admin Login - using obscure path to make it harder to discover */}
