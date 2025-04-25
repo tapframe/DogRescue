@@ -1,4 +1,4 @@
-import { Button, Typography, Box, Card, CardMedia, CardContent, CardActions, Divider, Paper, TextField, Avatar, Chip, Stack, useTheme, alpha, Container } from '@mui/material';
+import { Button, Typography, Box, Card, CardMedia, CardContent, CardActions, Divider, Paper, TextField, Avatar, Chip, Stack, useTheme, alpha, Container, Alert } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import PetsIcon from '@mui/icons-material/Pets';
@@ -13,6 +13,7 @@ import PawsIcon from '@mui/icons-material/Pets';
 import { motion } from 'framer-motion';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HeartIcon from '@mui/icons-material/Favorite';
+import { dogApi, DogData } from '../services/api';
 
 // Placeholder data for featured dogs
 const featuredDogs = [
@@ -138,6 +139,9 @@ const HomePage = () => {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [activeStoryIndex, setActiveStoryIndex] = useState(0);
+  const [dogs, setDogs] = useState<DogData[]>([]);
+  const [isLoadingDogs, setIsLoadingDogs] = useState(true);
+  const [dogsError, setDogsError] = useState<string | null>(null);
   
   // Auto-rotate testimonials
   useEffect(() => {
@@ -148,6 +152,34 @@ const HomePage = () => {
     }, 8000);
     
     return () => clearInterval(interval);
+  }, []);
+  
+  // Fetch dogs for the featured section
+  useEffect(() => {
+    const fetchDogs = async () => {
+      setIsLoadingDogs(true);
+      setDogsError(null);
+      try {
+        const fetchedDogs = await dogApi.getAllDogs();
+        console.log('Fetched dogs:', fetchedDogs);
+        
+        // Show up to 3 dogs regardless of status (or prioritize available ones)
+        const availableDogs = fetchedDogs.filter(dog => dog.status === 'available');
+        const dogsToShow = availableDogs.length > 0 
+          ? availableDogs.slice(0, 3) 
+          : fetchedDogs.slice(0, 3);
+        
+        console.log('Dogs to show:', dogsToShow);
+        setDogs(dogsToShow);
+      } catch (err) {
+        console.error('Error fetching dogs:', err);
+        setDogsError('Failed to load dogs from the server');
+      } finally {
+        setIsLoadingDogs(false);
+      }
+    };
+
+    fetchDogs();
   }, []);
   
   const handleSubscribe = (e: React.FormEvent) => {
@@ -595,181 +627,400 @@ const HomePage = () => {
               </Box>
             </motion.div>
 
-            <Box 
-              sx={{ 
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
-                gap: 5,
-                mb: 8
-              }}
-            >
-              {featuredDogs.map((dog) => (
-                <motion.div 
-                  key={dog.id} 
-                  variants={cardVariant}
-                  whileHover={{ 
-                    y: -15,
-                    transition: { duration: 0.3 } 
+            {isLoadingDogs && (
+              <Box 
+                sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  minHeight: '300px' 
+                }}
+              >
+                <motion.div
+                  animate={{ 
+                    rotate: 360,
+                    transition: { 
+                      duration: 2, 
+                      ease: "linear", 
+                      repeat: Infinity 
+                    } 
                   }}
                 >
-                  <Card 
+                  <PetsIcon 
                     sx={{ 
-                      borderRadius: 5,
-                      overflow: 'hidden',
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      transition: 'all 0.4s ease',
-                      boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
-                      background: 'linear-gradient(to bottom, #ffffff, #f9f9f9)',
-                      border: '1px solid rgba(0,0,0,0.05)',
-                      '&:hover': {
-                        boxShadow: '0 15px 50px rgba(0,0,0,0.15)',
-                        transform: 'translateY(-8px)',
-                      }
-                    }}
-                  >
-                    <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-                      <CardMedia
-                        component="img"
-                        image={dog.image}
-                        alt={dog.name}
-                        height={280}
+                      fontSize: 60, 
+                      color: theme.palette.primary.main,
+                      opacity: 0.7
+                    }} 
+                  />
+                </motion.div>
+              </Box>
+            )}
+
+            {!isLoadingDogs && dogsError && (
+              <Box sx={{ textAlign: 'center', mb: 8 }}>
+                <Alert 
+                  severity="info" 
+                  sx={{ 
+                    maxWidth: 700, 
+                    mx: 'auto', 
+                    mb: 3 
+                  }}
+                >
+                  {dogsError} - Showing sample dogs instead
+                </Alert>
+                <Box 
+                  sx={{ 
+                    display: 'grid',
+                    gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+                    gap: 5,
+                    mb: 8
+                  }}
+                >
+                  {featuredDogs.map((dog) => (
+                    <motion.div 
+                      key={dog.id} 
+                      variants={cardVariant}
+                      whileHover={{ 
+                        y: -15,
+                        transition: { duration: 0.3 } 
+                      }}
+                    >
+                      {/* Dog card (existing code) */}
+                      <Card 
                         sx={{ 
-                          objectFit: 'cover',
-                          transition: 'transform 0.8s ease',
+                          borderRadius: 5,
+                          overflow: 'hidden',
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          transition: 'all 0.4s ease',
+                          boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+                          background: 'linear-gradient(to bottom, #ffffff, #f9f9f9)',
+                          border: '1px solid rgba(0,0,0,0.05)',
+                          opacity: 0.7,
                           '&:hover': {
-                            transform: 'scale(1.05)'
+                            boxShadow: '0 15px 50px rgba(0,0,0,0.15)',
+                            transform: 'translateY(-8px)',
                           }
                         }}
-                      />
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: 16,
-                          right: 16,
-                          background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.light, 0.9)}, ${alpha(theme.palette.secondary.main, 0.85)})`,
-                          color: 'white',
-                          py: 0.7,
-                          px: 2,
-                          borderRadius: 30,
-                          fontSize: '0.875rem',
-                          fontWeight: 600,
-                          backdropFilter: 'blur(4px)',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                        }}
                       >
-                        {dog.age}
-                      </Box>
-                    </Box>
-                    <CardContent sx={{ flexGrow: 1, p: 3.5 }}>
-                      <Box sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'space-between',
-                        mb: 1.5
-                      }}>
-                        <Typography 
-                          variant="h5" 
-                          component="div" 
-                          sx={{ 
-                            fontWeight: 700,
-                            color: theme.palette.primary.dark,
-                            fontSize: '1.5rem'
-                          }}
-                        >
-                          {dog.name}
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 40,
-                            height: 40,
-                            borderRadius: '50%',
-                            background: `linear-gradient(135deg, ${alpha(theme.palette.primary.light, 0.2)}, ${alpha(theme.palette.primary.main, 0.1)})`,
-                          }}
-                        >
-                          <PetsIcon 
+                        {/* Rest of dog card content (unchanged) */}
+                        <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+                          <CardMedia
+                            component="img"
+                            image={dog.image}
+                            alt={dog.name}
+                            height={280}
                             sx={{ 
-                              fontSize: '1.4rem', 
-                              color: theme.palette.primary.main 
-                            }} 
-                          />
-                        </Box>
-                      </Box>
-                      <Typography 
-                        variant="subtitle1" 
-                        sx={{ 
-                          fontWeight: 500, 
-                          mb: 2.5,
-                          color: alpha(theme.palette.text.primary, 0.7),
-                          fontSize: '1.05rem'
-                        }}
-                      >
-                        {dog.breed}
-                      </Typography>
-                      <Typography 
-                        variant="body2" 
-                        paragraph 
-                        sx={{ 
-                          mb: 3,
-                          color: theme.palette.text.secondary,
-                          lineHeight: 1.6
-                        }}
-                      >
-                        {dog.description}
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 'auto', mb: 2 }}>
-                        {dog.tags.map((tag, idx) => (
-                          <Chip
-                            key={idx}
-                            icon={<LocalOfferIcon sx={{ fontSize: '0.85rem' }} />}
-                            label={tag}
-                            size="small"
-                            sx={{ 
-                              bgcolor: alpha(theme.palette.primary.main, 0.08),
-                              color: theme.palette.primary.dark,
-                              fontWeight: 500,
-                              borderRadius: '25px',
-                              px: 0.5,
-                              '& .MuiChip-icon': {
-                                color: theme.palette.primary.main
+                              objectFit: 'cover',
+                              filter: 'grayscale(40%)',
+                              transition: 'transform 0.8s ease',
+                              '&:hover': {
+                                transform: 'scale(1.05)'
                               }
                             }}
                           />
-                        ))}
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 16,
+                              right: 16,
+                              background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.light, 0.9)}, ${alpha(theme.palette.secondary.main, 0.85)})`,
+                              color: 'white',
+                              py: 0.7,
+                              px: 2,
+                              borderRadius: 30,
+                              fontSize: '0.875rem',
+                              fontWeight: 600,
+                              backdropFilter: 'blur(4px)',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                            }}
+                          >
+                            Sample
+                          </Box>
+                        </Box>
+                        <CardContent sx={{ flexGrow: 1, p: 3.5 }}>
+                          <Box sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'space-between',
+                            mb: 1.5
+                          }}>
+                            <Typography 
+                              variant="h5" 
+                              component="div" 
+                              sx={{ 
+                                fontWeight: 700,
+                                color: theme.palette.primary.dark,
+                                fontSize: '1.5rem'
+                              }}
+                            >
+                              {dog.name}
+                            </Typography>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 40,
+                                height: 40,
+                                borderRadius: '50%',
+                                background: `linear-gradient(135deg, ${alpha(theme.palette.primary.light, 0.2)}, ${alpha(theme.palette.primary.main, 0.1)})`,
+                              }}
+                            >
+                              <PetsIcon 
+                                sx={{ 
+                                  fontSize: '1.4rem', 
+                                  color: theme.palette.primary.main 
+                                }} 
+                              />
+                            </Box>
+                          </Box>
+                          <Typography 
+                            variant="subtitle1" 
+                            sx={{ 
+                              fontWeight: 500, 
+                              mb: 2.5,
+                              color: alpha(theme.palette.text.primary, 0.7),
+                              fontSize: '1.05rem'
+                            }}
+                          >
+                            {dog.breed}
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            paragraph 
+                            sx={{ 
+                              mb: 3,
+                              color: theme.palette.text.secondary,
+                              lineHeight: 1.6
+                            }}
+                          >
+                            {dog.description}
+                          </Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 'auto', mb: 2 }}>
+                            {dog.tags.map((tag, idx) => (
+                              <Chip
+                                key={idx}
+                                icon={<LocalOfferIcon sx={{ fontSize: '0.85rem' }} />}
+                                label={tag}
+                                size="small"
+                                sx={{ 
+                                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                  color: theme.palette.primary.dark,
+                                  fontWeight: 500,
+                                  borderRadius: '25px',
+                                  px: 0.5,
+                                  '& .MuiChip-icon': {
+                                    color: theme.palette.primary.main
+                                  }
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        </CardContent>
+                        <CardActions sx={{ p: 3.5, pt: 0 }}>
+                          <Button 
+                            variant="contained" 
+                            fullWidth
+                            disabled
+                            sx={{ 
+                              borderRadius: 30,
+                              py: 1.2,
+                              background: `linear-gradient(90deg, ${theme.palette.grey[500]}, ${theme.palette.grey[700]})`,
+                              fontWeight: 600,
+                              textTransform: 'none',
+                              fontSize: '1rem',
+                            }}
+                          >
+                            Coming Soon
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+            {!isLoadingDogs && !dogsError && dogs.length > 0 && (
+              <Box 
+                sx={{ 
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+                  gap: 5,
+                  mb: 8
+                }}
+              >
+                {dogs.map((dog) => (
+                  <motion.div 
+                    key={dog._id || dog.id} 
+                    variants={cardVariant}
+                    whileHover={{ 
+                      y: -15,
+                      transition: { duration: 0.3 } 
+                    }}
+                  >
+                    <Card 
+                      sx={{ 
+                        borderRadius: 5,
+                        overflow: 'hidden',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        transition: 'all 0.4s ease',
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+                        background: 'linear-gradient(to bottom, #ffffff, #f9f9f9)',
+                        border: '1px solid rgba(0,0,0,0.05)',
+                        '&:hover': {
+                          boxShadow: '0 15px 50px rgba(0,0,0,0.15)',
+                          transform: 'translateY(-8px)',
+                        }
+                      }}
+                    >
+                      <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+                        <CardMedia
+                          component="img"
+                          image={dog.image}
+                          alt={dog.name}
+                          height={280}
+                          sx={{ 
+                            objectFit: 'cover',
+                            transition: 'transform 0.8s ease',
+                            '&:hover': {
+                              transform: 'scale(1.05)'
+                            }
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            top: 16,
+                            right: 16,
+                            background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.light, 0.9)}, ${alpha(theme.palette.secondary.main, 0.85)})`,
+                            color: 'white',
+                            py: 0.7,
+                            px: 2,
+                            borderRadius: 30,
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            backdropFilter: 'blur(4px)',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                          }}
+                        >
+                          {dog.age}
+                        </Box>
                       </Box>
-                    </CardContent>
-                    <CardActions sx={{ p: 3.5, pt: 0 }}>
-                      <Button 
-                        variant="contained" 
-                        fullWidth
-                        component={RouterLink}
-                        to={`/dogs/${dog.id}`}
-                        endIcon={<ArrowForwardIcon />}
-                        sx={{ 
-                          borderRadius: 30,
-                          py: 1.2,
-                          background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                          boxShadow: `0 4px 15px ${alpha(theme.palette.primary.main, 0.3)}`,
-                          fontWeight: 600,
-                          textTransform: 'none',
-                          fontSize: '1rem',
-                          '&:hover': {
-                            background: `linear-gradient(90deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-                            boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.4)}`,
-                          }
-                        }}
-                      >
-                        Meet {dog.name}
-                      </Button>
-                    </CardActions>
-                  </Card>
-                </motion.div>
-              ))}
-            </Box>
+                      <CardContent sx={{ flexGrow: 1, p: 3.5 }}>
+                        <Box sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'space-between',
+                          mb: 1.5
+                        }}>
+                          <Typography 
+                            variant="h5" 
+                            component="div" 
+                            sx={{ 
+                              fontWeight: 700,
+                              color: theme.palette.primary.dark,
+                              fontSize: '1.5rem'
+                            }}
+                          >
+                            {dog.name}
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: 40,
+                              height: 40,
+                              borderRadius: '50%',
+                              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.light, 0.2)}, ${alpha(theme.palette.primary.main, 0.1)})`,
+                            }}
+                          >
+                            <PetsIcon 
+                              sx={{ 
+                                fontSize: '1.4rem', 
+                                color: theme.palette.primary.main 
+                              }} 
+                            />
+                          </Box>
+                        </Box>
+                        <Typography 
+                          variant="subtitle1" 
+                          sx={{ 
+                            fontWeight: 500, 
+                            mb: 2.5,
+                            color: alpha(theme.palette.text.primary, 0.7),
+                            fontSize: '1.05rem'
+                          }}
+                        >
+                          {dog.breed}
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          paragraph 
+                          sx={{ 
+                            mb: 3,
+                            color: theme.palette.text.secondary,
+                            lineHeight: 1.6
+                          }}
+                        >
+                          {dog.description}
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 'auto', mb: 2 }}>
+                          {dog.tags.map((tag, idx) => (
+                            <Chip
+                              key={idx}
+                              icon={<LocalOfferIcon sx={{ fontSize: '0.85rem' }} />}
+                              label={tag}
+                              size="small"
+                              sx={{ 
+                                bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                color: theme.palette.primary.dark,
+                                fontWeight: 500,
+                                borderRadius: '25px',
+                                px: 0.5,
+                                '& .MuiChip-icon': {
+                                  color: theme.palette.primary.main
+                                }
+                              }}
+                            />
+                          ))}
+                        </Box>
+                      </CardContent>
+                      <CardActions sx={{ p: 3.5, pt: 0 }}>
+                        <Button 
+                          variant="contained" 
+                          fullWidth
+                          component={RouterLink}
+                          to={`/dogs/${dog._id || dog.id}`}
+                          endIcon={<ArrowForwardIcon />}
+                          sx={{ 
+                            borderRadius: 30,
+                            py: 1.2,
+                            background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                            boxShadow: `0 4px 15px ${alpha(theme.palette.primary.main, 0.3)}`,
+                            fontWeight: 600,
+                            textTransform: 'none',
+                            fontSize: '1rem',
+                            '&:hover': {
+                              background: `linear-gradient(90deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+                              boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.4)}`,
+                            }
+                          }}
+                        >
+                          Meet {dog.name}
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  </motion.div>
+                ))}
+              </Box>
+            )}
 
             <Box sx={{ textAlign: 'center' }}>
               <motion.div
