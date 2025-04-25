@@ -16,34 +16,34 @@ import AdminPage from './pages/AdminPage';
 
 function App() {
   return (
-    <Layout>
+    <>
+      {/* Admin route rendered outside of main layout */}
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="*" element={
-          <Box 
-            sx={{ 
-              width: '100%',
-              height: '100%',
-              margin: 0,
-              padding: 0,
-              overflow: 'hidden'
-            }}
-          >
-            <Routes>
-              <Route path="/dogs" element={<DogsPage />} />
-              <Route path="/dogs/:id" element={<DogDetailPage />} />
-              <Route path="/volunteer" element={<VolunteerPage />} />
-              <Route path="/donate" element={<DonatePage />} />
-              <Route path="/resources" element={<ResourcesPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Box>
-        } />
+        <Route path="/admin" element={<AdminPage />} />
       </Routes>
-    </Layout>
+      
+      {/* Non-admin routes with the standard layout */}
+      <Routes>
+        <Route 
+          path="*" 
+          element={
+            <Layout>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/dogs" element={<DogsPage />} />
+                <Route path="/dogs/:id" element={<DogDetailPage />} />
+                <Route path="/volunteer" element={<VolunteerPage />} />
+                <Route path="/donate" element={<DonatePage />} />
+                <Route path="/resources" element={<ResourcesPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Layout>
+          } 
+        />
+      </Routes>
+    </>
   );
 }
 
