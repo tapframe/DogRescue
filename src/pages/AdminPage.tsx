@@ -75,6 +75,13 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
     pendingApplications: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [recentActivity, setRecentActivity] = useState<Array<{
+    id: number | string;
+    action: string;
+    subject: string;
+    timestamp: string;
+    icon: React.ReactNode;
+  }>>([]);
 
   // Fetch dashboard data
   useEffect(() => {
@@ -97,9 +104,70 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
           totalVolunteers: volunteersData.length,
           pendingApplications,
         });
+
+        // Generate actual activity data from the API data
+        const activityItems: Array<{
+          id: number | string;
+          action: string;
+          subject: string;
+          timestamp: string;
+          icon: React.ReactNode;
+        }> = [];
+        
+        // Add most recent dogs (up to 2)
+        const sortedDogs = [...dogsData].sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : Date.now();
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : Date.now();
+          return dateB - dateA;
+        }).slice(0, 2);
+        
+        sortedDogs.forEach((dog, index) => {
+          activityItems.push({
+            id: dog._id || dog.id || `dog-${index}`,
+            action: dog.status === 'adopted' ? 'Dog Adopted' : 'Dog Added',
+            subject: dog.name,
+            timestamp: formatTimeAgo(dog.createdAt || new Date().toISOString()),
+            icon: dog.status === 'adopted' ? <ParkIcon /> : <PetsIcon />
+          });
+        });
+        
+        // Add most recent volunteers (up to 2)
+        const sortedVolunteers = [...volunteersData].sort((a, b) => {
+          const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : Date.now();
+          const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : Date.now();
+          return dateB - dateA;
+        }).slice(0, 2);
+        
+        sortedVolunteers.forEach((volunteer, index) => {
+          activityItems.push({
+            id: volunteer._id || volunteer.id || `volunteer-${index}`,
+            action: volunteer.status === 'approved' ? 'Volunteer Approved' : 'Volunteer Application',
+            subject: volunteer.name,
+            timestamp: formatTimeAgo(volunteer.submittedAt || new Date().toISOString()),
+            icon: <VolunteerActivismIcon />
+          });
+        });
+        
+        // Sort all activities by timestamp (most recent first)
+        const sortedActivity = activityItems.sort((a, b) => {
+          // Extract time information from the "X time ago" format
+          const aTime = parseTimeAgo(a.timestamp);
+          const bTime = parseTimeAgo(b.timestamp);
+          return aTime - bTime;
+        });
+        
+        setRecentActivity(sortedActivity);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         showNotification('Failed to load dashboard data', 'error');
+        
+        // Fallback to mock data if API fails
+        setRecentActivity([
+          { id: 1, action: 'Dog Added', subject: 'Buddy', timestamp: '2 hours ago', icon: <PetsIcon /> },
+          { id: 2, action: 'Volunteer Approved', subject: 'John Doe', timestamp: '1 day ago', icon: <VolunteerActivismIcon /> },
+          { id: 3, action: 'Dog Adopted', subject: 'Max', timestamp: '3 days ago', icon: <ParkIcon /> },
+          { id: 4, action: 'Volunteer Application', subject: 'Sarah Wilson', timestamp: '5 days ago', icon: <PersonAddAltIcon /> },
+        ]);
       } finally {
         setLoading(false);
       }
@@ -107,13 +175,63 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
 
     fetchDashboardData();
   }, [showNotification]);
+  
+  // Helper function to format timestamps as "X time ago"
+  const formatTimeAgo = (timestamp: string): string => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    // Time intervals in seconds
+    const intervals = {
+      year: 31536000,
+      month: 2592000,
+      week: 604800,
+      day: 86400,
+      hour: 3600,
+      minute: 60
+    };
+    
+    if (seconds < intervals.minute) {
+      return 'just now';
+    }
+    
+    let counter;
+    for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+      counter = Math.floor(seconds / secondsInUnit);
+      if (counter > 0) {
+        return `${counter} ${unit}${counter === 1 ? '' : 's'} ago`;
+      }
+    }
+    
+    return 'just now';
+  };
+  
+  // Helper function to parse "X time ago" format back to milliseconds (for sorting)
+  const parseTimeAgo = (timeAgo: string): number => {
+    if (timeAgo === 'just now') return 0;
+    
+    const matches = timeAgo.match(/^(\d+)\s+(\w+)s?\s+ago$/);
+    if (!matches) return Number.MAX_SAFE_INTEGER;
+    
+    const amount = parseInt(matches[1], 10);
+    const unit = matches[2];
+    
+    const unitToSeconds = {
+      'minute': 60,
+      'hour': 3600,
+      'day': 86400,
+      'week': 604800,
+      'month': 2592000,
+      'year': 31536000
+    };
+    
+    return (unitToSeconds[unit as keyof typeof unitToSeconds] || 0) * amount;
+  };
 
-  // Recent activity data (mock data)
-  const recentActivity = [
-    { id: 1, action: 'Dog Added', subject: 'Buddy', timestamp: '2 hours ago', icon: <PetsIcon /> },
-    { id: 2, action: 'Volunteer Approved', subject: 'John Doe', timestamp: '1 day ago', icon: <VolunteerActivismIcon /> },
-    { id: 3, action: 'Dog Adopted', subject: 'Max', timestamp: '3 days ago', icon: <ParkIcon /> },
-    { id: 4, action: 'Volunteer Application', subject: 'Sarah Wilson', timestamp: '5 days ago', icon: <PersonAddAltIcon /> },
+  // Recent activity data (actual data loaded from API)
+  const displayedActivity = recentActivity.length > 0 ? recentActivity.slice(0, 4) : [
+    { id: 1, action: 'Loading...', subject: '', timestamp: '', icon: <RefreshIcon /> }
   ];
 
   return (
@@ -435,7 +553,7 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
               <Divider sx={{ mb: 2 }} />
               
               <Stack spacing={2} divider={<Divider />}>
-                {recentActivity.map((activity) => (
+                {displayedActivity.map((activity) => (
                   <Box key={activity.id} sx={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar
                       sx={{

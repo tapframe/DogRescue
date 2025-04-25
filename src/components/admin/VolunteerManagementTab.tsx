@@ -34,8 +34,7 @@ import {
   Divider,
   Stack,
   Tooltip,
-  Avatar,
-  alpha
+  Avatar
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -142,7 +141,7 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
     const filtered = volunteers.filter(volunteer => 
       volunteer.name.toLowerCase().includes(volunteerSearchTerm.toLowerCase()) ||
       volunteer.email.toLowerCase().includes(volunteerSearchTerm.toLowerCase()) ||
-      volunteer.volunteerType.toLowerCase().includes(volunteerSearchTerm.toLowerCase())
+      (volunteer.volunteerType?.toLowerCase() || '').includes(volunteerSearchTerm.toLowerCase())
     );
     
     setVolunteers(filtered);
@@ -293,7 +292,7 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
   };
 
   // Handle volunteer pagination change
-  const handleVolunteerChangePage = (event: unknown, newPage: number) => {
+  const handleVolunteerChangePage = (_: unknown, newPage: number) => {
     setVolunteerPage(newPage);
   };
 
@@ -508,61 +507,56 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                     <TableRow key={volunteer._id || volunteer.id} hover>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Avatar 
-                            sx={{ 
-                              bgcolor: (theme) => 
-                                volunteer.status === 'approved' 
-                                  ? alpha(theme.palette.success.main, 0.1)
-                                  : volunteer.status === 'rejected'
-                                  ? alpha(theme.palette.error.main, 0.1)
-                                  : alpha(theme.palette.warning.main, 0.1),
-                              color: (theme) => 
-                                volunteer.status === 'approved' 
-                                  ? theme.palette.success.main
-                                  : volunteer.status === 'rejected'
-                                  ? theme.palette.error.main 
-                                  : theme.palette.warning.main,
-                              width: 40,
-                              height: 40,
-                              marginRight: 1.5
+                          <Avatar
+                            sx={{
+                              bgcolor: volunteer.status === 'approved' ? 'success.light' : volunteer.status === 'rejected' ? 'error.light' : 'warning.light',
+                              color: volunteer.status === 'approved' ? 'success.dark' : volunteer.status === 'rejected' ? 'error.dark' : 'warning.dark',
+                              width: 35,
+                              height: 35,
+                              mr: 2
                             }}
                           >
-                            <PersonIcon />
+                            {volunteer.name.charAt(0).toUpperCase()}
                           </Avatar>
                           <Box>
                             <Typography variant="body1" fontWeight="medium">
                               {volunteer.name}
                             </Typography>
                             <Typography variant="caption" color="textSecondary">
-                              ID: {volunteer._id || volunteer.id}
+                              ID: {volunteer._id || volunteer.id?.toString()}
                             </Typography>
                           </Box>
                         </Box>
                       </TableCell>
                       <TableCell>
                         <Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <EmailIcon fontSize="small" sx={{ mr: 0.5, opacity: 0.7 }} />
-                            <Typography variant="body2">{volunteer.email}</Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                            <PhoneIcon fontSize="small" sx={{ mr: 0.5, opacity: 0.7 }} />
-                            <Typography variant="body2">{volunteer.phone}</Typography>
-                          </Box>
+                          <Typography variant="body2">
+                            <EmailIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'text-bottom', fontSize: 16 }} />
+                            {volunteer.email}
+                          </Typography>
+                          <Typography variant="body2">
+                            <PhoneIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'text-bottom', fontSize: 16 }} />
+                            {volunteer.phone}
+                          </Typography>
                         </Box>
                       </TableCell>
                       <TableCell>
                         <Chip 
-                          label={volunteer.volunteerType} 
+                          label={volunteer.volunteerType || 'Not specified'} 
                           size="small"
-                          color="primary"
+                          color={
+                            volunteer.volunteerType === 'Dog Walker' ? 'primary' :
+                            volunteer.volunteerType === 'Foster Parent' ? 'secondary' :
+                            volunteer.volunteerType === 'Event Helper' ? 'info' :
+                            volunteer.volunteerType === 'Kennel Assistant' ? 'success' : 'default'
+                          }
                           sx={{ borderRadius: 1, fontWeight: 500 }}
                         />
                       </TableCell>
-                      <TableCell>{volunteer.availability}</TableCell>
+                      <TableCell>{volunteer.availability || 'Not specified'}</TableCell>
                       <TableCell>
                         <Chip 
-                          label={volunteer.status.charAt(0).toUpperCase() + volunteer.status.slice(1)} 
+                          label={volunteer.status || 'pending'} 
                           size="small"
                           color={
                             volunteer.status === 'approved' ? 'success' :
@@ -572,7 +566,9 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                         />
                       </TableCell>
                       <TableCell>
-                        {new Date(volunteer.submittedAt).toLocaleDateString()}
+                        {volunteer.submittedAt ? 
+                          new Date(volunteer.submittedAt).toLocaleDateString() : 
+                          'Unknown date'}
                       </TableCell>
                       <TableCell align="right">
                         {volunteer.status === 'pending' && (

@@ -21,6 +21,7 @@ export interface DogData {
   description: string;
   tags: string[];
   status?: 'available' | 'adopted' | 'fostered' | 'pending';
+  createdAt?: string;
 }
 
 export interface VolunteerData {
@@ -29,12 +30,16 @@ export interface VolunteerData {
   name: string;
   email: string;
   phone: string;
-  volunteerType: string;
-  availability: string;
-  experience: string;
-  message: string;
-  status: 'pending' | 'approved' | 'rejected';
-  submittedAt: string;
+  volunteerType?: string;
+  availability?: string;
+  experience?: string;
+  message?: string;
+  status?: 'pending' | 'approved' | 'rejected';
+  submittedAt?: string;
+  role?: 'admin' | 'volunteer';
+  address?: string;
+  avatar?: string;
+  createdAt?: string;
 }
 
 // Define Mock dogsData here for fallback
