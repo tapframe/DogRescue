@@ -32,8 +32,7 @@ const navItems = [
   { name: 'Dogs', path: '/dogs' },
   { name: 'Volunteer', path: '/volunteer' },
   { name: 'Resources', path: '/resources' },
-  { name: 'Contact', path: '/contact' },
-  { name: 'Admin', path: '/admin' }
+  { name: 'Contact', path: '/contact' }
 ];
 
 const MotionBox = motion(Box);
