@@ -1,15 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Snackbar,
-  Alert
+  Alert,
+  GridLegacy as Grid,
+  Paper,
+  Typography,
+  Card,
+  CardContent,
+  Divider,
+  Button,
+  IconButton,
+  Avatar,
+  alpha,
+  Chip,
+  Stack,
+  useTheme
 } from '@mui/material';
+
+// Icons
+import PetsIcon from '@mui/icons-material/Pets';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import AddIcon from '@mui/icons-material/Add';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import ParkIcon from '@mui/icons-material/Park';
 
 // Components
 import AdminPageLayout from '../components/admin/AdminPageLayout';
 import DogManagementTab from '../components/admin/DogManagementTab';
 import VolunteerManagementTab from '../components/admin/VolunteerManagementTab';
 import { AdminThemeProvider } from '../contexts/AdminThemeContext';
+
+// Mock data and API
+import { dogApi, volunteerApi } from '../services/api';
 
 // Tab Panel component
 interface TabPanelProps {
@@ -38,9 +65,411 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
+// Dashboard component
+const Dashboard = ({ showNotification }: { showNotification: (message: string, severity: 'success' | 'error') => void }) => {
+  const theme = useTheme();
+  const [stats, setStats] = useState({
+    totalDogs: 0,
+    adoptedDogs: 0,
+    totalVolunteers: 0,
+    pendingApplications: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        // Fetch dogs data
+        const dogsData = await dogApi.getAllDogs();
+        
+        // Fetch volunteers data
+        const volunteersData = await volunteerApi.getAllVolunteers();
+        
+        // Calculate statistics
+        const adoptedDogs = dogsData.filter(dog => dog.status === 'adopted').length;
+        const pendingApplications = volunteersData.filter(vol => vol.status === 'pending').length;
+        
+        setStats({
+          totalDogs: dogsData.length,
+          adoptedDogs,
+          totalVolunteers: volunteersData.length,
+          pendingApplications,
+        });
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        showNotification('Failed to load dashboard data', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [showNotification]);
+
+  // Recent activity data (mock data)
+  const recentActivity = [
+    { id: 1, action: 'Dog Added', subject: 'Buddy', timestamp: '2 hours ago', icon: <PetsIcon /> },
+    { id: 2, action: 'Volunteer Approved', subject: 'John Doe', timestamp: '1 day ago', icon: <VolunteerActivismIcon /> },
+    { id: 3, action: 'Dog Adopted', subject: 'Max', timestamp: '3 days ago', icon: <ParkIcon /> },
+    { id: 4, action: 'Volunteer Application', subject: 'Sarah Wilson', timestamp: '5 days ago', icon: <PersonAddAltIcon /> },
+  ];
+
+  return (
+    <Box>
+      {/* Stats Overview */}
+      <Grid container spacing={3}>
+        {/* Total Dogs */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card elevation={0} sx={{ height: '100%', borderRadius: 3, position: 'relative', overflow: 'visible' }}>
+            <CardContent sx={{ p: 3, pb: 3 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                mb: 2 
+              }}>
+                <Avatar 
+                  sx={{ 
+                    bgcolor: alpha(theme.palette.primary.main, 0.15), 
+                    color: theme.palette.primary.main,
+                    width: 48,
+                    height: 48,
+                    borderRadius: 2,
+                  }}
+                >
+                  <PetsIcon />
+                </Avatar>
+                <IconButton 
+                  size="small" 
+                  sx={{ 
+                    position: 'absolute', 
+                    top: 12, 
+                    right: 12,
+                    color: 'text.secondary',
+                  }}
+                >
+                  <MoreHorizIcon fontSize="small" />
+                </IconButton>
+              </Box>
+              
+              <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5 }}>
+                {loading ? '...' : stats.totalDogs}
+              </Typography>
+              
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                Total Dogs
+              </Typography>
+              
+              <Chip 
+                size="small" 
+                icon={<TrendingUpIcon fontSize="small" />} 
+                label="12% Increase" 
+                sx={{ 
+                  mt: 1, 
+                  bgcolor: alpha(theme.palette.success.main, 0.1), 
+                  color: theme.palette.success.main,
+                  fontWeight: 500,
+                  borderRadius: 1,
+                }} 
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        {/* Adopted Dogs */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card elevation={0} sx={{ height: '100%', borderRadius: 3, position: 'relative', overflow: 'visible' }}>
+            <CardContent sx={{ p: 3, pb: 3 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                mb: 2 
+              }}>
+                <Avatar 
+                  sx={{ 
+                    bgcolor: alpha(theme.palette.success.main, 0.15), 
+                    color: theme.palette.success.main,
+                    width: 48,
+                    height: 48,
+                    borderRadius: 2,
+                  }}
+                >
+                  <ParkIcon />
+                </Avatar>
+                <IconButton 
+                  size="small" 
+                  sx={{ 
+                    position: 'absolute', 
+                    top: 12, 
+                    right: 12,
+                    color: 'text.secondary',
+                  }}
+                >
+                  <MoreHorizIcon fontSize="small" />
+                </IconButton>
+              </Box>
+              
+              <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5 }}>
+                {loading ? '...' : stats.adoptedDogs}
+              </Typography>
+              
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                Adopted Dogs
+              </Typography>
+              
+              <Chip 
+                size="small" 
+                icon={<TrendingUpIcon fontSize="small" />} 
+                label="8% Increase" 
+                sx={{ 
+                  mt: 1, 
+                  bgcolor: alpha(theme.palette.success.main, 0.1), 
+                  color: theme.palette.success.main,
+                  fontWeight: 500,
+                  borderRadius: 1,
+                }} 
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        {/* Total Volunteers */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card elevation={0} sx={{ height: '100%', borderRadius: 3, position: 'relative', overflow: 'visible' }}>
+            <CardContent sx={{ p: 3, pb: 3 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                mb: 2 
+              }}>
+                <Avatar 
+                  sx={{ 
+                    bgcolor: alpha(theme.palette.info.main, 0.15), 
+                    color: theme.palette.info.main,
+                    width: 48,
+                    height: 48,
+                    borderRadius: 2,
+                  }}
+                >
+                  <VolunteerActivismIcon />
+                </Avatar>
+                <IconButton 
+                  size="small" 
+                  sx={{ 
+                    position: 'absolute', 
+                    top: 12, 
+                    right: 12,
+                    color: 'text.secondary',
+                  }}
+                >
+                  <MoreHorizIcon fontSize="small" />
+                </IconButton>
+              </Box>
+              
+              <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5 }}>
+                {loading ? '...' : stats.totalVolunteers}
+              </Typography>
+              
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                Total Volunteers
+              </Typography>
+              
+              <Chip 
+                size="small" 
+                icon={<TrendingUpIcon fontSize="small" />} 
+                label="15% Increase" 
+                sx={{ 
+                  mt: 1, 
+                  bgcolor: alpha(theme.palette.success.main, 0.1), 
+                  color: theme.palette.success.main,
+                  fontWeight: 500,
+                  borderRadius: 1,
+                }} 
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        {/* Pending Applications */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card elevation={0} sx={{ height: '100%', borderRadius: 3, position: 'relative', overflow: 'visible' }}>
+            <CardContent sx={{ p: 3, pb: 3 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                mb: 2 
+              }}>
+                <Avatar 
+                  sx={{ 
+                    bgcolor: alpha(theme.palette.warning.main, 0.15), 
+                    color: theme.palette.warning.main,
+                    width: 48,
+                    height: 48,
+                    borderRadius: 2,
+                  }}
+                >
+                  <PersonAddAltIcon />
+                </Avatar>
+                <IconButton 
+                  size="small" 
+                  sx={{ 
+                    position: 'absolute', 
+                    top: 12, 
+                    right: 12,
+                    color: 'text.secondary',
+                  }}
+                >
+                  <MoreHorizIcon fontSize="small" />
+                </IconButton>
+              </Box>
+              
+              <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5 }}>
+                {loading ? '...' : stats.pendingApplications}
+              </Typography>
+              
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                Pending Applications
+              </Typography>
+              
+              <Chip 
+                size="small" 
+                icon={<TrendingDownIcon fontSize="small" />} 
+                label="3% Decrease" 
+                sx={{ 
+                  mt: 1, 
+                  bgcolor: alpha(theme.palette.error.main, 0.1), 
+                  color: theme.palette.error.main,
+                  fontWeight: 500,
+                  borderRadius: 1,
+                }} 
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Quick Actions and Recent Activity */}
+      <Grid container spacing={3} sx={{ mt: 0.5 }}>
+        {/* Quick Actions */}
+        <Grid item xs={12} md={5}>
+          <Card elevation={0} sx={{ borderRadius: 3, height: '100%' }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" fontWeight="600">
+                  Quick Actions
+                </Typography>
+                <IconButton size="small">
+                  <RefreshIcon fontSize="small" />
+                </IconButton>
+              </Box>
+              
+              <Divider sx={{ mb: 2 }} />
+              
+              <Stack spacing={2}>
+                <Button 
+                  variant="contained" 
+                  startIcon={<AddIcon />} 
+                  fullWidth 
+                  sx={{ 
+                    py: 1.5, 
+                    borderRadius: 2,
+                    backgroundColor: theme.palette.primary.main,
+                  }}
+                >
+                  Add New Dog
+                </Button>
+                
+                <Button 
+                  variant="outlined" 
+                  startIcon={<PersonAddAltIcon />} 
+                  fullWidth 
+                  sx={{ 
+                    py: 1.5, 
+                    borderRadius: 2,
+                    borderColor: theme.palette.primary.main,
+                    color: theme.palette.primary.main,
+                  }}
+                >
+                  Add New Volunteer
+                </Button>
+                
+                <Button 
+                  variant="outlined" 
+                  startIcon={<VolunteerActivismIcon />} 
+                  fullWidth 
+                  sx={{ 
+                    py: 1.5, 
+                    borderRadius: 2,
+                    borderColor: theme.palette.secondary.main,
+                    color: theme.palette.secondary.main,
+                  }}
+                >
+                  Review Applications
+                </Button>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        {/* Recent Activity */}
+        <Grid item xs={12} md={7}>
+          <Card elevation={0} sx={{ borderRadius: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" fontWeight="600">
+                  Recent Activity
+                </Typography>
+                <Button 
+                  variant="text" 
+                  size="small" 
+                  sx={{ 
+                    color: theme.palette.primary.main,
+                    fontWeight: 600
+                  }}
+                >
+                  View All
+                </Button>
+              </Box>
+              
+              <Divider sx={{ mb: 2 }} />
+              
+              <Stack spacing={2} divider={<Divider />}>
+                {recentActivity.map((activity) => (
+                  <Box key={activity.id} sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Avatar
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        color: theme.palette.primary.main,
+                        borderRadius: 2,
+                      }}
+                    >
+                      {activity.icon}
+                    </Avatar>
+                    <Box sx={{ ml: 2 }}>
+                      <Typography variant="body2" fontWeight="medium">
+                        {activity.action}: <Box component="span" sx={{ color: theme.palette.primary.main }}>{activity.subject}</Box>
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {activity.timestamp}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+};
+
 const AdminPage = () => {
   // Tab state
-  const [tabValue, setTabValue] = useState(0);
+  const [tabValue, setTabValue] = useState(-1);
   
   // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -83,6 +512,11 @@ const AdminPage = () => {
         currentTab={tabValue}
         onTabChange={handleTabChange}
       >
+        {/* Dashboard */}
+        <TabPanel value={tabValue} index={-1}>
+          <Dashboard showNotification={showNotification} />
+        </TabPanel>
+        
         {/* Dogs Tab */}
         <TabPanel value={tabValue} index={0}>
           <DogManagementTab showNotification={showNotification} />
@@ -98,8 +532,17 @@ const AdminPage = () => {
           open={snackbarOpen}
           autoHideDuration={6000}
           onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         >
-          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          <Alert 
+            onClose={handleSnackbarClose} 
+            severity={snackbarSeverity}
+            sx={{ 
+              width: '100%',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              borderRadius: 2
+            }}
+          >
             {snackbarMessage}
           </Alert>
         </Snackbar>

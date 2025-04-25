@@ -21,9 +21,12 @@ import {
   CssBaseline,
   alpha,
   Switch,
-  FormGroup,
-  FormControlLabel,
-  Tooltip
+  Tooltip,
+  Menu,
+  MenuItem,
+  Card,
+  CardContent,
+  Stack
 } from '@mui/material';
 import PetsIcon from '@mui/icons-material/Pets';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
@@ -35,6 +38,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useAdminTheme } from '../../hooks/useAdminTheme';
 
 interface AdminPageLayoutProps {
@@ -58,6 +65,15 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
   const [mobileOpen, setMobileOpen] = useState(false);
   const { mode, toggleColorMode } = useAdminTheme();
   const isDarkMode = mode === 'dark';
+  
+  // Menu states
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState<null | HTMLElement>(null);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [moreMenuAnchorEl, setMoreMenuAnchorEl] = useState<null | HTMLElement>(null);
+  
+  const isNotificationMenuOpen = Boolean(notificationAnchorEl);
+  const isUserMenuOpen = Boolean(userMenuAnchorEl);
+  const isMoreMenuOpen = Boolean(moreMenuAnchorEl);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -75,9 +91,35 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
   const handleThemeToggle = () => {
     toggleColorMode();
   };
+  
+  // Handle menu opens
+  const handleNotificationMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationAnchorEl(event.currentTarget);
+  };
+  
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchorEl(event.currentTarget);
+  };
+  
+  const handleMoreMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMoreMenuAnchorEl(event.currentTarget);
+  };
+  
+  // Handle menu closes
+  const handleNotificationMenuClose = () => {
+    setNotificationAnchorEl(null);
+  };
+  
+  const handleUserMenuClose = () => {
+    setUserMenuAnchorEl(null);
+  };
+  
+  const handleMoreMenuClose = () => {
+    setMoreMenuAnchorEl(null);
+  };
 
   const menuItems = [
-    { name: 'Overview', icon: <DashboardIcon />, index: -1 },
+    { name: 'Dashboard', icon: <DashboardIcon />, index: -1 },
     { name: 'Dog Management', icon: <PetsIcon />, index: 0 },
     { name: 'Volunteer Management', icon: <VolunteerActivismIcon />, index: 1 },
   ];
@@ -90,27 +132,45 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
     }}>
       {/* Brand Header */}
       <Box sx={{ 
-        p: 3,
+        px: 3,
+        py: 2.5,
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'flex-start',
-        borderBottom: '1px solid',
-        borderColor: 'divider'
       }}>
-        <PetsIcon sx={{ color: 'primary.main', fontSize: 32, mr: 1 }} />
-        <Typography variant="h6" fontWeight="bold" color="primary">
-          Dog Rescue
-        </Typography>
-        <Typography variant="subtitle2" sx={{ ml: 1, opacity: 0.7 }}>
-          Admin
-        </Typography>
+        <Avatar 
+          sx={{ 
+            bgcolor: alpha(theme.palette.primary.main, 0.9), 
+            width: 40, 
+            height: 40, 
+            borderRadius: 2,
+            mr: 1.5,
+            boxShadow: '0 4px 12px rgba(63, 81, 181, 0.15)'
+          }}
+        >
+          <PetsIcon sx={{ fontSize: 24 }} />
+        </Avatar>
+        <Box>
+          <Typography variant="h6" fontWeight="bold" color="primary.main">
+            Dog Rescue
+          </Typography>
+          <Typography variant="caption" sx={{ opacity: 0.7 }}>
+            Admin Portal
+          </Typography>
+        </Box>
       </Box>
       
+      <Divider sx={{ mt: 1, opacity: 0.6 }} />
+      
       {/* Navigation */}
-      <Box sx={{ flexGrow: 1, mt: 2, overflow: 'auto' }}>
-        <List component="nav" sx={{ px: 2 }}>
+      <Box sx={{ flexGrow: 1, mt: 2, overflow: 'auto', px: 2 }}>
+        <Typography variant="overline" sx={{ px: 1, color: 'text.secondary', fontWeight: 600, letterSpacing: 1 }}>
+          MAIN MENU
+        </Typography>
+        
+        <List component="nav" sx={{ mt: 1 }}>
           {menuItems.map((item) => (
-            <ListItem key={item.name} disablePadding sx={{ mb: 1 }}>
+            <ListItem key={item.name} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 selected={currentTab === item.index}
                 onClick={() => handleNavClick(item.index)}
@@ -118,27 +178,31 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
                   borderRadius: 2,
                   py: 1.2,
                   '&.Mui-selected': {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.12),
-                    color: 'primary.main',
+                    backgroundColor: theme.palette.primary.main,
+                    color: 'white',
                     '& .MuiListItemIcon-root': {
-                      color: 'primary.main',
+                      color: 'white',
                     },
                     '&:hover': {
-                      backgroundColor: alpha(theme.palette.primary.main, 0.18),
+                      backgroundColor: theme.palette.primary.dark,
                     }
                   },
                   '&:hover': {
-                    backgroundColor: alpha(theme.palette.primary.light, 0.08),
+                    backgroundColor: alpha(theme.palette.primary.light, 0.1),
                   }
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 40 }}>
+                <ListItemIcon sx={{ 
+                  minWidth: 40,
+                  color: currentTab === item.index ? 'white' : theme.palette.primary.main,
+                }}>
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText 
                   primary={item.name} 
                   primaryTypographyProps={{ 
-                    fontWeight: currentTab === item.index ? 'medium' : 'normal'
+                    fontWeight: currentTab === item.index ? 600 : 500,
+                    fontSize: '0.95rem'
                   }} 
                 />
               </ListItemButton>
@@ -146,32 +210,63 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
           ))}
         </List>
 
+        <Typography variant="overline" sx={{ px: 1, mt: 4, pt: 2, display: 'block', color: 'text.secondary', fontWeight: 600, letterSpacing: 1 }}>
+          SETTINGS
+        </Typography>
+        
+        <List sx={{ mt: 1 }}>
+          <ListItem disablePadding sx={{ mb: 0.5 }}>
+            <ListItemButton
+              sx={{
+                borderRadius: 2,
+                py: 1.2,
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.light, 0.1),
+                }
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText 
+                primary="Preferences" 
+                primaryTypographyProps={{ fontSize: '0.95rem', fontWeight: 500 }} 
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
+
         {/* Theme Switcher */}
-        <Box sx={{ px: 2, mt: 2 }}>
-          <Paper
+        <Box sx={{ px: 1, mt: 2 }}>
+          <Card
             elevation={0}
             sx={{
-              p: 1.5,
               borderRadius: 2,
-              bgcolor: alpha(theme.palette.primary.main, 0.04),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
+              bgcolor: alpha(theme.palette.primary.main, 0.05),
+              overflow: 'hidden',
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {isDarkMode ? <Brightness4Icon color="primary" /> : <Brightness7Icon color="primary" />}
-              <Typography variant="body2" sx={{ ml: 1.5, fontWeight: 'medium' }}>
-                {isDarkMode ? 'Dark Mode' : 'Light Mode'}
-              </Typography>
-            </Box>
-            <Switch
-              checked={isDarkMode}
-              onChange={handleThemeToggle}
-              size="small"
-              color="primary"
-            />
-          </Paper>
+            <CardContent sx={{ p: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {isDarkMode ? 
+                    <Brightness4Icon color="primary" sx={{ fontSize: 20 }} /> : 
+                    <Brightness7Icon color="primary" sx={{ fontSize: 20 }} />
+                  }
+                  <Typography variant="body2" sx={{ ml: 1.5, fontWeight: 'medium' }}>
+                    {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+                  </Typography>
+                </Box>
+                <Switch
+                  checked={isDarkMode}
+                  onChange={handleThemeToggle}
+                  size="small"
+                  color="primary"
+                />
+              </Box>
+            </CardContent>
+          </Card>
         </Box>
       </Box>
       
@@ -185,29 +280,28 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
         <Box sx={{ 
           p: 2, 
           borderRadius: 2, 
-          bgcolor: alpha(theme.palette.primary.main, 0.04),
+          bgcolor: isDarkMode ? alpha(theme.palette.background.paper, 0.4) : alpha(theme.palette.primary.main, 0.04),
           display: 'flex',
-          alignItems: 'center'
-        }}>
+          alignItems: 'center',
+          cursor: 'pointer',
+          '&:hover': {
+            bgcolor: isDarkMode ? alpha(theme.palette.background.paper, 0.6) : alpha(theme.palette.primary.main, 0.08),
+          }
+        }}
+        onClick={handleUserMenuOpen}
+        >
           <Avatar sx={{ 
             width: 40, 
             height: 40, 
-            bgcolor: 'primary.main'
+            bgcolor: theme.palette.primary.main
           }}>
             <PersonIcon />
           </Avatar>
-          <Box sx={{ ml: 1.5 }}>
-            <Typography variant="subtitle2" fontWeight="medium">Admin User</Typography>
-            <Typography variant="caption" color="textSecondary">admin@example.com</Typography>
+          <Box sx={{ ml: 1.5, overflow: 'hidden' }}>
+            <Typography variant="subtitle2" fontWeight="medium" noWrap>Admin User</Typography>
+            <Typography variant="caption" color="textSecondary" noWrap>admin@example.com</Typography>
           </Box>
-          <Box sx={{ ml: 'auto' }}>
-            <IconButton size="small">
-              <SettingsIcon fontSize="small" />
-            </IconButton>
-            <IconButton size="small" color="inherit" sx={{ ml: 0.5 }}>
-              <LogoutIcon fontSize="small" />
-            </IconButton>
-          </Box>
+          <KeyboardArrowDownIcon sx={{ ml: 'auto', fontSize: 20, color: 'text.secondary' }} />
         </Box>
       </Box>
     </Box>
@@ -228,6 +322,7 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
           bgcolor: 'background.paper',
           borderBottom: '1px solid',
           borderColor: 'divider',
+          backdropFilter: 'blur(8px)',
           zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
@@ -241,148 +336,329 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ 
-            flexGrow: 1,
-            color: 'text.primary',
-            fontWeight: 'medium'
-          }}>
-            {title}
-          </Typography>
           
-          {/* Mode toggle for mobile */}
-          <Tooltip title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h6" noWrap component="div" sx={{ 
+              color: 'text.primary',
+              fontWeight: 600
+            }}>
+              {title}
+            </Typography>
+          </Box>
+          
+          <Box sx={{ flexGrow: 1 }} />
+          
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Tooltip title="Help">
+              <IconButton 
+                size="large"
+                color="inherit"
+                sx={{ 
+                  ml: 1, 
+                  bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
+                  '&:hover': {
+                    bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
+                  }
+                }}
+              >
+                <HelpOutlineIcon />
+              </IconButton>
+            </Tooltip>
+            
+            <Tooltip title="Notifications">
+              <IconButton
+                size="large"
+                color="inherit"
+                onClick={handleNotificationMenuOpen}
+                sx={{ 
+                  ml: 1, 
+                  bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
+                  '&:hover': {
+                    bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
+                  }
+                }}
+              >
+                <Badge badgeContent={3} color="error">
+                  <NotificationsNoneIcon />
+                </Badge>
+              </IconButton>
+            </Tooltip>
+            
+            <Tooltip title="Account">
+              <IconButton
+                size="large"
+                edge="end"
+                color="inherit"
+                onClick={handleUserMenuOpen}
+                sx={{ 
+                  ml: 1, 
+                  display: { xs: 'none', md: 'flex' },
+                  bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
+                  '&:hover': {
+                    bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
+                  }
+                }}
+              >
+                <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.main }}>
+                  <PersonIcon sx={{ fontSize: 20 }} />
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+            
             <IconButton
-              onClick={handleThemeToggle}
+              size="large"
+              edge="end"
               color="inherit"
-              sx={{
-                ml: 1,
-                display: { xs: 'flex', sm: 'none' },
-                borderRadius: 1.5,
-                bgcolor: alpha(theme.palette.primary.main, 0.04),
+              onClick={handleMoreMenuOpen}
+              sx={{ 
+                ml: 1, 
+                display: { xs: 'flex', md: 'none' },
+                bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
                 '&:hover': {
-                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
                 }
               }}
             >
-              {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+              <MoreVertIcon />
             </IconButton>
-          </Tooltip>
-          
-          {/* Action buttons */}
-          <IconButton 
-            color="inherit" 
-            sx={{ 
-              ml: 1,
-              borderRadius: 1.5, 
-              bgcolor: alpha(theme.palette.primary.main, 0.04),
-              '&:hover': {
-                bgcolor: alpha(theme.palette.primary.main, 0.08),
-              }
-            }}
-          >
-            <Badge badgeContent={4} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-          
-          <IconButton 
-            edge="end" 
-            color="inherit" 
-            sx={{ 
-              ml: 1, 
-              borderRadius: 1.5,
-              display: { xs: 'none', sm: 'flex' }, 
-              bgcolor: alpha(theme.palette.primary.main, 0.04),
-              '&:hover': {
-                bgcolor: alpha(theme.palette.primary.main, 0.08),
-              }
-            }}
-          >
-            <Avatar sx={{ width: 30, height: 30, bgcolor: 'primary.main' }}>
-              <PersonIcon fontSize="small" />
-            </Avatar>
-          </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
-
-      {/* Side Drawer */}
-      <Box
-        component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+      
+      {/* Notification Menu */}
+      <Menu
+        anchorEl={notificationAnchorEl}
+        open={isNotificationMenuOpen}
+        onClose={handleNotificationMenuClose}
+        PaperProps={{
+          sx: {
+            mt: 1.5,
+            width: 360,
+            maxWidth: '100%',
+            borderRadius: 2,
+            boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+          }
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        {/* Mobile version */}
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: drawerWidth,
-              boxShadow: 'rgb(100 116 139 / 12%) 0px 10px 15px'
-            },
-          }}
-        >
-          {drawer}
-        </Drawer>
-
-        {/* Desktop version */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: drawerWidth,
-              borderRight: '1px solid',
-              borderColor: 'divider'
-            },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
-      </Box>
-
-      {/* Main content */}
+        <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Typography variant="subtitle1" fontWeight="bold">
+            Notifications
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You have 3 new notifications
+          </Typography>
+        </Box>
+        
+        <Box sx={{ maxHeight: 360, overflow: 'auto' }}>
+          <MenuItem onClick={handleNotificationMenuClose} sx={{ py: 2 }}>
+            <Box sx={{ display: 'flex', width: '100%' }}>
+              <Avatar sx={{ mr: 2, bgcolor: alpha(theme.palette.success.main, 0.2), color: theme.palette.success.main }}>
+                <PetsIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="body2" fontWeight="medium">
+                  New dog added
+                </Typography>
+                <Typography variant="caption" color="text.secondary" display="block">
+                  "Max" was added to the system
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
+                  10 minutes ago
+                </Typography>
+              </Box>
+            </Box>
+          </MenuItem>
+          
+          <MenuItem onClick={handleNotificationMenuClose} sx={{ py: 2 }}>
+            <Box sx={{ display: 'flex', width: '100%' }}>
+              <Avatar sx={{ mr: 2, bgcolor: alpha(theme.palette.warning.main, 0.2), color: theme.palette.warning.main }}>
+                <VolunteerActivismIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="body2" fontWeight="medium">
+                  Volunteer application
+                </Typography>
+                <Typography variant="caption" color="text.secondary" display="block">
+                  New volunteer application received
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
+                  2 hours ago
+                </Typography>
+              </Box>
+            </Box>
+          </MenuItem>
+          
+          <MenuItem onClick={handleNotificationMenuClose} sx={{ py: 2 }}>
+            <Box sx={{ display: 'flex', width: '100%' }}>
+              <Avatar sx={{ mr: 2, bgcolor: alpha(theme.palette.info.main, 0.2), color: theme.palette.info.main }}>
+                <NotificationsIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="body2" fontWeight="medium">
+                  System update
+                </Typography>
+                <Typography variant="caption" color="text.secondary" display="block">
+                  System updates completed successfully
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
+                  1 day ago
+                </Typography>
+              </Box>
+            </Box>
+          </MenuItem>
+        </Box>
+        
+        <Box sx={{ p: 1.5, textAlign: 'center', borderTop: '1px solid', borderColor: 'divider' }}>
+          <Typography 
+            variant="body2" 
+            color="primary" 
+            sx={{ fontWeight: 'medium', cursor: 'pointer' }}
+            onClick={handleNotificationMenuClose}
+          >
+            View all notifications
+          </Typography>
+        </Box>
+      </Menu>
+      
+      {/* User Menu */}
+      <Menu
+        anchorEl={userMenuAnchorEl}
+        open={isUserMenuOpen}
+        onClose={handleUserMenuClose}
+        PaperProps={{
+          sx: {
+            mt: 1.5,
+            minWidth: 200,
+            borderRadius: 2,
+            boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+          }
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <Box sx={{ px: 2, pt: 2, pb: 1.5 }}>
+          <Typography variant="subtitle2">Admin User</Typography>
+          <Typography variant="body2" color="text.secondary">admin@example.com</Typography>
+        </Box>
+        <Divider />
+        <MenuItem onClick={handleUserMenuClose} sx={{ py: 1.5 }}>
+          <ListItemIcon>
+            <PersonIcon fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">My Profile</Typography>
+        </MenuItem>
+        <MenuItem onClick={handleUserMenuClose} sx={{ py: 1.5 }}>
+          <ListItemIcon>
+            <SettingsIcon fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Account Settings</Typography>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={handleUserMenuClose} sx={{ py: 1.5 }}>
+          <ListItemIcon>
+            <LogoutIcon fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Logout</Typography>
+        </MenuItem>
+      </Menu>
+      
+      {/* Mobile Menu */}
+      <Menu
+        anchorEl={moreMenuAnchorEl}
+        open={isMoreMenuOpen}
+        onClose={handleMoreMenuClose}
+        PaperProps={{
+          sx: {
+            mt: 1.5,
+            borderRadius: 2,
+            boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+          }
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <MenuItem onClick={handleMoreMenuClose} sx={{ py: 1.5 }}>
+          <ListItemIcon>
+            <PersonIcon fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">My Profile</Typography>
+        </MenuItem>
+        <MenuItem onClick={handleMoreMenuClose} sx={{ py: 1.5 }}>
+          <ListItemIcon>
+            <SettingsIcon fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Settings</Typography>
+        </MenuItem>
+        <MenuItem onClick={handleThemeToggle} sx={{ py: 1.5 }}>
+          <ListItemIcon>
+            {isDarkMode ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
+          </ListItemIcon>
+          <Typography variant="body2">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</Typography>
+        </MenuItem>
+      </Menu>
+      
+      {/* Drawer - Mobile */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': { 
+            boxSizing: 'border-box', 
+            width: drawerWidth,
+            borderRight: 'none',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
+          },
+        }}
+      >
+        {drawer}
+      </Drawer>
+      
+      {/* Drawer - Desktop */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: 'none', md: 'block' },
+          '& .MuiDrawer-paper': { 
+            boxSizing: 'border-box', 
+            width: drawerWidth,
+            boxShadow: 'none',
+            border: 'none',
+            backgroundImage: 'none',
+            borderRight: '1px solid',
+            borderColor: 'divider'
+          },
+        }}
+        open
+      >
+        {drawer}
+      </Drawer>
+      
+      {/* Main Content */}
       <Box
         component="main"
         sx={{ 
           flexGrow: 1, 
-          p: { xs: 2, sm: 3 }, 
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          maxWidth: '100%',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
+          p: 3, 
+          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` }, 
           height: '100vh',
+          overflow: 'auto',
           bgcolor: 'background.default',
-          color: 'text.primary',
-          transition: theme.transitions.create(['background-color', 'color'], {
-            duration: theme.transitions.duration.standard,
-          }),
+          pt: { xs: '70px', sm: '80px' },
+          ml: { xs: 0, md: `${drawerWidth}px` }
         }}
       >
-        <Toolbar sx={{ height: 70 }} /> {/* Spacer to push content below app bar */}
-        <Box 
-          sx={{ 
-            flexGrow: 1, 
-            overflowY: 'auto',
-            pb: 3,
-            '&::-webkit-scrollbar': {
-              width: '8px',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-              borderRadius: '4px',
-            },
-            '&::-webkit-scrollbar-track': {
-              backgroundColor: 'transparent',
-            },
+        <Box
+          sx={{
+            maxWidth: '1600px',
+            mx: 'auto',
+            pb: 4
           }}
         >
           {children}

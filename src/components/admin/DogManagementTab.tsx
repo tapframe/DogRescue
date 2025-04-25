@@ -383,8 +383,30 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
       </Grid>
 
       {/* Search and Add Bar */}
-      <Card sx={{ mb: 4, boxShadow: '0 2px 10px 0 rgba(0,0,0,0.05)', borderRadius: 2 }}>
-        <CardContent>
+      <Card elevation={0} sx={{ 
+        mb: 4, 
+        borderRadius: 3, 
+        overflow: 'hidden',
+        border: '1px solid',
+        borderColor: 'divider'
+      }}>
+        <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Dogs List
+          </Typography>
+          <Button 
+            variant="contained" 
+            startIcon={<AddIcon />} 
+            onClick={() => handleOpenDialog()}
+            size="small"
+            sx={{ borderRadius: 2 }}
+          >
+            Add New Dog
+          </Button>
+        </Box>
+        
+        {/* Search Bar */}
+        <Box sx={{ px: 3, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={6} md={4}>
               <TextField
@@ -399,7 +421,8 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
                     <InputAdornment position="start">
                       <SearchIcon color="action" />
                     </InputAdornment>
-                  )
+                  ),
+                  sx: { borderRadius: 2 }
                 }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
@@ -409,11 +432,12 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
               />
             </Grid>
             <Grid item xs={12} sm={6} md={8}>
-              <Stack direction="row" spacing={1} justifyContent="flex-end">
+              <Stack direction="row" spacing={1.5} justifyContent="flex-end">
                 <Button 
                   variant="outlined" 
                   startIcon={<FilterListIcon />}
                   size="small"
+                  sx={{ borderRadius: 2 }}
                 >
                   Filter
                 </Button>
@@ -422,61 +446,47 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
                   startIcon={<RefreshIcon />} 
                   onClick={fetchDogs}
                   size="small"
+                  sx={{ borderRadius: 2 }}
                 >
                   Refresh
-                </Button>
-                <Button 
-                  variant="contained" 
-                  startIcon={<AddIcon />} 
-                  onClick={() => handleOpenDialog()}
-                  size="small"
-                >
-                  Add New Dog
                 </Button>
               </Stack>
             </Grid>
           </Grid>
-        </CardContent>
-      </Card>
-      
-      {/* Dogs Table */}
-      <Card sx={{ width: '100%', overflow: 'hidden', boxShadow: '0 2px 10px 0 rgba(0,0,0,0.05)', borderRadius: 2 }}>
-        <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
-            Dogs List
-          </Typography>
         </Box>
-        <TableContainer sx={{ maxHeight: 440 }}>
+        
+        <TableContainer sx={{ maxHeight: 600 }}>
           <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Image</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Breed</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Age</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Size</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Gender</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Tags</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Actions</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Image</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Breed</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Age</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Size</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Gender</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Tags</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 600, py: 2 }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading && dogs.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={9} align="center">
                     <CircularProgress size={40} sx={{ my: 3 }} />
                   </TableCell>
                 </TableRow>
               ) : error ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={9} align="center">
                     <Alert severity="error" sx={{ my: 2 }}>{error}</Alert>
                   </TableCell>
                 </TableRow>
               ) : dogs.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
-                    <Box sx={{ py: 3 }}>
+                  <TableCell colSpan={9} align="center">
+                    <Box sx={{ py: 4 }}>
                       <Typography variant="body1" color="textSecondary">
                         No dogs found.
                       </Typography>
@@ -491,7 +501,7 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
                     </Box>
                   </TableCell>
                 </TableRow>
-              ) : (
+              ) :
                 dogs
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((dog) => (
@@ -529,7 +539,7 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
                             dog.size === 'Small' ? 'success' :
                             dog.size === 'Medium' ? 'warning' : 'error'
                           }
-                          variant="outlined"
+                          sx={{ borderRadius: 1, fontWeight: 500 }}
                         />
                       </TableCell>
                       <TableCell>
@@ -537,16 +547,42 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
                           label={dog.gender} 
                           size="small"
                           color={dog.gender === 'Male' ? 'info' : 'secondary'}
-                          variant="outlined"
+                          sx={{ borderRadius: 1, fontWeight: 500 }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={dog.status || 'Available'} 
+                          size="small"
+                          color={
+                            dog.status === 'adopted' ? 'success' :
+                            dog.status === 'fostered' ? 'info' :
+                            dog.status === 'pending' ? 'warning' : 'primary'
+                          }
+                          sx={{ borderRadius: 1, fontWeight: 500 }}
                         />
                       </TableCell>
                       <TableCell>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                           {dog.tags.slice(0, 2).map((tag: string, index: number) => (
-                            <Chip key={index} label={tag} size="small" />
+                            <Chip 
+                              key={index} 
+                              label={tag} 
+                              size="small" 
+                              sx={{ 
+                                borderRadius: 1, 
+                                backgroundColor: 'rgba(0,0,0,0.04)', 
+                                fontWeight: 500 
+                              }} 
+                            />
                           ))}
                           {dog.tags.length > 2 && (
-                            <Chip label={`+${dog.tags.length - 2}`} size="small" variant="outlined" />
+                            <Chip 
+                              label={`+${dog.tags.length - 2}`} 
+                              size="small" 
+                              variant="outlined" 
+                              sx={{ borderRadius: 1 }} 
+                            />
                           )}
                         </Box>
                       </TableCell>
@@ -556,6 +592,13 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
                             color="primary" 
                             onClick={() => handleOpenDialog(dog)}
                             size="small"
+                            sx={{ 
+                              backgroundColor: 'rgba(63, 81, 181, 0.08)', 
+                              mr: 1,
+                              '&:hover': {
+                                backgroundColor: 'rgba(63, 81, 181, 0.15)',
+                              }
+                            }}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
@@ -563,8 +606,14 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
                         <Tooltip title="Delete">
                           <IconButton 
                             color="error" 
-                            onClick={() => handleDeleteOpen(dog._id || '')}
+                            onClick={() => handleDeleteOpen(dog._id || dog.id?.toString() || '')}
                             size="small"
+                            sx={{ 
+                              backgroundColor: 'rgba(244, 67, 54, 0.08)',
+                              '&:hover': {
+                                backgroundColor: 'rgba(244, 67, 54, 0.15)',
+                              }
+                            }}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
@@ -572,7 +621,7 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
                       </TableCell>
                     </TableRow>
                   ))
-              )}
+              }
             </TableBody>
           </Table>
         </TableContainer>
@@ -584,14 +633,32 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          sx={{
+            borderTop: '1px solid',
+            borderColor: 'divider',
+          }}
         />
       </Card>
       
       {/* Add/Edit Dog Dialog */}
-      <Dialog open={open} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>
-          <Typography variant="h6" fontWeight="medium">
+      <Dialog 
+        open={open} 
+        onClose={handleCloseDialog} 
+        maxWidth="md" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+          }
+        }}
+      >
+        <DialogTitle sx={{ pb: 2 }}>
+          <Typography variant="h6" fontWeight={600}>
             {dialogTitle}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {isEdit ? 'Update dog information' : 'Add a new dog to the system'}
           </Typography>
         </DialogTitle>
         <Divider />
@@ -739,15 +806,30 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5, pt: 1.5 }}>
-          <Button onClick={handleCloseDialog} variant="outlined" size="small">Cancel</Button>
+        <Divider />
+        <DialogActions sx={{ px: 3, py: 2.5 }}>
+          <Button 
+            onClick={handleCloseDialog} 
+            color="inherit" 
+            variant="outlined"
+            sx={{ 
+              borderRadius: 2, 
+              mr: 1,
+              px: 3
+            }}
+          >
+            Cancel
+          </Button>
           <Button 
             onClick={handleSubmit} 
-            variant="contained" 
-            disabled={loading}
-            size="small"
+            color="primary" 
+            variant="contained"
+            sx={{ 
+              borderRadius: 2,
+              px: 3
+            }}
           >
-            {loading ? <CircularProgress size={24} /> : 'Save'}
+            {isEdit ? 'Update' : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -756,28 +838,49 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
       <Dialog
         open={deleteConfirmOpen}
         onClose={handleDeleteClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            padding: 2,
+            maxWidth: 400
+          }
+        }}
       >
-        <DialogTitle>
-          <Typography variant="h6" fontWeight="medium">
-            Confirm Delete
+        <DialogTitle sx={{ pb: 1 }}>
+          <Typography variant="h6" fontWeight={600}>
+            Confirm Deletion
           </Typography>
         </DialogTitle>
-        <Divider />
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText sx={{ color: 'text.primary' }}>
             Are you sure you want to delete this dog? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5, pt: 1.5 }}>
-          <Button onClick={handleDeleteClose} variant="outlined" size="small">Cancel</Button>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button 
+            onClick={handleDeleteClose} 
+            color="inherit" 
+            variant="outlined"
+            size="medium"
+            sx={{ 
+              borderRadius: 2, 
+              mr: 1,
+              px: 3
+            }}
+          >
+            Cancel
+          </Button>
           <Button 
             onClick={handleDeleteConfirm} 
             color="error" 
             variant="contained"
-            disabled={loading}
-            size="small"
+            size="medium"
+            sx={{ 
+              borderRadius: 2,
+              px: 3
+            }}
           >
-            {loading ? <CircularProgress size={24} /> : 'Delete'}
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

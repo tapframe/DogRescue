@@ -34,7 +34,8 @@ import {
   Divider,
   Stack,
   Tooltip,
-  Avatar
+  Avatar,
+  alpha
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -388,10 +389,32 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
           </Card>
         </Grid>
       </Grid>
-
-      {/* Search and Add Bar */}
-      <Card sx={{ mb: 4, boxShadow: '0 2px 10px 0 rgba(0,0,0,0.05)', borderRadius: 2 }}>
-        <CardContent>
+      
+      {/* Volunteers Table */}
+      <Card elevation={0} sx={{ 
+        mt: 2, 
+        borderRadius: 3, 
+        overflow: 'hidden',
+        border: '1px solid',
+        borderColor: 'divider'
+      }}>
+        <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Volunteers List
+          </Typography>
+          <Button 
+            variant="contained" 
+            startIcon={<AddIcon />} 
+            onClick={() => handleVolunteerOpenDialog()}
+            size="small"
+            sx={{ borderRadius: 2 }}
+          >
+            Add New Volunteer
+          </Button>
+        </Box>
+        
+        {/* Search Bar */}
+        <Box sx={{ px: 3, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={6} md={4}>
               <TextField
@@ -406,7 +429,8 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                     <InputAdornment position="start">
                       <SearchIcon color="action" />
                     </InputAdornment>
-                  )
+                  ),
+                  sx: { borderRadius: 2 }
                 }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
@@ -416,11 +440,12 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
               />
             </Grid>
             <Grid item xs={12} sm={6} md={8}>
-              <Stack direction="row" spacing={1} justifyContent="flex-end">
+              <Stack direction="row" spacing={1.5} justifyContent="flex-end">
                 <Button 
                   variant="outlined" 
                   startIcon={<FilterListIcon />}
                   size="small"
+                  sx={{ borderRadius: 2 }}
                 >
                   Filter
                 </Button>
@@ -429,41 +454,26 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                   startIcon={<RefreshIcon />} 
                   onClick={fetchVolunteers}
                   size="small"
+                  sx={{ borderRadius: 2 }}
                 >
                   Refresh
-                </Button>
-                <Button 
-                  variant="contained" 
-                  startIcon={<AddIcon />} 
-                  onClick={() => handleVolunteerOpenDialog()}
-                  size="small"
-                >
-                  Add New Volunteer
                 </Button>
               </Stack>
             </Grid>
           </Grid>
-        </CardContent>
-      </Card>
-      
-      {/* Volunteers Table */}
-      <Card sx={{ width: '100%', overflow: 'hidden', boxShadow: '0 2px 10px 0 rgba(0,0,0,0.05)', borderRadius: 2 }}>
-        <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
-            Volunteers List
-          </Typography>
         </Box>
-        <TableContainer sx={{ maxHeight: 440 }}>
+        
+        <TableContainer sx={{ maxHeight: 600 }}>
           <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Contact Info</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Role</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Availability</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Submitted</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Actions</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Contact Info</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Volunteer Type</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Availability</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 600, py: 2 }}>Submitted</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 600, py: 2 }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -476,9 +486,9 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
               ) : volunteers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} align="center">
-                    <Box sx={{ py: 3 }}>
+                    <Box sx={{ py: 4 }}>
                       <Typography variant="body1" color="textSecondary">
-                        No volunteers found.
+                        No volunteer applications found.
                       </Typography>
                       <Button 
                         variant="text" 
@@ -491,57 +501,74 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                     </Box>
                   </TableCell>
                 </TableRow>
-              ) : (
+              ) :
                 volunteers
                   .slice(volunteerPage * volunteerRowsPerPage, volunteerPage * volunteerRowsPerPage + volunteerRowsPerPage)
                   .map((volunteer) => (
                     <TableRow key={volunteer._id || volunteer.id} hover>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Avatar sx={{ 
-                            bgcolor: volunteer.status === 'approved' ? 'success.light' : 
-                                    volunteer.status === 'rejected' ? 'error.light' : 'warning.light',
-                            width: 35,
-                            height: 35, 
-                            mr: 1
-                          }}>
-                            <PersonIcon fontSize="small" />
+                          <Avatar 
+                            sx={{ 
+                              bgcolor: (theme) => 
+                                volunteer.status === 'approved' 
+                                  ? alpha(theme.palette.success.main, 0.1)
+                                  : volunteer.status === 'rejected'
+                                  ? alpha(theme.palette.error.main, 0.1)
+                                  : alpha(theme.palette.warning.main, 0.1),
+                              color: (theme) => 
+                                volunteer.status === 'approved' 
+                                  ? theme.palette.success.main
+                                  : volunteer.status === 'rejected'
+                                  ? theme.palette.error.main 
+                                  : theme.palette.warning.main,
+                              width: 40,
+                              height: 40,
+                              marginRight: 1.5
+                            }}
+                          >
+                            <PersonIcon />
                           </Avatar>
-                          <Typography variant="body1" fontWeight="medium">
-                            {volunteer.name}
-                          </Typography>
+                          <Box>
+                            <Typography variant="body1" fontWeight="medium">
+                              {volunteer.name}
+                            </Typography>
+                            <Typography variant="caption" color="textSecondary">
+                              ID: {volunteer._id || volunteer.id}
+                            </Typography>
+                          </Box>
                         </Box>
                       </TableCell>
                       <TableCell>
                         <Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                            <EmailIcon fontSize="small" sx={{ color: 'text.secondary', mr: 0.5 }} />
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <EmailIcon fontSize="small" sx={{ mr: 0.5, opacity: 0.7 }} />
                             <Typography variant="body2">{volunteer.email}</Typography>
                           </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <PhoneIcon fontSize="small" sx={{ color: 'text.secondary', mr: 0.5 }} />
+                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                            <PhoneIcon fontSize="small" sx={{ mr: 0.5, opacity: 0.7 }} />
                             <Typography variant="body2">{volunteer.phone}</Typography>
                           </Box>
                         </Box>
                       </TableCell>
                       <TableCell>
                         <Chip 
-                          label={volunteer.volunteerType}
+                          label={volunteer.volunteerType} 
                           size="small"
-                          color="info"
-                          variant="outlined"
+                          color="primary"
+                          sx={{ borderRadius: 1, fontWeight: 500 }}
                         />
                       </TableCell>
                       <TableCell>{volunteer.availability}</TableCell>
                       <TableCell>
                         <Chip 
-                          label={volunteer.status} 
-                          color={
-                            volunteer.status === 'approved' ? 'success' : 
-                            volunteer.status === 'rejected' ? 'error' : 
-                            'warning'
-                          }
+                          label={volunteer.status.charAt(0).toUpperCase() + volunteer.status.slice(1)} 
                           size="small"
+                          color={
+                            volunteer.status === 'approved' ? 'success' :
+                            volunteer.status === 'rejected' ? 'error' : 'warning'
+                          }
+                          sx={{ borderRadius: 1, fontWeight: 500 }}
                         />
                       </TableCell>
                       <TableCell>
@@ -555,7 +582,13 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                                 color="success" 
                                 onClick={() => handleUpdateVolunteerStatus(volunteer._id || volunteer.id?.toString() || '', 'approved')}
                                 size="small"
-                                sx={{ mr: 0.5 }}
+                                sx={{ 
+                                  backgroundColor: 'rgba(76, 175, 80, 0.08)', 
+                                  mr: 1,
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(76, 175, 80, 0.15)',
+                                  }
+                                }}
                               >
                                 <CheckCircleIcon fontSize="small" />
                               </IconButton>
@@ -565,7 +598,13 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                                 color="error" 
                                 onClick={() => handleUpdateVolunteerStatus(volunteer._id || volunteer.id?.toString() || '', 'rejected')}
                                 size="small"
-                                sx={{ mr: 0.5 }}
+                                sx={{ 
+                                  backgroundColor: 'rgba(244, 67, 54, 0.08)', 
+                                  mr: 1,
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(244, 67, 54, 0.15)',
+                                  }
+                                }}
                               >
                                 <CancelIcon fontSize="small" />
                               </IconButton>
@@ -577,7 +616,13 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                             color="primary" 
                             onClick={() => handleVolunteerOpenDialog(volunteer)}
                             size="small"
-                            sx={{ mr: 0.5 }}
+                            sx={{ 
+                              backgroundColor: 'rgba(63, 81, 181, 0.08)', 
+                              mr: 1,
+                              '&:hover': {
+                                backgroundColor: 'rgba(63, 81, 181, 0.15)',
+                              }
+                            }}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
@@ -587,6 +632,12 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                             color="error" 
                             onClick={() => handleVolunteerDeleteOpen(volunteer._id || volunteer.id?.toString() || '')}
                             size="small"
+                            sx={{ 
+                              backgroundColor: 'rgba(244, 67, 54, 0.08)',
+                              '&:hover': {
+                                backgroundColor: 'rgba(244, 67, 54, 0.15)',
+                              }
+                            }}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
@@ -594,7 +645,7 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                       </TableCell>
                     </TableRow>
                   ))
-              )}
+              }
             </TableBody>
           </Table>
         </TableContainer>
@@ -606,14 +657,32 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
           page={volunteerPage}
           onPageChange={handleVolunteerChangePage}
           onRowsPerPageChange={handleVolunteerChangeRowsPerPage}
+          sx={{
+            borderTop: '1px solid',
+            borderColor: 'divider',
+          }}
         />
       </Card>
       
       {/* Add/Edit Volunteer Dialog */}
-      <Dialog open={volunteerOpen} onClose={handleVolunteerCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>
-          <Typography variant="h6" fontWeight="medium">
+      <Dialog 
+        open={volunteerOpen} 
+        onClose={handleVolunteerCloseDialog} 
+        maxWidth="md" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+          }
+        }}
+      >
+        <DialogTitle sx={{ pb: 2 }}>
+          <Typography variant="h6" fontWeight={600}>
             {volunteerDialogTitle}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {volunteerIsEdit ? 'Update volunteer information' : 'Add a new volunteer to the system'}
           </Typography>
         </DialogTitle>
         <Divider />
@@ -737,15 +806,30 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5, pt: 1.5 }}>
-          <Button onClick={handleVolunteerCloseDialog} variant="outlined" size="small">Cancel</Button>
+        <Divider />
+        <DialogActions sx={{ px: 3, py: 2.5 }}>
+          <Button 
+            onClick={handleVolunteerCloseDialog} 
+            color="inherit" 
+            variant="outlined"
+            sx={{ 
+              borderRadius: 2, 
+              mr: 1,
+              px: 3
+            }}
+          >
+            Cancel
+          </Button>
           <Button 
             onClick={handleVolunteerSubmit} 
-            variant="contained" 
-            disabled={loading}
-            size="small"
+            color="primary" 
+            variant="contained"
+            sx={{ 
+              borderRadius: 2,
+              px: 3
+            }}
           >
-            {loading ? <CircularProgress size={24} /> : 'Save'}
+            {volunteerIsEdit ? 'Update' : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -754,28 +838,49 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
       <Dialog
         open={volunteerDeleteConfirmOpen}
         onClose={handleVolunteerDeleteClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            padding: 2,
+            maxWidth: 400
+          }
+        }}
       >
-        <DialogTitle>
-          <Typography variant="h6" fontWeight="medium">
-            Confirm Delete
+        <DialogTitle sx={{ pb: 1 }}>
+          <Typography variant="h6" fontWeight={600}>
+            Confirm Deletion
           </Typography>
         </DialogTitle>
-        <Divider />
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText sx={{ color: 'text.primary' }}>
             Are you sure you want to delete this volunteer? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5, pt: 1.5 }}>
-          <Button onClick={handleVolunteerDeleteClose} variant="outlined" size="small">Cancel</Button>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button 
+            onClick={handleVolunteerDeleteClose} 
+            color="inherit" 
+            variant="outlined"
+            size="medium"
+            sx={{ 
+              borderRadius: 2, 
+              mr: 1,
+              px: 3
+            }}
+          >
+            Cancel
+          </Button>
           <Button 
             onClick={handleVolunteerDeleteConfirm} 
             color="error" 
             variant="contained"
-            disabled={loading}
-            size="small"
+            size="medium"
+            sx={{ 
+              borderRadius: 2,
+              px: 3
+            }}
           >
-            {loading ? <CircularProgress size={24} /> : 'Delete'}
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

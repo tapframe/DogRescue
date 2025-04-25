@@ -20,6 +20,7 @@ export interface DogData {
   image: string;
   description: string;
   tags: string[];
+  status?: 'available' | 'adopted' | 'fostered' | 'pending';
 }
 
 export interface VolunteerData {
@@ -37,7 +38,7 @@ export interface VolunteerData {
 }
 
 // Define Mock dogsData here for fallback
-const dogsDataMock = [
+const dogsDataMock: DogData[] = [
   {
     id: 1,
     name: 'Max',
@@ -47,7 +48,8 @@ const dogsDataMock = [
     gender: 'Male',
     image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
     description: 'Max is a friendly and energetic Labrador who loves to play fetch and go for long walks.',
-    tags: ['Friendly', 'Active', 'Good with kids']
+    tags: ['Friendly', 'Active', 'Good with kids'],
+    status: 'available'
   },
   {
     id: 2,
@@ -58,7 +60,8 @@ const dogsDataMock = [
     gender: 'Female',
     image: 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
     description: 'Bella is a loyal and intelligent German Shepherd looking for an active family.',
-    tags: ['Intelligent', 'Loyal', 'Protective']
+    tags: ['Intelligent', 'Loyal', 'Protective'],
+    status: 'adopted'
   },
   // Add other mock dogs if needed
 ];
