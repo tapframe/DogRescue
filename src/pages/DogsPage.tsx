@@ -30,7 +30,8 @@ import {
   Tooltip,
   useMediaQuery,
   Backdrop,
-  Skeleton
+  Skeleton,
+  Alert
 } from '@mui/material';
 import PetsIcon from '@mui/icons-material/Pets';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -48,6 +49,8 @@ import HeartIcon from '@mui/icons-material/Favorite';
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+
+import { dogApi, DogData } from '../services/api'; // Import API service
 
 // Animation variants
 const fadeIn = {
@@ -146,82 +149,15 @@ const popIn = {
 };
 
 // Placeholder data for dogs
-export const dogsData = [
-  {
-    id: 1,
-    name: 'Max',
-    breed: 'Labrador Retriever',
-    age: '3 years',
-    size: 'Large',
-    gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-    description: 'Max is a friendly and energetic Labrador who loves to play fetch and go for long walks.',
-    tags: ['Friendly', 'Active', 'Good with kids']
-  },
-  {
-    id: 2,
-    name: 'Bella',
-    breed: 'German Shepherd',
-    age: '2 years',
-    size: 'Large',
-    gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-    description: 'Bella is a loyal and intelligent German Shepherd looking for an active family.',
-    tags: ['Intelligent', 'Loyal', 'Protective']
-  },
-  {
-    id: 3,
-    name: 'Charlie',
-    breed: 'Beagle',
-    age: '1 year',
-    size: 'Medium',
-    gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1612078894368-231c9ef06a8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-    description: 'Charlie is a curious and playful Beagle who gets along well with children and other pets.',
-    tags: ['Playful', 'Good with pets', 'Curious']
-  },
-  {
-    id: 4,
-    name: 'Luna',
-    breed: 'Siberian Husky',
-    age: '4 years',
-    size: 'Large',
-    gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-    description: 'Luna is a beautiful Husky with striking blue eyes. She\'s energetic and needs an experienced owner.',
-    tags: ['Energetic', 'Intelligent', 'Experienced owner']
-  },
-  {
-    id: 5,
-    name: 'Cooper',
-    breed: 'Golden Retriever',
-    age: '5 years',
-    size: 'Large',
-    gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1633722715036-967df0865c1c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-    description: 'Cooper is a gentle and friendly Golden Retriever who loves everyone he meets. Great with kids!',
-    tags: ['Gentle', 'Friendly', 'Good with kids']
-  },
-  {
-    id: 6,
-    name: 'Lucy',
-    breed: 'Dachshund',
-    age: '2 years',
-    size: 'Small',
-    gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-    description: 'Lucy is a spunky Dachshund with lots of personality. She\'s house-trained and knows several tricks.',
-    tags: ['Playful', 'Trained', 'Small size']
-  },
-];
+// export const dogsData = [...];
 
 // Define sorting options
 type SortOption = 'newest' | 'oldest' | 'nameAZ' | 'nameZA';
 
 const DogsPage = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  // const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Unused
+  // const isTablet = useMediaQuery(theme.breakpoints.down('md')); // Unused
   
   // Refs for scroll animations
   const scrollRef = useRef(null);
@@ -235,28 +171,41 @@ const DogsPage = () => {
   const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 100]);
   
   // State variables
+  const [dogs, setDogs] = useState<DogData[]>([]); // State for fetched dogs
   const [searchTerm, setSearchTerm] = useState('');
   const [breed, setBreed] = useState('');
   const [size, setSize] = useState('');
   const [gender, setGender] = useState('');
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
-  const [favorited, setFavorited] = useState<number[]>([]);
+  const [favorited, setFavorited] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedDog, setSelectedDog] = useState<typeof dogsData[0] | null>(null);
+  const [selectedDog, setSelectedDog] = useState<DogData | null>(null); // Updated type
   const [quickViewOpen, setQuickViewOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null); // State for fetch errors
   
   const dogsPerPage = 6;
 
-  // Simulate loading state
+  // Fetch dogs on component mount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-    
-    return () => clearTimeout(timer);
+    const fetchDogs = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const fetchedDogs = await dogApi.getAllDogs();
+        setDogs(fetchedDogs);
+      } catch (err) {
+        console.error("Error fetching dogs:", err);
+        setError("Failed to load dogs. Please try refreshing the page.");
+        setDogs([]); // Clear dogs on error
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDogs();
   }, []);
 
   // Update filter count when filters change
@@ -270,27 +219,34 @@ const DogsPage = () => {
 
   // Add tags to existing dog data if they don't exist
   useEffect(() => {
-    dogsData.forEach(dog => {
-      if (!dog.tags) {
-        dog.tags = ['Loving', 'Adorable', 'Friendly'];
+    // Create a new array with updated tags to avoid modifying state directly
+    const dogsWithTags = dogs.map(dog => {
+      if (!dog.tags || dog.tags.length === 0) {
+        return { ...dog, tags: ['Loving', 'Adorable', 'Friendly'] };
       }
+      return dog;
     });
-  }, []);
+    // Only update state if there were changes
+    if (JSON.stringify(dogs) !== JSON.stringify(dogsWithTags)) {
+      setDogs(dogsWithTags);
+    }
+  }, [dogs]);
 
-  // Get unique breed options
-  const breedOptions = [...new Set(dogsData.map(dog => dog.breed))];
+  // Get unique breed options from fetched dogs
+  const breedOptions = [...new Set(dogs.map(dog => dog.breed))];
   
   // Handle favoriting
-  const toggleFavorite = (id: number) => {
-    if (favorited.includes(id)) {
-      setFavorited(favorited.filter(favId => favId !== id));
+  const toggleFavorite = (id: number | string) => { // Accept number or string ID
+    const stringId = id.toString(); // Ensure string comparison
+    if (favorited.includes(stringId)) {
+      setFavorited(favorited.filter(favId => favId !== stringId));
     } else {
-      setFavorited([...favorited, id]);
+      setFavorited([...favorited, stringId]);
     }
   };
   
   // Handle quick view
-  const openQuickView = (dog: typeof dogsData[0]) => {
+  const openQuickView = (dog: DogData) => {
     setSelectedDog(dog);
     setQuickViewOpen(true);
     document.body.style.overflow = 'hidden';
@@ -302,7 +258,7 @@ const DogsPage = () => {
   };
   
   // Filter dogs based on search and filter criteria
-  const filteredDogs = dogsData.filter(dog => {
+  const filteredDogs = dogs.filter(dog => {
     return (
       dog.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (breed === '' || dog.breed === breed) &&
@@ -318,11 +274,12 @@ const DogsPage = () => {
         return a.name.localeCompare(b.name);
       case 'nameZA':
         return b.name.localeCompare(a.name);
+      // Note: Age sorting might need adjustment if 'age' is not consistently numeric
       case 'oldest':
-        return parseInt(a.age) - parseInt(b.age);
+        return parseInt(a.age) - parseInt(b.age); // Potential NaN issue
       case 'newest':
       default:
-        return parseInt(b.age) - parseInt(a.age);
+        return parseInt(b.age) - parseInt(a.age); // Potential NaN issue
     }
   });
 
@@ -1277,436 +1234,318 @@ const DogsPage = () => {
           </motion.div>
 
           {/* Dogs Grid with Modern Cards and Animations */}
-          {isLoading ? (
-            // Skeleton loading state
-            <Grid container spacing={4}>
-              {[...Array(6)].map((_, index) => (
-                <Grid item key={index} xs={12} sm={6} md={4}>
-                  <Paper
-                    sx={{
-                      height: '100%',
-                      borderRadius: 4,
-                      overflow: 'hidden',
-                      boxShadow: '0 8px 40px rgba(0,0,0,0.08)',
-                    }}
-                  >
-                    <Skeleton variant="rectangular" height={240} width="100%" 
-                      sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }} 
-                    />
-                    <Box sx={{ p: 3 }}>
-                      <Skeleton variant="text" height={40} width="70%" 
-                        sx={{ bgcolor: alpha(theme.palette.primary.main, 0.07) }} 
-                      />
-                      <Skeleton variant="text" height={20} width="50%" 
-                        sx={{ mb: 2, bgcolor: alpha(theme.palette.primary.main, 0.05) }} 
-                      />
-                      <Skeleton variant="text" height={20} width="95%" 
-                        sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }} 
-                      />
-                      <Skeleton variant="text" height={20} width="90%" 
-                        sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }} 
-                      />
-                      <Skeleton variant="text" height={20} width="60%" 
-                        sx={{ mb: 2, bgcolor: alpha(theme.palette.primary.main, 0.05) }} 
-                      />
-                      <Box sx={{ display: 'flex', gap: 1, mt: 2, mb: 2 }}>
-                        <Skeleton variant="rounded" height={32} width={80} 
-                          sx={{ borderRadius: 4, bgcolor: alpha(theme.palette.primary.main, 0.05) }} 
-                        />
-                        <Skeleton variant="rounded" height={32} width={70} 
-                          sx={{ borderRadius: 4, bgcolor: alpha(theme.palette.primary.main, 0.05) }} 
-                        />
-                      </Box>
-                      <Box sx={{ display: 'flex', mt: 2 }}>
-                        <Skeleton variant="rounded" height={36} width={100} 
-                          sx={{ borderRadius: 4, bgcolor: alpha(theme.palette.primary.main, 0.07) }} 
-                        />
-                        <Skeleton variant="rounded" height={36} width={120} 
-                          sx={{ ml: 'auto', borderRadius: 4, bgcolor: alpha(theme.palette.secondary.main, 0.1) }} 
-                        />
-                      </Box>
-                    </Box>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          ) : currentDogs.length > 0 ? (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={staggerContainer}
-            >
-            <Grid container spacing={4}>
-              {currentDogs.map((dog) => (
-                <Grid item key={dog.id} xs={12} sm={6} md={4}>
-                    <motion.div 
-                      variants={cardVariant}
-                      whileHover={{ y: -10 }}
-                      transition={{ duration: 0.4 }}
-                    >
-                  <Card 
-                    sx={{ 
-                      height: '100%', 
-                      display: 'flex', 
-                      flexDirection: 'column',
+          <Box sx={{ mt: 4 }}>
+            {isLoading ? (
+              <Grid container spacing={4}>
+                {[...Array(dogsPerPage)].map((_, index) => (
+                  <Grid item key={index} xs={12} sm={6} md={4}>
+                    <Skeleton variant="rectangular" height={200} />
+                    <Skeleton />
+                    <Skeleton width="60%" />
+                  </Grid>
+                ))}
+              </Grid>
+            ) : error ? (
+              <Alert severity="error" sx={{ mt: 4 }}>{error}</Alert>
+            ) : currentDogs.length > 0 ? (
+              <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+                <Grid container spacing={4}>
+                  {currentDogs.map((dog) => (
+                    <Grid item key={dog._id || dog.id} xs={12} sm={6} md={4}>
+                      <motion.div variants={cardVariant}>
+                        <Card sx={{ 
+                          height: '100%', 
+                          display: 'flex', 
+                          flexDirection: 'column',
                           borderRadius: 4,
                           overflow: 'hidden',
                           background: 'white',
                           boxShadow: '0 15px 50px rgba(0,0,0,0.08)',
                           transition: 'all 0.3s ease',
                           position: 'relative',
-                      '&:hover': {
+                          '&:hover': {
                             boxShadow: '0 20px 60px rgba(0,0,0,0.12)',
                           }
-                        }}
-                      >
-                        {/* Quick actions on hover */}
-                        <Box 
-                          sx={{ 
-                            position: 'absolute', 
-                            top: 0, 
-                            left: 0, 
-                            width: '100%', 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            p: 2, 
-                            zIndex: 10 
-                          }}
-                        >
-                          <Tooltip title="Quick view">
-                            <IconButton 
-                              onClick={() => openQuickView(dog)}
-                              sx={{ 
-                                bgcolor: 'rgba(255,255,255,0.85)', 
-                                backdropFilter: 'blur(5px)',
-                                '&:hover': { 
-                                  bgcolor: 'white',
-                                  transform: 'scale(1.1)'
-                                },
-                                transition: 'all 0.2s ease'
-                              }}
-                            >
-                              <SearchIcon />
-                            </IconButton>
-                          </Tooltip>
-                          
-                          <Tooltip title={favorited.includes(dog.id) ? "Remove from favorites" : "Add to favorites"}>
-                            <IconButton 
-                              onClick={() => toggleFavorite(dog.id)}
-                              sx={{ 
-                                bgcolor: favorited.includes(dog.id) 
-                                  ? alpha(theme.palette.secondary.main, 0.85)
-                                  : 'rgba(255,255,255,0.85)', 
-                                color: favorited.includes(dog.id) ? 'white' : 'inherit',
-                                backdropFilter: 'blur(5px)',
-                                '&:hover': { 
-                                  bgcolor: favorited.includes(dog.id) 
-                                    ? theme.palette.secondary.main 
-                                    : 'white',
-                                  transform: 'scale(1.1)'
-                                },
-                                transition: 'all 0.2s ease'
-                              }}
-                            >
-                              {favorited.includes(dog.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                            </IconButton>
-                          </Tooltip>
-                        </Box>
-                        
-                        {/* Image section with enhanced styling */}
-                        <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-                    <CardMedia
-                      component="img"
-                            height={260}
-                      image={dog.image}
-                      alt={dog.name}
+                        }}>
+                          {/* Quick actions on hover */}
+                          <Box 
                             sx={{ 
-                              transition: 'transform 0.7s ease',
-                              '&:hover': {
-                                transform: 'scale(1.05)'
-                              }
-                            }}
-                          />
-                          
-                          {/* Age badge with improved styling */}
-                          <Box
-                            sx={{
-                              position: 'absolute',
-                              bottom: 16,
-                              right: 16,
-                              background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.light, 0.9)}, ${alpha(theme.palette.secondary.main, 0.85)})`,
-                              color: 'white',
-                              py: 0.7,
-                              px: 2,
-                              borderRadius: 30,
-                              fontSize: '0.875rem',
-                              fontWeight: 600,
-                              backdropFilter: 'blur(4px)',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 0.5
+                              position: 'absolute', 
+                              top: 0, 
+                              left: 0, 
+                              width: '100%', 
+                              display: 'flex', 
+                              justifyContent: 'space-between', 
+                              p: 2, 
+                              zIndex: 10 
                             }}
                           >
-                            <PetsIcon sx={{ fontSize: 16 }} /> {dog.age}
+                            <Tooltip title="Quick view">
+                              <IconButton 
+                                onClick={() => openQuickView(dog)}
+                                sx={{ 
+                                  bgcolor: 'rgba(255,255,255,0.85)', 
+                                  backdropFilter: 'blur(5px)',
+                                  '&:hover': { 
+                                    bgcolor: 'white',
+                                    transform: 'scale(1.1)'
+                                  },
+                                  transition: 'all 0.2s ease'
+                                }}
+                              >
+                                <SearchIcon />
+                              </IconButton>
+                            </Tooltip>
+                            
+                            <Tooltip title={favorited.includes(dog._id || dog.id?.toString() || '') ? "Remove from favorites" : "Add to favorites"}>
+                              <IconButton 
+                                onClick={() => toggleFavorite(dog._id || dog.id || '0')}
+                                sx={{ 
+                                  bgcolor: favorited.includes(dog._id || dog.id?.toString() || '') 
+                                    ? alpha(theme.palette.secondary.main, 0.85)
+                                    : 'rgba(255,255,255,0.85)', 
+                                  color: favorited.includes(dog._id || dog.id?.toString() || '') ? 'white' : 'inherit',
+                                  backdropFilter: 'blur(5px)',
+                                  '&:hover': { 
+                                    bgcolor: favorited.includes(dog._id || dog.id?.toString() || '') 
+                                      ? theme.palette.secondary.main 
+                                      : 'white',
+                                    transform: 'scale(1.1)'
+                                  },
+                                  transition: 'all 0.2s ease'
+                                }}
+                              >
+                                {favorited.includes(dog._id || dog.id?.toString() || '') ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                              </IconButton>
+                            </Tooltip>
                           </Box>
                           
-                          {/* Gender icon */}
-                          <Box
-                            sx={{
-                              position: 'absolute',
-                              top: 16,
-                              left: 16,
-                              background: 'rgba(255,255,255,0.85)',
-                              color: dog.gender === 'Male' ? theme.palette.primary.main : theme.palette.secondary.main,
-                              width: 40,
-                              height: 40,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              borderRadius: '50%',
-                              backdropFilter: 'blur(4px)',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                              zIndex: 1,
-                              fontSize: '1.2rem'
-                            }}
-                          >
-                            {dog.gender === 'Male' ? '♂' : '♀'}
-                          </Box>
-                        </Box>
-                        
-                        {/* Content section with improved styling */}
-                        <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                          <Box sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'space-between',
-                            mb: 1.5
-                          }}>
-                            <Typography 
-                              variant="h5" 
-                              component="div" 
+                          {/* Image section with enhanced styling */}
+                          <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+                            <CardMedia
+                              component="img"
+                              height="200"
+                              image={dog.image || 'https://via.placeholder.com/300'} // Fallback image
+                              alt={dog.name}
                               sx={{ 
-                                fontWeight: 800,
-                                color: theme.palette.primary.dark,
-                                fontSize: '1.5rem'
+                                transition: 'transform 0.7s ease',
+                                '&:hover': {
+                                  transform: 'scale(1.05)'
+                                }
                               }}
-                            >
-                        {dog.name}
-                      </Typography>
+                            />
+                            
+                            {/* Age badge with improved styling */}
                             <Box
                               sx={{
+                                position: 'absolute',
+                                bottom: 16,
+                                right: 16,
+                                background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.light, 0.9)}, ${alpha(theme.palette.secondary.main, 0.85)})`,
+                                color: 'white',
+                                py: 0.7,
+                                px: 2,
+                                borderRadius: 30,
+                                fontSize: '0.875rem',
+                                fontWeight: 600,
+                                backdropFilter: 'blur(4px)',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5
+                              }}
+                            >
+                              <PetsIcon sx={{ fontSize: 16 }} /> {dog.age}
+                            </Box>
+                            
+                            {/* Gender icon */}
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                top: 16,
+                                left: 16,
+                                background: 'rgba(255,255,255,0.85)',
+                                color: dog.gender === 'Male' ? theme.palette.primary.main : theme.palette.secondary.main,
+                                width: 40,
+                                height: 40,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                width: 38,
-                                height: 38,
                                 borderRadius: '50%',
-                                background: `linear-gradient(135deg, ${alpha(theme.palette.primary.light, 0.2)}, ${alpha(theme.palette.primary.main, 0.1)})`,
+                                backdropFilter: 'blur(4px)',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                zIndex: 1,
+                                fontSize: '1.2rem'
                               }}
                             >
-                              <PetsIcon 
-                                sx={{ 
-                                  fontSize: '1.3rem', 
-                                  color: theme.palette.primary.main 
-                                }} 
-                              />
+                              {dog.gender === 'Male' ? '♂' : '♀'}
                             </Box>
                           </Box>
                           
-                          <Typography 
-                            variant="body2" 
-                            sx={{ 
+                          {/* Content section with improved styling */}
+                          <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                            <Box sx={{ 
                               display: 'flex', 
                               alignItems: 'center', 
-                              mb: 2,
-                              color: alpha(theme.palette.text.primary, 0.7),
-                              fontWeight: 500,
-                              pb: 2,
-                              borderBottom: `1px dashed ${alpha(theme.palette.divider, 0.5)}`,
-                            }}
-                          >
-                            <span style={{ fontWeight: 600 }}>{dog.breed}</span> 
-                            <Box component="span" sx={{ mx: 0.7, color: alpha(theme.palette.text.primary, 0.3) }}>•</Box> 
-                            <span>{dog.size}</span>
-                      </Typography>
-                          
-                          <Typography variant="body2" sx={{ mb: 2.5, lineHeight: 1.6 }}>
-                        {dog.description}
-                      </Typography>
-                          
-                          {/* Tags with improved design */}
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 'auto', mb: 2 }}>
-                            {dog.tags && dog.tags.map((tag, idx) => (
-                              <Chip
-                                key={idx}
-                                icon={<LocalOfferIcon sx={{ fontSize: '0.85rem' }} />}
-                                label={tag}
-                                size="small"
+                              justifyContent: 'space-between',
+                              mb: 1.5
+                            }}>
+                              <Typography 
+                                variant="h5" 
+                                component="div" 
                                 sx={{ 
-                                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                  fontWeight: 800,
                                   color: theme.palette.primary.dark,
-                                  fontWeight: 500,
-                                  borderRadius: '25px',
-                                  px: 0.5,
-                                  '& .MuiChip-icon': {
-                                    color: theme.palette.primary.main
-                                  }
+                                  fontSize: '1.5rem'
                                 }}
-                              />
-                            ))}
-                          </Box>
-                    </CardContent>
-                        
-                        {/* Actions with improved styling */}
-                        <CardActions sx={{ p: 3, pt: 0 }}>
-                      <Button 
-                        size="small" 
-                        component={RouterLink} 
-                        to={`/dogs/${dog.id}`}
-                            sx={{ 
-                              color: theme.palette.primary.main,
-                              fontWeight: 600,
-                              '&:hover': {
-                                backgroundColor: alpha(theme.palette.primary.main, 0.1)
-                              }
-                            }}
-                      >
-                        Learn More
-                      </Button>
-                      <Button 
-                        size="small" 
-                        variant="contained" 
-                        color="primary"
-                        component={RouterLink} 
-                        to="/contact"
-                            endIcon={<ArrowForwardIcon />}
-                            sx={{ 
-                              ml: 'auto',
-                              borderRadius: 30,
-                              px: 2.5,
-                              background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                              boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
-                              fontWeight: 600,
-                              textTransform: 'none',
-                              '&:hover': {
-                                background: `linear-gradient(90deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-                                boxShadow: `0 10px 30px ${alpha(theme.palette.primary.main, 0.4)}`,
-                                transform: 'translateY(-2px)'
-                              },
-                              transition: 'all 0.3s ease'
-                            }}
-                      >
-                        Adopt Me
-                      </Button>
-                    </CardActions>
-                  </Card>
-                    </motion.div>
+                              >
+                                {dog.name}
+                              </Typography>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: 38,
+                                  height: 38,
+                                  borderRadius: '50%',
+                                  background: `linear-gradient(135deg, ${alpha(theme.palette.primary.light, 0.2)}, ${alpha(theme.palette.primary.main, 0.1)})`,
+                                }}
+                              >
+                                <PetsIcon 
+                                  sx={{ 
+                                    fontSize: '1.3rem', 
+                                    color: theme.palette.primary.main 
+                                  }} 
+                                />
+                              </Box>
+                            </Box>
+                            
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                mb: 2,
+                                color: alpha(theme.palette.text.primary, 0.7),
+                                fontWeight: 500,
+                                pb: 2,
+                                borderBottom: `1px dashed ${alpha(theme.palette.divider, 0.5)}`,
+                              }}
+                            >
+                              <span style={{ fontWeight: 600 }}>{dog.breed}</span> 
+                              <Box component="span" sx={{ mx: 0.7, color: alpha(theme.palette.text.primary, 0.3) }}>•</Box> 
+                              <span>{dog.size}</span>
+                            </Typography>
+                            
+                            <Typography variant="body2" sx={{ mb: 2.5, lineHeight: 1.6 }}>
+                              {dog.description}
+                            </Typography>
+                            
+                            {/* Tags with improved design */}
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 'auto', mb: 2 }}>
+                              {dog.tags?.map((tag, idx) => (
+                                <Chip
+                                  key={idx}
+                                  icon={<LocalOfferIcon sx={{ fontSize: '0.85rem' }} />}
+                                  label={tag}
+                                  size="small"
+                                  sx={{ 
+                                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                    color: theme.palette.primary.dark,
+                                    fontWeight: 500,
+                                    borderRadius: '25px',
+                                    px: 0.5,
+                                    '& .MuiChip-icon': {
+                                      color: theme.palette.primary.main
+                                    }
+                                  }}
+                                />
+                              ))}
+                            </Box>
+                          </CardContent>
+                          
+                          {/* Actions with improved styling */}
+                          <CardActions sx={{ justifyContent: 'space-between' }}>
+                            <Button 
+                              size="small" 
+                              component={RouterLink} 
+                              to={`/dogs/${dog._id || dog.id}`}
+                            >
+                              Learn More
+                            </Button>
+                            <IconButton 
+                              size="small" 
+                              onClick={() => toggleFavorite(dog._id || dog.id || '0')}
+                              color={favorited.includes(dog._id || dog.id?.toString() || '') ? "error" : "default"}
+                            >
+                              {favorited.includes(dog._id || dog.id?.toString() || '') ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                            </IconButton>
+                            <Button size="small" onClick={() => openQuickView(dog)}>Quick View</Button>
+                          </CardActions>
+                        </Card>
+                      </motion.div>
+                    </Grid>
+                  ))}
                 </Grid>
-              ))}
-            </Grid>
-
-              {/* Modernized Pagination */}
-            {pageCount > 1 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8, mb: 4 }}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.5 }}
-                  >
-                    <Paper 
-                      elevation={3} 
-                      sx={{ 
-                        borderRadius: 4, 
-                        overflow: 'hidden',
-                        boxShadow: `0 10px 40px ${alpha(theme.palette.common.black, 0.08)}`,
-                        padding: '8px 16px',
-                        backdropFilter: 'blur(10px)',
-                        background: alpha(theme.palette.background.paper, 0.9)
-                      }}
-                    >
-                <Pagination 
-                  count={pageCount} 
-                  page={page} 
-                  onChange={handleChangePage} 
-                  color="primary" 
-                        size="large"
-                        showFirstButton
-                        showLastButton
-                        sx={{
-                          '& .MuiPaginationItem-root': {
-                            borderRadius: 2,
-                            mx: 0.5,
-                            fontWeight: 600,
-                            transition: 'all 0.2s ease'
-                          },
-                          '& .Mui-selected': {
-                            backgroundColor: theme.palette.primary.main,
-                            color: 'white',
-                            boxShadow: `0 4px 10px ${alpha(theme.palette.primary.main, 0.25)}`,
-                            '&:hover': {
-                              backgroundColor: theme.palette.primary.dark
-                            }
-                          }
-                        }}
-                      />
-                    </Paper>
-                  </motion.div>
-                </Box>
-              )}
-            </motion.div>
-          ) : (
-            // No results state with improved styling
-          <Box sx={{ textAlign: 'center', py: 8 }}>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Box
-                  sx={{
-                    width: 120,
-                    height: 120,
-                    borderRadius: '50%',
-                    background: alpha(theme.palette.secondary.light, 0.1),
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto',
-                    mb: 3
-                  }}
-                >
-                  <SearchIcon sx={{ fontSize: 48, color: alpha(theme.palette.secondary.main, 0.5) }} />
-                </Box>
-                <Typography variant="h5" sx={{ mb: 2, color: theme.palette.text.secondary }}>
-                  No matches found yet
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 4, color: alpha(theme.palette.text.secondary, 0.7) }}>
-                  Try adjusting your filters — your perfect companion is waiting to be discovered
-            </Typography>
-            <Button 
-              variant="contained" 
-              color="primary" 
-                  sx={{ 
-                    mt: 2,
-                    px: 4,
-                    py: 1.5,
-                    borderRadius: 50,
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    fontSize: '1rem',
-                    boxShadow: `0 10px 20px ${alpha(theme.palette.primary.main, 0.25)}`,
-                    background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                  }}
-                  onClick={resetFilters}
-                >
-                  Reset All Filters
-            </Button>
               </motion.div>
+            ) : (
+              <Typography sx={{ textAlign: 'center', mt: 4 }}>
+                No dogs found matching your criteria.
+              </Typography>
+            )}
           </Box>
-        )}
-      </Box>
-    </Container>
+
+          {/* Pagination */}
+          {pageCount > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8, mb: 4 }}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
+                <Paper 
+                  elevation={3} 
+                  sx={{ 
+                    borderRadius: 4, 
+                    overflow: 'hidden',
+                    boxShadow: `0 10px 40px ${alpha(theme.palette.common.black, 0.08)}`,
+                    padding: '8px 16px',
+                    backdropFilter: 'blur(10px)',
+                    background: alpha(theme.palette.background.paper, 0.9)
+                  }}
+                >
+                  <Pagination 
+                    count={pageCount} 
+                    page={page} 
+                    onChange={handleChangePage} 
+                    color="primary" 
+                    size="large"
+                    showFirstButton
+                    showLastButton
+                    sx={{
+                      '& .MuiPaginationItem-root': {
+                        borderRadius: 2,
+                        mx: 0.5,
+                        fontWeight: 600,
+                        transition: 'all 0.2s ease'
+                      },
+                      '& .Mui-selected': {
+                        backgroundColor: theme.palette.primary.main,
+                        color: 'white',
+                        boxShadow: `0 4px 10px ${alpha(theme.palette.primary.main, 0.25)}`,
+                        '&:hover': {
+                          backgroundColor: theme.palette.primary.dark
+                        }
+                      }
+                    }}
+                  />
+                </Paper>
+              </motion.div>
+            </Box>
+          )}
+        </Box>
+      </Container>
 
       {/* Quick View Modal */}
       <Backdrop
@@ -1784,17 +1623,17 @@ const DogsPage = () => {
                       </IconButton>
                     </Tooltip>
                     
-                    <Tooltip title={favorited.includes(selectedDog.id) ? "Remove from favorites" : "Add to favorites"}>
+                    <Tooltip title={favorited.includes(selectedDog.id?.toString() || '') ? "Remove from favorites" : "Add to favorites"}>
                       <IconButton 
-                        onClick={() => toggleFavorite(selectedDog.id)}
+                        onClick={() => toggleFavorite(selectedDog.id || '')}
                         sx={{ 
-                          bgcolor: favorited.includes(selectedDog.id) 
+                          bgcolor: favorited.includes(selectedDog.id?.toString() || '') 
                             ? alpha(theme.palette.secondary.main, 0.85)
                             : 'rgba(255,255,255,0.85)', 
-                          color: favorited.includes(selectedDog.id) ? 'white' : 'inherit',
+                          color: favorited.includes(selectedDog.id?.toString() || '') ? 'white' : 'inherit',
                           backdropFilter: 'blur(5px)',
                           '&:hover': { 
-                            bgcolor: favorited.includes(selectedDog.id) 
+                            bgcolor: favorited.includes(selectedDog.id?.toString() || '') 
                               ? theme.palette.secondary.main 
                               : 'white',
                             transform: 'scale(1.1)'
@@ -1802,7 +1641,7 @@ const DogsPage = () => {
                           transition: 'all 0.2s ease'
                         }}
                       >
-                        {favorited.includes(selectedDog.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        {favorited.includes(selectedDog.id?.toString() || '') ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                       </IconButton>
                     </Tooltip>
                   </Box>

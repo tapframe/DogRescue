@@ -1,10 +1,11 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Container,
   Typography,
   Button,
-  Grid,
+  GridLegacy as Grid,
   Paper,
   Chip,
   Divider,
@@ -19,24 +20,70 @@ import PetsIcon from '@mui/icons-material/Pets';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-// Import the dogs data (in a real app this would come from an API)
-import { dogsData } from './DogsPage';
+// Import the API service and DogData type
+import { dogApi, DogData } from '../services/api';
 
 const DogDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const [dog, setDog] = useState<DogData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  // Find the dog with the matching ID
-  const dog = dogsData.find(dog => dog.id === Number(id));
+  useEffect(() => {
+    const fetchDog = async () => {
+      if (!id) return; // Don't fetch if ID is missing
+      setIsLoading(true);
+      setError(null);
+      try {
+        const fetchedDog = await dogApi.getDogById(id);
+        setDog(fetchedDog);
+      } catch (err) {
+        console.error(`Error fetching dog with ID ${id}:`, err);
+        setError("Failed to load dog details. The dog may not exist or the service is unavailable.");
+        setDog(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Loading state (simulated)
-  const isLoading = false;
+    fetchDog();
+  }, [id]); // Refetch if ID changes
 
-  // If dog not found
-  if (!dog && !isLoading) {
+  // Loading state
+  if (isLoading) {
+    return (
+      <Container maxWidth="md">
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 8 }}>
+          <CircularProgress size={60} />
+        </Box>
+      </Container>
+    );
+  }
+
+  // Error state
+  if (error) {
     return (
       <Container maxWidth="md">
         <Box sx={{ my: 4, textAlign: 'center' }}>
-          <Alert severity="error" sx={{ mb: 4 }}>
+          <Alert severity="error" sx={{ mb: 4 }}>{error}</Alert>
+          <Button 
+            variant="contained" 
+            component={RouterLink} 
+            to="/dogs"
+          >
+            Back to All Dogs
+          </Button>
+        </Box>
+      </Container>
+    );
+  }
+
+  // Dog not found (after fetch attempt)
+  if (!dog) {
+    return (
+      <Container maxWidth="md">
+        <Box sx={{ my: 4, textAlign: 'center' }}>
+          <Alert severity="warning" sx={{ mb: 4 }}>
             Dog not found. The dog you're looking for may not exist or has been adopted.
           </Alert>
           <Button 
@@ -51,17 +98,7 @@ const DogDetailPage = () => {
     );
   }
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <Container maxWidth="md">
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 8 }}>
-          <CircularProgress />
-        </Box>
-      </Container>
-    );
-  }
-
+  // Render dog details
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
@@ -79,6 +116,7 @@ const DogDetailPage = () => {
           {/* Dog Image */}
           <Grid item xs={12} md={6}>
             <Paper
+              elevation={3}
               sx={{
                 borderRadius: 2,
                 overflow: 'hidden',
@@ -87,12 +125,13 @@ const DogDetailPage = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                border: '1px solid rgba(0, 0, 0, 0.1)'
               }}
             >
               <Box
                 component="img"
-                src={dog?.image}
-                alt={dog?.name}
+                src={dog.image || 'https://via.placeholder.com/500'} // Fallback image
+                alt={dog.name}
                 sx={{
                   width: '100%',
                   height: '100%',
@@ -104,61 +143,68 @@ const DogDetailPage = () => {
 
           {/* Dog Details */}
           <Grid item xs={12} md={6}>
-            <Box>
-              <Typography variant="h3" component="h1" gutterBottom>
-                {dog?.name}
+            <Paper elevation={0} sx={{ p: 3, borderRadius: 2, backgroundColor: 'transparent' }}>
+              <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
+                {dog.name}
               </Typography>
               
-              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                <Chip label={dog?.breed} color="primary" variant="outlined" />
-                <Chip label={dog?.gender} color="secondary" variant="outlined" />
-                <Chip label={dog?.size} variant="outlined" />
-                <Chip label={dog?.age} variant="outlined" />
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                <Chip label={dog.breed} color="primary" variant="outlined" />
+                <Chip label={dog.gender} color="secondary" variant="outlined" />
+                <Chip label={dog.size} variant="outlined" />
+                <Chip label={dog.age} variant="outlined" />
               </Box>
               
-              <Typography variant="body1" paragraph sx={{ mb: 3 }}>
-                {dog?.description}
+              <Typography variant="body1" paragraph sx={{ mb: 3, lineHeight: 1.7 }}>
+                {dog.description}
               </Typography>
+              
+              {/* Tags */}
+              {dog.tags && dog.tags.length > 0 && (
+                <Box sx={{ mb: 3 }}>
+                  {dog.tags.map((tag, index) => (
+                    <Chip key={index} label={tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />
+                  ))}
+                </Box>
+              )}
               
               <Divider sx={{ my: 3 }} />
               
               <Typography variant="h6" gutterBottom>
-                Details
+                Key Details
               </Typography>
               
-              <List>
+              <List dense>
                 <ListItem>
-                  <ListItemIcon>
-                    <CheckCircleIcon color="primary" />
+                  <ListItemIcon sx={{ minWidth: 36 }}>
+                    <CheckCircleIcon color="success" />
                   </ListItemIcon>
                   <ListItemText 
-                    primary="Vaccinated" 
-                    secondary="All vaccinations up to date" 
+                    primary="Vaccinated"
                   />
                 </ListItem>
                 <ListItem>
-                  <ListItemIcon>
-                    <CheckCircleIcon color="primary" />
+                  <ListItemIcon sx={{ minWidth: 36 }}>
+                    <CheckCircleIcon color="success" />
                   </ListItemIcon>
                   <ListItemText 
-                    primary="Spayed/Neutered" 
-                    secondary="Already spayed/neutered" 
+                    primary="Spayed/Neutered"
                   />
                 </ListItem>
                 <ListItem>
-                  <ListItemIcon>
-                    <CheckCircleIcon color="primary" />
+                  <ListItemIcon sx={{ minWidth: 36 }}>
+                    <CheckCircleIcon color="success" />
                   </ListItemIcon>
                   <ListItemText 
-                    primary="Microchipped" 
-                    secondary="For identification and safety" 
+                    primary="Microchipped"
                   />
                 </ListItem>
+                {/* Add more details here if needed */}
               </List>
               
               <Divider sx={{ my: 3 }} />
               
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
                 <Button
                   variant="contained"
                   size="large"
@@ -168,7 +214,7 @@ const DogDetailPage = () => {
                   sx={{ flex: 1 }}
                   startIcon={<PetsIcon />}
                 >
-                  Adopt {dog?.name}
+                  Adopt {dog.name}
                 </Button>
                 <Button
                   variant="outlined"
@@ -178,14 +224,14 @@ const DogDetailPage = () => {
                   sx={{ flex: 1 }}
                   startIcon={<FavoriteIcon />}
                 >
-                  Foster {dog?.name}
+                  Foster {dog.name}
                 </Button>
               </Box>
-            </Box>
+            </Paper>
           </Grid>
         </Grid>
 
-        {/* Additional Information */}
+        {/* Additional Information Section */}
         <Paper sx={{ mt: 6, p: 4, borderRadius: 2 }}>
           <Typography variant="h5" gutterBottom>
             Adoption Process
@@ -246,6 +292,7 @@ const DogDetailPage = () => {
               size="large" 
               component={RouterLink} 
               to="/contact"
+              sx={{ px: 4, py: 1.5 }}
             >
               Start Adoption Process
             </Button>

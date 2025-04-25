@@ -3,7 +3,7 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
+  GridLegacy as Grid,
   Paper,
   TextField,
   Button,
@@ -23,13 +23,16 @@ import {
   List,
   ListItem,
   ListItemIcon,
-  ListItemText
+  ListItemText,
+  CircularProgress
 } from '@mui/material';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import PetsIcon from '@mui/icons-material/Pets';
 import HomeIcon from '@mui/icons-material/Home';
 import TimelapseIcon from '@mui/icons-material/Timelapse';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+import { volunteerApi } from '../services/api';
 
 const VolunteerPage = () => {
   // Form state
@@ -55,13 +58,26 @@ const VolunteerPage = () => {
     setAvailability(event.target.value as string);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission with timeout
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      // Create volunteer data object
+      const volunteerData = {
+        name,
+        email,
+        phone,
+        volunteerType,
+        availability,
+        experience,
+        message,
+        status: 'pending' as 'pending' | 'approved' | 'rejected',
+        submittedAt: new Date().toISOString()
+      };
+
+      // Submit to API
+      await volunteerApi.createVolunteer(volunteerData);
       setSubmitSuccess(true);
       
       // Reset form
@@ -73,7 +89,12 @@ const VolunteerPage = () => {
       setExperience('');
       setMessage('');
       setAgreement(false);
-    }, 1500);
+    } catch (error) {
+      console.error('Error submitting volunteer application:', error);
+      setSubmitError(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCloseSnackbar = () => {
@@ -307,15 +328,19 @@ const VolunteerPage = () => {
                 />
               </Grid>
               <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  size="large"
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  size="large" 
+                  fullWidth 
                   disabled={isSubmitting || !agreement}
                   sx={{ mt: 2 }}
                 >
-                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                  {isSubmitting ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    'Submit Application'
+                  )}
                 </Button>
               </Grid>
             </Grid>

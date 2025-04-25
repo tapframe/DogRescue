@@ -1,0 +1,57 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# MUI Grid Component Usage
+
+## Grid Component Import
+
+In this project, we use the GridLegacy component instead of the standard Grid component from Material UI. Always use the following import pattern when working with Grid components:
+
+```typescript
+import { GridLegacy as Grid } from '@mui/material';
+```
+
+or include it in your existing MUI imports:
+
+```typescript
+import {
+  // other imports
+  GridLegacy as Grid,
+  // other imports
+} from '@mui/material';
+```
+
+## Proper Grid Usage
+
+When using Grid components, follow this pattern:
+
+```tsx
+<Grid container spacing={3}>
+  <Grid item xs={12} md={6}>
+    {/* Your content */}
+  </Grid>
+  <Grid item xs={12} md={6}>
+    {/* Your content */}
+  </Grid>
+</Grid>
+```
+
+## Common Properties
+
+- `container`: Used on parent Grid elements to create a container
+- `item`: Used on child Grid elements to create items
+- `spacing`: Controls the spacing between grid items (used on container)
+- `xs`, `sm`, `md`, `lg`, `xl`: Responsive breakpoints for different screen sizes
+
+## Reference Files
+
+For examples of proper Grid usage, see:
+- [DogsPage.tsx](mdc:src/pages/DogsPage.tsx)
+- [AdminPage.tsx](mdc:src/pages/AdminPage.tsx)
+
+
+
+
+

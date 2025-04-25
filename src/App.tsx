@@ -12,6 +12,7 @@ import DonatePage from './pages/DonatePage';
 import ResourcesPage from './pages/ResourcesPage';
 import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage';
+import AdminPage from './pages/AdminPage';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
               <Route path="/donate" element={<DonatePage />} />
               <Route path="/resources" element={<ResourcesPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/admin" element={<AdminPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Box>
