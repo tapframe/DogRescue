@@ -46,7 +46,7 @@ const Header = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
-
+  
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollPos = window.pageYOffset;
@@ -61,6 +61,11 @@ const Header = () => {
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
+
+  // Don't render header on admin page
+  if (location.pathname === '/admin' || location.pathname.startsWith('/admin/')) {
+    return null;
+  }
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);

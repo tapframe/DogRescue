@@ -152,11 +152,11 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
         </Avatar>
         <Box>
           <Typography variant="h6" fontWeight="bold" color="primary.main">
-            Dog Rescue
-          </Typography>
+          Dog Rescue
+        </Typography>
           <Typography variant="caption" sx={{ opacity: 0.7 }}>
             Admin Portal
-          </Typography>
+        </Typography>
         </Box>
       </Box>
       
@@ -249,21 +249,21 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
           >
             <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {isDarkMode ? 
                     <Brightness4Icon color="primary" sx={{ fontSize: 20 }} /> : 
                     <Brightness7Icon color="primary" sx={{ fontSize: 20 }} />
                   }
-                  <Typography variant="body2" sx={{ ml: 1.5, fontWeight: 'medium' }}>
-                    {isDarkMode ? 'Dark Mode' : 'Light Mode'}
-                  </Typography>
-                </Box>
-                <Switch
-                  checked={isDarkMode}
-                  onChange={handleThemeToggle}
-                  size="small"
-                  color="primary"
-                />
+              <Typography variant="body2" sx={{ ml: 1.5, fontWeight: 'medium' }}>
+                {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+              </Typography>
+            </Box>
+            <Switch
+              checked={isDarkMode}
+              onChange={handleThemeToggle}
+              size="small"
+              color="primary"
+            />
               </Box>
             </CardContent>
           </Card>
@@ -338,71 +338,71 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
           </IconButton>
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="h6" noWrap component="div" sx={{ 
-              color: 'text.primary',
+          <Typography variant="h6" noWrap component="div" sx={{ 
+            color: 'text.primary',
               fontWeight: 600
-            }}>
-              {title}
-            </Typography>
+          }}>
+            {title}
+          </Typography>
           </Box>
           
           <Box sx={{ flexGrow: 1 }} />
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Tooltip title="Help">
-              <IconButton 
+            <IconButton
                 size="large"
-                color="inherit"
-                sx={{ 
-                  ml: 1, 
+              color="inherit"
+              sx={{
+                ml: 1,
                   bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
-                  '&:hover': {
+                '&:hover': {
                     bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
-                  }
-                }}
-              >
+                }
+              }}
+            >
                 <HelpOutlineIcon />
-              </IconButton>
-            </Tooltip>
-            
+            </IconButton>
+          </Tooltip>
+          
             <Tooltip title="Notifications">
-              <IconButton
+          <IconButton 
                 size="large"
-                color="inherit"
+            color="inherit" 
                 onClick={handleNotificationMenuOpen}
-                sx={{ 
-                  ml: 1, 
+            sx={{ 
+              ml: 1,
                   bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
-                  '&:hover': {
+              '&:hover': {
                     bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
-                  }
-                }}
-              >
+              }
+            }}
+          >
                 <Badge badgeContent={3} color="error">
                   <NotificationsNoneIcon />
-                </Badge>
-              </IconButton>
+            </Badge>
+          </IconButton>
             </Tooltip>
-            
+          
             <Tooltip title="Account">
-              <IconButton
+          <IconButton 
                 size="large"
-                edge="end"
-                color="inherit"
+            edge="end" 
+            color="inherit" 
                 onClick={handleUserMenuOpen}
-                sx={{ 
-                  ml: 1, 
+            sx={{ 
+              ml: 1, 
                   display: { xs: 'none', md: 'flex' },
                   bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
-                  '&:hover': {
+              '&:hover': {
                     bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
-                  }
-                }}
-              >
+              }
+            }}
+          >
                 <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.main }}>
                   <PersonIcon sx={{ fontSize: 20 }} />
-                </Avatar>
-              </IconButton>
+            </Avatar>
+          </IconButton>
             </Tooltip>
             
             <IconButton
@@ -424,7 +424,7 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
           </Box>
         </Toolbar>
       </AppBar>
-      
+
       {/* Notification Menu */}
       <Menu
         anchorEl={notificationAnchorEl}
@@ -600,46 +600,46 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
       </Menu>
       
       {/* Drawer - Mobile */}
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
           keepMounted: true,
-        }}
-        sx={{
-          display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { 
-            boxSizing: 'border-box', 
-            width: drawerWidth,
+          }}
+          sx={{
+            display: { xs: 'block', md: 'none' },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
             borderRight: 'none',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
-          },
-        }}
-      >
-        {drawer}
-      </Drawer>
-      
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+
       {/* Drawer - Desktop */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          display: { xs: 'none', md: 'block' },
-          '& .MuiDrawer-paper': { 
-            boxSizing: 'border-box', 
-            width: drawerWidth,
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
             boxShadow: 'none',
             border: 'none',
             backgroundImage: 'none',
-            borderRight: '1px solid',
-            borderColor: 'divider'
-          },
-        }}
-        open
-      >
-        {drawer}
-      </Drawer>
-      
+              borderRight: '1px solid',
+              borderColor: 'divider'
+            },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
+
       {/* Main Content */}
       <Box
         component="main"
@@ -654,8 +654,8 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
           ml: { xs: 0, md: `${drawerWidth}px` }
         }}
       >
-        <Box
-          sx={{
+        <Box 
+          sx={{ 
             maxWidth: '1600px',
             mx: 'auto',
             pb: 4
