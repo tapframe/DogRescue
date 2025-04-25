@@ -406,7 +406,7 @@ const VolunteerPage = () => {
               >
                 <FavoriteIcon fontSize="small" sx={{ color: theme.palette.secondary.light, mr: 1 }} />
                 Over 500+ dogs helped by volunteers like you
-              </Typography>
+        </Typography>
             </Paper>
           </motion.div>
         </Box>
@@ -450,7 +450,7 @@ const VolunteerPage = () => {
                         }}
                       >
                         Make A Difference Today
-                      </Typography>
+        </Typography>
                     </Box>
                   </motion.div>
 
@@ -794,8 +794,8 @@ const VolunteerPage = () => {
                     } 
                   }}
                 >
-                  {volunteerOptions.map((option, index) => (
-                    <Grid item key={index} xs={12} sm={6} md={3}>
+            {volunteerOptions.map((option, index) => (
+              <Grid item key={index} xs={12} sm={6} md={3}>
                       <motion.div
                         variants={cardVariant}
                         whileHover={{ 
@@ -817,11 +817,11 @@ const VolunteerPage = () => {
                   }}
                 >
                   <Box sx={{ position: 'relative' }}>
-                    <CardMedia
-                      component="img"
+                  <CardMedia
+                    component="img"
                       height="180"
-                      image={option.image}
-                      alt={option.title}
+                    image={option.image}
+                    alt={option.title}
                       sx={{ 
                         height: 180,
                         objectFit: 'cover',
@@ -850,9 +850,9 @@ const VolunteerPage = () => {
                         height: 48
                       }}
                     >
-                      {option.icon}
+                        {option.icon}
                     </Avatar>
-                  </Box>
+                      </Box>
                   <CardContent sx={{ flexGrow: 1, p: 3, height: 170, display: 'flex', flexDirection: 'column' }}>
                     <Typography 
                       variant="h5" 
@@ -863,8 +863,8 @@ const VolunteerPage = () => {
                         mb: 1
                       }}
                     >
-                      {option.title}
-                    </Typography>
+                        {option.title}
+                      </Typography>
                     <Typography 
                       variant="body1" 
                       color="text.secondary"
@@ -889,9 +889,9 @@ const VolunteerPage = () => {
                   </CardContent>
                 </Card>
                       </motion.div>
-                    </Grid>
-                  ))}
-                </Grid>
+              </Grid>
+            ))}
+          </Grid>
               </motion.div>
         </Box>
           </motion.div>
@@ -1072,7 +1072,7 @@ const VolunteerPage = () => {
                         >
                           {step.description}
                         </Typography>
-                      </Paper>
+        </Paper>
                     </motion.div>
                   </Grid>
                 ))}
