@@ -16,14 +16,22 @@ import {
   MenuItem,
   Snackbar,
   Alert,
-  SelectChangeEvent
+  SelectChangeEvent,
+  useTheme,
+  alpha,
+  Avatar
 } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import SendIcon from '@mui/icons-material/Send';
+import PetsIcon from '@mui/icons-material/Pets';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 
 const ContactPage = () => {
+  const theme = useTheme();
+  
   // Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -92,194 +100,390 @@ const ContactPage = () => {
   ];
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold', mb: 2 }}>
-          Contact Us
-        </Typography>
-        <Typography variant="subtitle1" align="center" sx={{ mb: 6, maxWidth: 800, mx: 'auto' }}>
-          Have questions about adoption, volunteering, or how you can help? We'd love to hear from you!
-        </Typography>
+    <Box 
+      sx={{ 
+        position: 'relative',
+        pt: 4,
+        pb: 8,
+        backgroundColor: alpha(theme.palette.primary.light, 0.05),
+        backgroundImage: 'radial-gradient(circle at 25px 25px, rgba(0,0,0,0.1) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(0,0,0,0.05) 2%, transparent 0%)',
+        backgroundSize: '100px 100px',
+      }}
+    >
+      {/* Decorative element */}
+      <Box 
+        sx={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          height: '200px', 
+          background: `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.15)} 0%, transparent 100%)`,
+          zIndex: 0 
+        }} 
+      />
+      
+      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
+        <Box sx={{ my: 4 }}>
+          <Typography 
+            variant="h3" 
+            component="h1" 
+            gutterBottom 
+            align="center" 
+            sx={{ 
+              fontWeight: 'bold', 
+              mb: 1.5,
+              background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            Contact Us
+          </Typography>
+          
+          <Typography 
+            variant="subtitle1" 
+            align="center" 
+            sx={{ 
+              mb: 7, 
+              maxWidth: 700, 
+              mx: 'auto',
+              fontSize: '1.1rem',
+              color: alpha(theme.palette.text.primary, 0.8)
+            }}
+          >
+            Have questions about adoption, volunteering, or how you can help? 
+            We'd love to hear from you and help find the perfect furry companion for your family!
+          </Typography>
 
-        {/* Contact Information Cards */}
-        <Grid container spacing={3} sx={{ mb: 6 }}>
-          {contactInfo.map((info, index) => (
-            <Grid item key={index} xs={12} sm={6} md={3}>
-              <Card sx={{ height: '100%', textAlign: 'center' }}>
-                <CardContent>
-                  <Box sx={{ color: 'primary.main', mb: 2 }}>
-                    {info.icon}
-                  </Box>
-                  <Typography variant="h6" component="div" gutterBottom>
-                    {info.title}
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 1, fontWeight: 'medium' }}>
-                    {info.content}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {info.description}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-
-        {/* Contact Form & Map */}
-        <Grid container spacing={4}>
-          {/* Contact Form */}
-          <Grid item xs={12} md={7}>
-            <Paper sx={{ p: 4, borderRadius: 2 }}>
-              <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 4 }}>
-                Send Us a Message
-              </Typography>
-              <Box component="form" onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      required
-                      fullWidth
-                      label="Full Name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      required
-                      fullWidth
-                      label="Email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Phone Number"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth required>
-                      <InputLabel>Subject</InputLabel>
-                      <Select
-                        value={subject}
-                        onChange={handleSubjectChange}
-                        label="Subject"
-                      >
-                        <MenuItem value="Adoption Inquiry">Adoption Inquiry</MenuItem>
-                        <MenuItem value="Volunteer Information">Volunteer Information</MenuItem>
-                        <MenuItem value="Donation Question">Donation Question</MenuItem>
-                        <MenuItem value="General Question">General Question</MenuItem>
-                        <MenuItem value="Other">Other</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      required
-                      fullWidth
-                      label="Message"
-                      multiline
-                      rows={6}
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      fullWidth
-                      disabled={isSubmitting}
-                      sx={{ py: 1.5 }}
+          {/* Contact Information Cards */}
+          <Grid container spacing={3} sx={{ mb: 8 }}>
+            {contactInfo.map((info, index) => (
+              <Grid item key={index} xs={12} sm={6} md={3}>
+                <Card 
+                  elevation={2}
+                  sx={{ 
+                    height: '100%', 
+                    textAlign: 'center',
+                    borderRadius: 3,
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: theme.shadows[8],
+                    }
+                  }}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Avatar 
+                      sx={{ 
+                        width: 56, 
+                        height: 56, 
+                        mb: 2, 
+                        mx: 'auto',
+                        backgroundColor: theme.palette.primary.main,
+                        color: theme.palette.primary.contrastText,
+                      }}
                     >
-                      {isSubmitting ? 'Sending...' : 'Send Message'}
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Box>
-            </Paper>
+                      {info.icon}
+                    </Avatar>
+                    <Typography variant="h6" component="div" gutterBottom fontWeight={600}>
+                      {info.title}
+                    </Typography>
+                    <Typography variant="body1" sx={{ mb: 1.5, fontWeight: 'medium' }}>
+                      {info.content}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {info.description}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
 
-          {/* Map and Additional Info */}
-          <Grid item xs={12} md={5}>
-            <Paper sx={{ height: '100%', p: 0, borderRadius: 2, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              {/* Map (placeholder - in a real app, would be a Google Maps component) */}
-              <Box
-                sx={{
-                  height: 250,
-                  bgcolor: 'grey.200',
-                  position: 'relative',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
+          {/* Contact Form & Map */}
+          <Grid container spacing={4}>
+            {/* Contact Form */}
+            <Grid item xs={12} md={7}>
+              <Paper 
+                elevation={3} 
+                sx={{ 
+                  p: { xs: 3, md: 5 }, 
+                  borderRadius: 3,
+                  background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
                 }}
               >
-                <Typography variant="body1" color="text.secondary">
-                  Map Placeholder
+                <Typography 
+                  variant="h4" 
+                  component="h2" 
+                  gutterBottom 
+                  sx={{ 
+                    mb: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    fontWeight: 600,
+                    color: theme.palette.primary.main
+                  }}
+                >
+                  <SendIcon /> Send Us a Message
                 </Typography>
-                {/* In a real app, embed Google Maps here */}
-              </Box>
-              
-              <Divider />
-              
-              {/* Additional Info */}
-              <Box sx={{ p: 3, flexGrow: 1 }}>
-                <Typography variant="h6" gutterBottom>
-                  Visit Our Shelter
-                </Typography>
-                <Typography variant="body2" paragraph>
-                  If you'd like to meet our dogs in person, please schedule a visit.
-                  We recommend making an appointment so we can provide you with the best experience.
-                </Typography>
-                
-                <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-                  Emergency Contact
-                </Typography>
-                <Typography variant="body2" paragraph>
-                  For dog-related emergencies, please call our emergency line at (123) 456-7999.
-                  This line is monitored 24/7 for urgent situations only.
-                </Typography>
-                
-                <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-                  Follow Us
-                </Typography>
-                <Typography variant="body2">
-                  Stay updated with our latest rescues and success stories by following us on social media.
-                </Typography>
-                
-                <Box sx={{ mt: 2 }}>
-                  <Button variant="contained" color="primary" href="/dogs" sx={{ mr: 2, mb: 1 }}>
-                    See Available Dogs
-                  </Button>
-                  <Button variant="outlined" color="primary" href="/volunteer" sx={{ mb: 1 }}>
-                    Volunteer With Us
-                  </Button>
+                <Box component="form" onSubmit={handleSubmit}>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        required
+                        fullWidth
+                        label="Full Name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        variant="outlined"
+                        InputProps={{ sx: { borderRadius: 2 } }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        required
+                        fullWidth
+                        label="Email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        variant="outlined"
+                        InputProps={{ sx: { borderRadius: 2 } }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Phone Number"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        variant="outlined"
+                        InputProps={{ sx: { borderRadius: 2 } }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <FormControl fullWidth required>
+                        <InputLabel>Subject</InputLabel>
+                        <Select
+                          value={subject}
+                          onChange={handleSubjectChange}
+                          label="Subject"
+                          sx={{ borderRadius: 2 }}
+                        >
+                          <MenuItem value="Adoption Inquiry">Adoption Inquiry</MenuItem>
+                          <MenuItem value="Volunteer Information">Volunteer Information</MenuItem>
+                          <MenuItem value="Donation Question">Donation Question</MenuItem>
+                          <MenuItem value="General Question">General Question</MenuItem>
+                          <MenuItem value="Other">Other</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        fullWidth
+                        label="Message"
+                        multiline
+                        rows={6}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        variant="outlined"
+                        InputProps={{ sx: { borderRadius: 2 } }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        fullWidth
+                        disabled={isSubmitting}
+                        sx={{ 
+                          py: 1.5, 
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          fontSize: '1rem',
+                          fontWeight: 600,
+                          boxShadow: theme.shadows[4],
+                          '&:hover': {
+                            boxShadow: theme.shadows[8],
+                          }
+                        }}
+                        endIcon={<SendIcon />}
+                      >
+                        {isSubmitting ? 'Sending...' : 'Send Message'}
+                      </Button>
+                    </Grid>
+                  </Grid>
                 </Box>
-              </Box>
-            </Paper>
-          </Grid>
-        </Grid>
+              </Paper>
+            </Grid>
 
-        {/* Success/Error Notifications */}
-        <Snackbar open={submitSuccess} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-          <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-            Your message has been sent! We'll get back to you soon.
-          </Alert>
-        </Snackbar>
-        <Snackbar open={submitError} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-          <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
-            There was an error sending your message. Please try again.
-          </Alert>
-        </Snackbar>
-      </Box>
-    </Container>
+            {/* Map and Additional Info */}
+            <Grid item xs={12} md={5}>
+              <Paper 
+                elevation={3} 
+                sx={{ 
+                  height: '100%', 
+                  p: 0, 
+                  borderRadius: 3, 
+                  overflow: 'hidden', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  background: theme.palette.background.paper,
+                }}
+              >
+                {/* Map (placeholder - in a real app, would be a Google Maps component) */}
+                <Box
+                  sx={{
+                    height: 250,
+                    bgcolor: alpha(theme.palette.primary.light, 0.1),
+                    position: 'relative',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundImage: 'url("https://via.placeholder.com/600x250?text=Map+Placeholder")',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                >
+                  <Paper 
+                    elevation={4} 
+                    sx={{ 
+                      p: 1.5, 
+                      borderRadius: 2, 
+                      backgroundColor: alpha(theme.palette.background.paper, 0.85),
+                      backdropFilter: 'blur(4px)'
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight={500}>
+                      Dog Rescue Mission
+                    </Typography>
+                  </Paper>
+                </Box>
+                
+                <Divider />
+                
+                {/* Additional Info */}
+                <Box sx={{ p: 3.5, flexGrow: 1 }}>
+                  <Typography 
+                    variant="h6" 
+                    gutterBottom 
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1,
+                      color: theme.palette.primary.main,
+                      fontWeight: 600
+                    }}
+                  >
+                    <LocationOnIcon /> Visit Our Shelter
+                  </Typography>
+                  <Typography variant="body2" paragraph sx={{ ml: 4 }}>
+                    If you'd like to meet our dogs in person, please schedule a visit.
+                    We recommend making an appointment so we can provide you with the best experience.
+                  </Typography>
+                  
+                  <Typography 
+                    variant="h6" 
+                    gutterBottom 
+                    sx={{ 
+                      mt: 3, 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1,
+                      color: theme.palette.error.main,
+                      fontWeight: 600
+                    }}
+                  >
+                    <PhoneIcon /> Emergency Contact
+                  </Typography>
+                  <Typography variant="body2" paragraph sx={{ ml: 4 }}>
+                    For dog-related emergencies, please call our emergency line at <b>(123) 456-7999</b>.
+                    This line is monitored 24/7 for urgent situations only.
+                  </Typography>
+                  
+                  <Typography 
+                    variant="h6" 
+                    gutterBottom 
+                    sx={{ 
+                      mt: 3, 
+                      color: theme.palette.secondary.main,
+                      fontWeight: 600 
+                    }}
+                  >
+                    Follow Us
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 3 }}>
+                    Stay updated with our latest rescues and success stories by following us on social media.
+                  </Typography>
+                  
+                  <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                    <Button 
+                      variant="contained" 
+                      color="primary" 
+                      href="/dogs" 
+                      startIcon={<PetsIcon />}
+                      sx={{ 
+                        borderRadius: 6,
+                        px: 2.5,
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        boxShadow: theme.shadows[2],
+                        '&:hover': { boxShadow: theme.shadows[6] }
+                      }}
+                    >
+                      See Available Dogs
+                    </Button>
+                    <Button 
+                      variant="outlined" 
+                      color="secondary" 
+                      href="/volunteer" 
+                      startIcon={<VolunteerActivismIcon />}
+                      sx={{ 
+                        borderRadius: 6,
+                        px: 2.5,
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        borderWidth: 2,
+                        '&:hover': { borderWidth: 2 }
+                      }}
+                    >
+                      Volunteer With Us
+                    </Button>
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+
+          {/* Success/Error Notifications */}
+          <Snackbar open={submitSuccess} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+            <Alert 
+              onClose={handleCloseSnackbar} 
+              severity="success" 
+              sx={{ width: '100%', borderRadius: 2 }}
+              variant="filled"
+            >
+              Your message has been sent! We'll get back to you soon.
+            </Alert>
+          </Snackbar>
+          <Snackbar open={submitError} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+            <Alert 
+              onClose={handleCloseSnackbar} 
+              severity="error" 
+              sx={{ width: '100%', borderRadius: 2 }}
+              variant="filled"
+            >
+              There was an error sending your message. Please try again.
+            </Alert>
+          </Snackbar>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 
