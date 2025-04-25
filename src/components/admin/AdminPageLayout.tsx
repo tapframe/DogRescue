@@ -49,6 +49,7 @@ interface AdminPageLayoutProps {
   title?: string;
   currentTab?: number;
   onTabChange?: (tabIndex: number) => void;
+  actions?: ReactNode[];
 }
 
 // Drawer width
@@ -58,7 +59,8 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
   children, 
   title = 'Admin Dashboard',
   currentTab = 0,
-  onTabChange
+  onTabChange,
+  actions
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -337,72 +339,79 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
             <MenuIcon />
           </IconButton>
           
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography variant="h6" noWrap component="div" sx={{ 
-            color: 'text.primary',
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            <Typography variant="h6" noWrap component="div" sx={{ 
+              color: 'text.primary',
               fontWeight: 600
-          }}>
-            {title}
-          </Typography>
+            }}>
+              {title}
+            </Typography>
+            
+            {/* Render custom actions if provided */}
+            {actions && actions.length > 0 && (
+              <Stack direction="row" spacing={2} sx={{ ml: 'auto', mr: 2 }}>
+                {actions.map((action, index) => (
+                  <Box key={index}>{action}</Box>
+                ))}
+              </Stack>
+            )}
           </Box>
-          
-          <Box sx={{ flexGrow: 1 }} />
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Tooltip title="Help">
-            <IconButton
+              <IconButton
                 size="large"
-              color="inherit"
-              sx={{
-                ml: 1,
+                color="inherit"
+                sx={{
+                  ml: 1,
                   bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
-                '&:hover': {
+                  '&:hover': {
                     bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
-                }
-              }}
-            >
+                  }
+                }}
+              >
                 <HelpOutlineIcon />
-            </IconButton>
-          </Tooltip>
-          
+              </IconButton>
+            </Tooltip>
+            
             <Tooltip title="Notifications">
-          <IconButton 
+              <IconButton 
                 size="large"
-            color="inherit" 
+                color="inherit" 
                 onClick={handleNotificationMenuOpen}
-            sx={{ 
-              ml: 1,
+                sx={{ 
+                  ml: 1,
                   bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
-              '&:hover': {
+                  '&:hover': {
                     bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
-              }
-            }}
-          >
+                  }
+                }}
+              >
                 <Badge badgeContent={3} color="error">
                   <NotificationsNoneIcon />
-            </Badge>
-          </IconButton>
+                </Badge>
+              </IconButton>
             </Tooltip>
-          
+            
             <Tooltip title="Account">
-          <IconButton 
+              <IconButton 
                 size="large"
-            edge="end" 
-            color="inherit" 
+                edge="end" 
+                color="inherit" 
                 onClick={handleUserMenuOpen}
-            sx={{ 
-              ml: 1, 
+                sx={{ 
+                  ml: 1, 
                   display: { xs: 'none', md: 'flex' },
                   bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
-              '&:hover': {
+                  '&:hover': {
                     bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
-              }
-            }}
-          >
+                  }
+                }}
+              >
                 <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.main }}>
                   <PersonIcon sx={{ fontSize: 20 }} />
-            </Avatar>
-          </IconButton>
+                </Avatar>
+              </IconButton>
             </Tooltip>
             
             <IconButton
@@ -599,7 +608,7 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
         </MenuItem>
       </Menu>
       
-      {/* Drawer - Mobile */}
+      {/* Mobile Drawer */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -646,7 +655,7 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
         sx={{ 
           flexGrow: 1, 
           p: 3, 
-          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` }, 
+          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
           height: '100vh',
           overflow: 'auto',
           bgcolor: 'background.default',
@@ -668,4 +677,4 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
   );
 };
 
-export default AdminPageLayout; 
+export default AdminPageLayout;

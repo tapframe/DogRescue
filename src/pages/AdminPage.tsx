@@ -28,12 +28,19 @@ import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import AddIcon from '@mui/icons-material/Add';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import ParkIcon from '@mui/icons-material/Park';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 // Components
 import AdminPageLayout from '../components/admin/AdminPageLayout';
 import DogManagementTab from '../components/admin/DogManagementTab';
 import VolunteerManagementTab from '../components/admin/VolunteerManagementTab';
 import { AdminThemeProvider } from '../contexts/AdminThemeContext';
+
+// Auth service
+import authService from '../services/authService';
+
+// Navigation
+import { useNavigate } from 'react-router-dom';
 
 // Mock data and API
 import { dogApi, volunteerApi } from '../services/api';
@@ -588,6 +595,7 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
 const AdminPage = () => {
   // Tab state
   const [tabValue, setTabValue] = useState(-1);
+  const navigate = useNavigate();
   
   // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -611,6 +619,17 @@ const AdminPage = () => {
     setSnackbarOpen(true);
   };
 
+  // Handle logout
+  const handleLogout = () => {
+    authService.logout();
+    showNotification('Logged out successfully', 'success');
+    
+    // Redirect to login after a short delay
+    setTimeout(() => {
+      navigate('/admin-login-7a91b523e61');
+    }, 1000);
+  };
+
   // Get the current tab title
   const getTabTitle = () => {
     switch (tabValue) {
@@ -629,6 +648,18 @@ const AdminPage = () => {
         title={getTabTitle()}
         currentTab={tabValue}
         onTabChange={handleTabChange}
+        actions={[
+          <Button
+            key="logout"
+            variant="outlined"
+            color="error"
+            startIcon={<LogoutIcon />}
+            onClick={handleLogout}
+            sx={{ borderRadius: 2 }}
+          >
+            Logout
+          </Button>
+        ]}
       >
         {/* Dashboard */}
         <TabPanel value={tabValue} index={-1}>

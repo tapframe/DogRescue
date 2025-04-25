@@ -14,12 +14,29 @@ import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminPage from './pages/AdminPage';
 
+// Import secret admin login page
+import SecretLoginPage from './pages/admin/SecretLoginPage';
+
+// Import protected route component
+import ProtectedRoute from './components/auth/ProtectedRoute';
+
 function App() {
   return (
     <>
-      {/* Admin route rendered outside of main layout */}
+      {/* Admin and secret routes rendered outside of main layout */}
       <Routes>
-        <Route path="/admin" element={<AdminPage />} />
+        {/* Secret Admin Login - using obscure path to make it harder to discover */}
+        <Route path="/admin-login-7a91b523e61" element={<SecretLoginPage />} />
+        
+        {/* Protected Admin Route */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute>
+              <AdminPage />
+            </ProtectedRoute>
+          } 
+        />
       </Routes>
       
       {/* Non-admin routes with the standard layout */}

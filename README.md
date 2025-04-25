@@ -98,4 +98,83 @@ cd backend && npm run build
     - `/controllers` - Request handlers
     - `/models` - Database models
     - `/routes` - API routes
-    - `/config` - Configuration files 
+    - `/config` - Configuration files
+
+# Dog Rescue Admin System
+
+This is the admin system for the Dog Rescue site, allowing for management of dogs, volunteers, and other resources.
+
+## Features
+
+- Dashboard with key metrics
+- Dog management (add, edit, delete)
+- Volunteer management
+- Admin account creation and authentication
+
+## Accessing the Admin Panel
+
+For security reasons, the admin panel is accessed through a secret URL:
+
+```
+/admin-login-7a91b523e61
+```
+
+This URL is not linked from the main website and should be shared only with authorized personnel.
+
+### First-time Admin Registration
+
+To create a new admin account, you will need:
+
+1. The secret admin registration key
+2. Go to the secret login URL: `/admin-login-7a91b523e61`
+3. Click "Need an admin account? Register"
+4. Fill in the form with your desired username and password
+5. Enter the secret key: `DogRescue_SuperSecret_2024`
+6. Click Register
+
+### Logging In
+
+1. Navigate to `/admin-login-7a91b523e61`
+2. Enter your username and password
+3. Click Sign In
+
+### Security Notes
+
+- The admin URL should never be shared publicly or included in public documentation
+- The secret registration key should be changed in production
+- In a production environment, this would use more robust security measures like:
+  - Environment variables for secrets
+  - Server-side validation
+  - Rate limiting
+  - IP restriction
+
+## Development
+
+This is a React application built with:
+
+- React
+- TypeScript
+- Material UI
+- React Router
+
+### Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+## Production
+
+For production deployment:
+
+```bash
+# Build the application
+npm run build
+
+# Preview the production build
+npm run preview
+``` 
