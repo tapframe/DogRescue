@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -40,11 +40,23 @@ const SecretLoginPage = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
+  // Clear any existing auth state when the component mounts
+  useEffect(() => {
+    console.log('Clearing authentication state...');
+    authService.clearStorage();
+    setError('');
+  }, []);
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
     try {
+      // Clear auth before attempting login to prevent token conflicts
+      authService.clearStorage();
+      
+      console.log('Attempting login with:', username);
       const response = await authService.login({ username, password });
       
       if (response.success) {
@@ -66,6 +78,7 @@ const SecretLoginPage = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
     if (!secretKey) {
       setError('Secret key is required for registration');
@@ -74,6 +87,10 @@ const SecretLoginPage = () => {
     }
     
     try {
+      // Clear auth before attempting registration
+      authService.clearStorage();
+      
+      console.log('Attempting registration with:', username);
       const response = await authService.registerAdmin({
         username,
         password,

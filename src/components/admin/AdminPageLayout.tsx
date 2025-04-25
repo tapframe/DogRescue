@@ -43,6 +43,8 @@ import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useAdminTheme } from '../../hooks/useAdminTheme';
+import { authService } from '../../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminPageLayoutProps {
   children: ReactNode;
@@ -55,6 +57,15 @@ interface AdminPageLayoutProps {
 // Drawer width
 const drawerWidth = 280;
 
+// Interface for Admin User
+interface AdminUser {
+  id: string;
+  username: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({ 
   children, 
   title = 'Admin Dashboard',
@@ -63,10 +74,15 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
   actions
 }) => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const { mode, toggleColorMode } = useAdminTheme();
   const isDarkMode = mode === 'dark';
+  
+  // Current admin user state
+  const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Menu states
   const [notificationAnchorEl, setNotificationAnchorEl] = useState<null | HTMLElement>(null);
@@ -76,6 +92,42 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
   const isNotificationMenuOpen = Boolean(notificationAnchorEl);
   const isUserMenuOpen = Boolean(userMenuAnchorEl);
   const isMoreMenuOpen = Boolean(moreMenuAnchorEl);
+
+  // Fetch current admin user on component mount
+  useEffect(() => {
+    const fetchAdminUser = async () => {
+      setIsLoading(true);
+      try {
+        // Get admin user from auth service
+        const adminData = authService.getCurrentAdmin();
+        
+        if (adminData) {
+          setCurrentAdmin(adminData);
+        } else {
+          // If no stored user, check if token is valid and get user details
+          const isValid = await authService.verifyToken();
+          if (!isValid) {
+            // If token is invalid, redirect to login
+            console.log('Invalid token, redirecting to login...');
+            authService.logout();
+            navigate('/admin-login-7a91b523e61');
+          } else {
+            // Token is valid, load the admin user data again (should be set by verifyToken)
+            const refreshedAdmin = authService.getCurrentAdmin();
+            if (refreshedAdmin) {
+              setCurrentAdmin(refreshedAdmin);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching admin user:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchAdminUser();
+  }, [navigate]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -118,6 +170,13 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
   
   const handleMoreMenuClose = () => {
     setMoreMenuAnchorEl(null);
+  };
+  
+  // Handle logout
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/admin-login-7a91b523e61');
+    handleUserMenuClose();
   };
 
   const menuItems = [
@@ -297,11 +356,15 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
             height: 40, 
             bgcolor: theme.palette.primary.main
           }}>
-            <PersonIcon />
+            {currentAdmin?.name ? currentAdmin.name.charAt(0).toUpperCase() : <PersonIcon />}
           </Avatar>
           <Box sx={{ ml: 1.5, overflow: 'hidden' }}>
-            <Typography variant="subtitle2" fontWeight="medium" noWrap>Admin User</Typography>
-            <Typography variant="caption" color="textSecondary" noWrap>admin@example.com</Typography>
+            <Typography variant="subtitle2" fontWeight="medium" noWrap>
+              {isLoading ? 'Loading...' : (currentAdmin?.name || currentAdmin?.username || 'Admin User')}
+            </Typography>
+            <Typography variant="caption" color="textSecondary" noWrap>
+              {isLoading ? '' : (currentAdmin?.email || 'admin@example.com')}
+            </Typography>
           </Box>
           <KeyboardArrowDownIcon sx={{ ml: 'auto', fontSize: 20, color: 'text.secondary' }} />
         </Box>
@@ -409,7 +472,7 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
                 }}
               >
                 <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.main }}>
-                  <PersonIcon sx={{ fontSize: 20 }} />
+                  {currentAdmin?.name ? currentAdmin.name.charAt(0).toUpperCase() : <PersonIcon sx={{ fontSize: 20 }} />}
                 </Avatar>
               </IconButton>
             </Tooltip>
@@ -548,8 +611,12 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <Box sx={{ px: 2, pt: 2, pb: 1.5 }}>
-          <Typography variant="subtitle2">Admin User</Typography>
-          <Typography variant="body2" color="text.secondary">admin@example.com</Typography>
+          <Typography variant="subtitle2">
+            {currentAdmin?.name || currentAdmin?.username || 'Admin User'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {currentAdmin?.email || 'admin@example.com'}
+          </Typography>
         </Box>
         <Divider />
         <MenuItem onClick={handleUserMenuClose} sx={{ py: 1.5 }}>
@@ -565,7 +632,7 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
           <Typography variant="body2">Account Settings</Typography>
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleUserMenuClose} sx={{ py: 1.5 }}>
+        <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" />
           </ListItemIcon>
@@ -605,6 +672,13 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
             {isDarkMode ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
           </ListItemIcon>
           <Typography variant="body2">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</Typography>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
+          <ListItemIcon>
+            <LogoutIcon fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Logout</Typography>
         </MenuItem>
       </Menu>
       
@@ -650,28 +724,17 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
         </Drawer>
 
       {/* Main Content */}
-      <Box
-        component="main"
-        sx={{ 
-          flexGrow: 1, 
-          p: 3, 
-          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
-          height: '100vh',
-          overflow: 'auto',
-          bgcolor: 'background.default',
-          pt: { xs: '70px', sm: '80px' },
-          ml: { xs: 0, md: `${drawerWidth}px` }
-        }}
-      >
-        <Box 
-          sx={{ 
-            maxWidth: '1600px',
-            mx: 'auto',
-            pb: 4
-          }}
-        >
-          {children}
-        </Box>
+      <Box sx={{
+        flexGrow: 1,
+        width: { md: `calc(100% - ${drawerWidth}px)` },
+        ml: { md: `${drawerWidth}px` },
+        p: 3,
+        pt: { xs: 10, md: 11 },
+        maxHeight: '100vh',
+        overflow: 'auto',
+        bgcolor: theme.palette.mode === 'dark' ? 'background.default' : alpha(theme.palette.primary.main, 0.02)
+      }}>
+        {children}
       </Box>
     </Box>
   );

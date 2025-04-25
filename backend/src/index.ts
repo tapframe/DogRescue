@@ -6,6 +6,7 @@ import connectDB from './config/db';
 // Route imports
 import dogRoutes from './routes/dogs';
 import volunteerRoutes from './routes/volunteers';
+import authRoutes from './routes/auth';
 
 // Load env vars
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(cors());
 // Mount routes
 app.use('/api/dogs', dogRoutes);
 app.use('/api/volunteers', volunteerRoutes);
+app.use('/api/auth', authRoutes);
 
 // Base route
 app.get('/', (req, res) => {

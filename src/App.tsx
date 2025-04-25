@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Outlet } from 'react-router-dom';
 import { Box } from '@mui/material';
 import Layout from './components/layout/Layout';
 
@@ -23,18 +23,23 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 // Import keyboard shortcut listener
 import KeyboardShortcutListener from './components/auth/KeyboardShortcutListener';
 
+// Layout wrapper component to use with React Router
+const MainLayout = () => (
+  <Layout>
+    <Outlet />
+  </Layout>
+);
+
 function App() {
   return (
     <>
       {/* Keyboard shortcut listener for admin access */}
       <KeyboardShortcutListener />
       
-      {/* Admin and secret routes rendered outside of main layout */}
+      {/* Single Routes component with proper route organization */}
       <Routes>
-        {/* Secret Admin Login - using obscure path to make it harder to discover */}
+        {/* Admin routes - these need to be outside Layout */}
         <Route path="/admin-login-7a91b523e61" element={<SecretLoginPage />} />
-        
-        {/* Protected Admin Route */}
         <Route 
           path="/admin" 
           element={
@@ -43,28 +48,21 @@ function App() {
             </ProtectedRoute>
           } 
         />
-      </Routes>
-      
-      {/* Non-admin routes with the standard layout */}
-      <Routes>
-        <Route 
-          path="*" 
-          element={
-            <Layout>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/dogs" element={<DogsPage />} />
-                <Route path="/dogs/:id" element={<DogDetailPage />} />
-                <Route path="/volunteer" element={<VolunteerPage />} />
-                <Route path="/donate" element={<DonatePage />} />
-                <Route path="/resources" element={<ResourcesPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </Layout>
-          } 
-        />
+        
+        {/* Regular routes with standard layout */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/dogs" element={<DogsPage />} />
+          <Route path="/dogs/:id" element={<DogDetailPage />} />
+          <Route path="/volunteer" element={<VolunteerPage />} />
+          <Route path="/donate" element={<DonatePage />} />
+          <Route path="/resources" element={<ResourcesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+        </Route>
+        
+        {/* 404 route - this should be last */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );
