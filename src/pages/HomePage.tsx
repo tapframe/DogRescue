@@ -323,7 +323,7 @@ const HomePage = () => {
                     variant="outlined" 
                     size="large" 
                     component={RouterLink} 
-                    to="/volunteer"
+                    to="/rescue"
                     sx={{ 
                       borderColor: 'white', 
                       color: 'white',
@@ -342,7 +342,7 @@ const HomePage = () => {
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    Volunteer With Us
+                    Report a Rescue
                   </Button>
                 </Stack>
               </motion.div>
