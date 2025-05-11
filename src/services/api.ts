@@ -365,4 +365,159 @@ export const volunteerApi = {
   }
 };
 
+// Define interface for rescue submission data
+export interface RescueSubmissionData {
+  _id?: string;
+  id?: number;
+  name?: string;
+  breed?: string;
+  gender: string;
+  age: string;
+  size: string;
+  location: string;
+  description: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  imageUrls?: string[];
+  status?: 'pending' | 'processing' | 'rescued' | 'closed';
+  submittedAt?: string;
+}
+
+// Mock rescue submissions data
+const mockRescueSubmissions: RescueSubmissionData[] = [
+  {
+    id: 1,
+    gender: 'Male',
+    age: 'Adult (3-8 years)',
+    size: 'Medium',
+    location: 'Central Park, near the fountain',
+    description: 'Found a stray dog that appears to be abandoned. He is friendly but looks hungry and tired.',
+    contactName: 'Jane Smith',
+    contactEmail: 'jane.smith@example.com',
+    contactPhone: '(555) 123-4567',
+    status: 'pending',
+    submittedAt: '2023-05-10T14:30:00Z'
+  },
+  {
+    id: 2,
+    name: 'Buddy',
+    breed: 'Golden Retriever Mix',
+    gender: 'Male',
+    age: 'Young (1-3 years)',
+    size: 'Large',
+    location: 'Main Street, behind the old grocery store',
+    description: 'Dog has a collar but no tags. Seems well-behaved but is limping on one leg.',
+    contactName: 'Robert Johnson',
+    contactEmail: 'robert.j@example.com',
+    contactPhone: '(555) 987-6543',
+    status: 'processing',
+    submittedAt: '2023-05-12T09:15:00Z'
+  },
+  {
+    id: 3,
+    name: 'Unknown',
+    gender: 'Female',
+    age: 'Puppy (Under 1 year)',
+    size: 'Small',
+    location: 'Westside neighborhood, near Oak Street',
+    description: 'Found a small puppy hiding under a parked car. Appears to be malnourished and scared.',
+    contactName: 'Maria Garcia',
+    contactEmail: 'maria.g@example.com',
+    contactPhone: '(555) 456-7890',
+    status: 'rescued',
+    submittedAt: '2023-05-14T16:45:00Z'
+  }
+];
+
+// Rescue submission API calls
+export const rescueApi = {
+  // Submit a new rescue request
+  submitRescueRequest: async (rescueData: RescueSubmissionData): Promise<RescueSubmissionData> => {
+    try {
+      const response = await api.post('/rescue-submissions', rescueData);
+      return response.data.data;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      // Create a mock response
+      const mockResponse: RescueSubmissionData = {
+        ...rescueData,
+        _id: Math.random().toString(36).substring(2, 15),
+        id: Math.max(...mockRescueSubmissions.map(r => r.id || 0)) + 1,
+        status: 'pending',
+        submittedAt: new Date().toISOString()
+      };
+      // Add to mock data for future reference
+      mockRescueSubmissions.push(mockResponse);
+      return Promise.resolve(mockResponse);
+    }
+  },
+
+  // Get all rescue submissions (for admin use)
+  getAllRescueSubmissions: async (): Promise<RescueSubmissionData[]> => {
+    try {
+      const response = await api.get('/rescue-submissions');
+      return response.data.data;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      // Return mock data
+      return Promise.resolve([...mockRescueSubmissions].map(submission => ({
+        ...submission,
+        _id: submission.id?.toString()
+      })));
+    }
+  },
+
+  // Get rescue submission by ID
+  getRescueSubmissionById: async (id: string): Promise<RescueSubmissionData> => {
+    try {
+      const response = await api.get(`/rescue-submissions/${id}`);
+      return response.data.data;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      // Return mock data
+      return Promise.resolve({
+        _id: id,
+        id: parseInt(id),
+        gender: 'Unknown',
+        age: 'Adult (3-8 years)',
+        size: 'Medium',
+        location: 'Mock Location',
+        description: 'This is a mock rescue submission',
+        contactName: 'Mock User',
+        contactEmail: 'mock@example.com',
+        contactPhone: '(555) 123-4567',
+        status: 'pending',
+        submittedAt: new Date().toISOString()
+      });
+    }
+  },
+
+  // Update rescue submission status
+  updateRescueSubmission: async (id: string, data: Partial<RescueSubmissionData>): Promise<RescueSubmissionData> => {
+    try {
+      const response = await api.put(`/rescue-submissions/${id}`, data);
+      return response.data.data;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      // Return mock updated data
+      return Promise.resolve({
+        _id: id,
+        id: parseInt(id),
+        gender: 'Unknown',
+        age: 'Adult (3-8 years)',
+        size: 'Medium',
+        location: 'Mock Location',
+        description: 'This is a mock rescue submission',
+        contactName: 'Mock User',
+        contactEmail: 'mock@example.com',
+        contactPhone: '(555) 123-4567',
+        ...data,
+        status: data.status || 'pending',
+        submittedAt: new Date().toISOString()
+      });
+    }
+  }
+};
+
 export default api; 

@@ -34,6 +34,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AdminPageLayout from '../components/admin/AdminPageLayout';
 import DogManagementTab from '../components/admin/DogManagementTab';
 import VolunteerManagementTab from '../components/admin/VolunteerManagementTab';
+import RescueManagementTab from '../components/admin/RescueManagementTab';
 import { AdminThemeProvider } from '../contexts/AdminThemeContext';
 
 // Auth service
@@ -43,7 +44,7 @@ import authService from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 
 // Mock data and API
-import { dogApi, volunteerApi } from '../services/api';
+import { dogApi, volunteerApi, rescueApi } from '../services/api';
 
 // Tab Panel component
 interface TabPanelProps {
@@ -73,13 +74,18 @@ function TabPanel(props: TabPanelProps) {
 }
 
 // Dashboard component
-const Dashboard = ({ showNotification }: { showNotification: (message: string, severity: 'success' | 'error') => void }) => {
+const Dashboard = ({ showNotification, onTabChange }: { 
+  showNotification: (message: string, severity: 'success' | 'error') => void;
+  onTabChange?: (tabIndex: number) => void;
+}) => {
   const theme = useTheme();
   const [stats, setStats] = useState({
     totalDogs: 0,
     adoptedDogs: 0,
     totalVolunteers: 0,
     pendingApplications: 0,
+    rescueSubmissions: 0,
+    pendingRescues: 0
   });
   const [loading, setLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState<Array<{
@@ -101,15 +107,21 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
         // Fetch volunteers data
         const volunteersData = await volunteerApi.getAllVolunteers();
         
+        // Fetch rescue submissions data
+        const rescueData = await rescueApi.getAllRescueSubmissions();
+        
         // Calculate statistics
         const adoptedDogs = dogsData.filter(dog => dog.status === 'adopted').length;
         const pendingApplications = volunteersData.filter(vol => vol.status === 'pending').length;
+        const pendingRescues = rescueData.filter(rescue => rescue.status === 'pending').length;
         
         setStats({
           totalDogs: dogsData.length,
           adoptedDogs,
           totalVolunteers: volunteersData.length,
           pendingApplications,
+          rescueSubmissions: rescueData.length,
+          pendingRescues
         });
 
         // Generate actual activity data from the API data
@@ -155,6 +167,23 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
           });
         });
         
+        // Add most recent rescue submissions (up to 2)
+        const sortedRescues = [...rescueData].sort((a, b) => {
+          const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : Date.now();
+          const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : Date.now();
+          return dateB - dateA;
+        }).slice(0, 2);
+        
+        sortedRescues.forEach((rescue, index) => {
+          activityItems.push({
+            id: rescue._id || rescue.id || `rescue-${index}`,
+            action: 'Rescue Submission',
+            subject: rescue.location,
+            timestamp: formatTimeAgo(rescue.submittedAt || new Date().toISOString()),
+            icon: <PetsIcon />
+          });
+        });
+        
         // Sort all activities by timestamp (most recent first)
         const sortedActivity = activityItems.sort((a, b) => {
           // Extract time information from the "X time ago" format
@@ -173,7 +202,7 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
           { id: 1, action: 'Dog Added', subject: 'Buddy', timestamp: '2 hours ago', icon: <PetsIcon /> },
           { id: 2, action: 'Volunteer Approved', subject: 'John Doe', timestamp: '1 day ago', icon: <VolunteerActivismIcon /> },
           { id: 3, action: 'Dog Adopted', subject: 'Max', timestamp: '3 days ago', icon: <ParkIcon /> },
-          { id: 4, action: 'Volunteer Application', subject: 'Sarah Wilson', timestamp: '5 days ago', icon: <PersonAddAltIcon /> },
+          { id: 4, action: 'Rescue Submission', subject: 'Downtown Area', timestamp: '5 days ago', icon: <PetsIcon /> },
         ]);
       } finally {
         setLoading(false);
@@ -472,24 +501,70 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
             </CardContent>
           </Card>
         </Grid>
+        
+        {/* Rescue Submissions Stats */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card 
+            elevation={0} 
+            sx={{ 
+              p: 3, 
+              borderRadius: 3, 
+              bgcolor: alpha(theme.palette.info.main, 0.05),
+              height: '100%'
+            }}
+          >
+            <CardContent sx={{ p: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Avatar 
+                  sx={{ 
+                    width: 50, 
+                    height: 50, 
+                    bgcolor: alpha(theme.palette.info.main, 0.2),
+                    color: theme.palette.info.main,
+                    mr: 2
+                  }}
+                >
+                  <PetsIcon />
+                </Avatar>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Rescues
+                </Typography>
+              </Box>
+              
+              <Typography variant="h3" sx={{ fontWeight: 700, mb: 0.5 }}>
+                {loading ? '...' : stats.rescueSubmissions}
+              </Typography>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  {loading ? '...' : stats.pendingRescues} pending
+                </Typography>
+                {stats.pendingRescues > 0 && (
+                  <TrendingUpIcon sx={{ ml: 1, color: 'warning.main', fontSize: '1rem' }} />
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
 
       {/* Quick Actions and Recent Activity */}
       <Grid container spacing={3} sx={{ mt: 0.5 }}>
-        {/* Quick Actions */}
-        <Grid item xs={12} md={5}>
-          <Card elevation={0} sx={{ borderRadius: 3, height: '100%' }}>
-            <CardContent sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" fontWeight="600">
-                  Quick Actions
-                </Typography>
-                <IconButton size="small">
-                  <RefreshIcon fontSize="small" />
-                </IconButton>
-              </Box>
-              
-              <Divider sx={{ mb: 2 }} />
+        {/* Quick Actions Card */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card 
+            elevation={0} 
+            sx={{ 
+              p: 3, 
+              borderRadius: 3, 
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              height: '100%'
+            }}
+          >
+            <CardContent sx={{ p: 0 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                Quick Actions
+              </Typography>
               
               <Stack spacing={2}>
                 <Button 
@@ -499,7 +574,6 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
                   sx={{ 
                     py: 1.5, 
                     borderRadius: 2,
-                    backgroundColor: theme.palette.primary.main,
                   }}
                 >
                   Add New Dog
@@ -531,6 +605,21 @@ const Dashboard = ({ showNotification }: { showNotification: (message: string, s
                   }}
                 >
                   Review Applications
+                </Button>
+                
+                <Button 
+                  variant="outlined" 
+                  startIcon={<PetsIcon />} 
+                  fullWidth 
+                  onClick={() => onTabChange && onTabChange(2)}
+                  sx={{ 
+                    py: 1.5, 
+                    borderRadius: 2,
+                    borderColor: theme.palette.info.main,
+                    color: theme.palette.info.main,
+                  }}
+                >
+                  Check Rescues
                 </Button>
               </Stack>
             </CardContent>
@@ -637,6 +726,8 @@ const AdminPage = () => {
         return 'Dog Management';
       case 1:
         return 'Volunteer Management';
+      case 2:
+        return 'Rescue Submissions';
       default:
         return 'Dashboard';
     }
@@ -663,7 +754,7 @@ const AdminPage = () => {
       >
         {/* Dashboard */}
         <TabPanel value={tabValue} index={-1}>
-          <Dashboard showNotification={showNotification} />
+          <Dashboard showNotification={showNotification} onTabChange={handleTabChange} />
         </TabPanel>
         
         {/* Dogs Tab */}
@@ -674,6 +765,11 @@ const AdminPage = () => {
         {/* Volunteers Tab */}
         <TabPanel value={tabValue} index={1}>
           <VolunteerManagementTab showNotification={showNotification} />
+        </TabPanel>
+        
+        {/* Rescue Submissions Tab */}
+        <TabPanel value={tabValue} index={2}>
+          <RescueManagementTab showNotification={showNotification} />
         </TabPanel>
         
         {/* Snackbar for notifications */}

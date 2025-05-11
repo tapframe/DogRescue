@@ -30,6 +30,7 @@ const navItems = [
   { name: 'Home', path: '/' },
   { name: 'About', path: '/about' },
   { name: 'Dogs', path: '/dogs' },
+  { name: 'Rescue', path: '/rescue' },
   { name: 'Volunteer', path: '/volunteer' },
   { name: 'Resources', path: '/resources' },
   { name: 'Contact', path: '/contact' }

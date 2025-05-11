@@ -13,6 +13,7 @@ import ResourcesPage from './pages/ResourcesPage';
 import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminPage from './pages/AdminPage';
+import RescueSubmissionPage from './pages/RescueSubmissionPage';
 
 // Import secret admin login page
 import SecretLoginPage from './pages/admin/SecretLoginPage';
@@ -59,6 +60,7 @@ function App() {
           <Route path="/donate" element={<DonatePage />} />
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/rescue" element={<RescueSubmissionPage />} />
         </Route>
         
         {/* 404 route - this should be last */}
