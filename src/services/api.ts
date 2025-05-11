@@ -88,6 +88,25 @@ export const dogApi = {
     }
   },
 
+  // Get dogs from rescue submissions
+  getDogsFromRescue: async (): Promise<DogData[]> => {
+    try {
+      const response = await api.get('/dogs/from-rescue');
+      return response.data.data;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      // Use dogsDataMock for fallback with rescue tag
+      return Promise.resolve([...dogsDataMock]
+        .filter(dog => dog.tags.includes('Rescue'))
+        .map(dog => ({
+          ...dog,
+          _id: dog.id?.toString(),
+          rescueId: `mock-rescue-${dog.id}`
+        }))
+      );
+    }
+  },
+
   // Get dog by ID
   getDogById: async (id: string): Promise<DogData> => {
     try {

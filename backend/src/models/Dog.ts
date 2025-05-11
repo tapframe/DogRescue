@@ -9,6 +9,8 @@ export interface IDog extends Document {
   image: string;
   description: string;
   tags: string[];
+  rescueId?: string;  // Reference to the rescue submission ID if this dog was rescued
+  status?: string;    // To track if the dog is available, adopted, etc.
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,6 +53,15 @@ const DogSchema = new Schema<IDog>(
     tags: {
       type: [String],
       default: [],
+    },
+    rescueId: {
+      type: String,
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ['available', 'adopted', 'fostered', 'pending'],
+      default: 'available',
     },
   },
   {

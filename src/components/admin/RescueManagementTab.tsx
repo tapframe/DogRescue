@@ -115,6 +115,7 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
     if (!editingSubmission) return;
     
     try {
+      const prevStatus = editingSubmission.status;
       await rescueApi.updateRescueSubmission(editingSubmission._id as string, {
         status: editStatus,
         // In a real app, you would also save the notes to the backend
@@ -129,7 +130,13 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
         )
       );
       
-      showNotification('Rescue submission status updated successfully', 'success');
+      // Special notification for rescued status
+      if (prevStatus !== 'rescued' && editStatus === 'rescued') {
+        showNotification('Rescue marked as rescued! Dog has been added to the adoption list.', 'success');
+      } else {
+        showNotification('Rescue submission status updated successfully', 'success');
+      }
+      
       handleEditClose();
     } catch (err) {
       console.error('Error updating rescue submission:', err);
@@ -470,10 +477,20 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
             >
               <MenuItem value="pending">Pending</MenuItem>
               <MenuItem value="processing">Processing</MenuItem>
-              <MenuItem value="rescued">Rescued</MenuItem>
+              <MenuItem value="rescued">
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <PetsIcon fontSize="small" sx={{ mr: 1, color: 'success.main' }} />
+                  Rescued (adds to adoption list)
+                </Box>
+              </MenuItem>
               <MenuItem value="closed">Closed</MenuItem>
             </Select>
           </FormControl>
+          {editStatus === 'rescued' && (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              Marking as rescued will automatically add this dog to the available dogs list for adoption.
+            </Alert>
+          )}
           <TextField
             margin="normal"
             label="Notes (Optional)"
@@ -487,7 +504,13 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
         </DialogContent>
         <DialogActions>
           <Button onClick={handleEditClose}>Cancel</Button>
-          <Button onClick={handleSaveStatus} variant="contained">Save</Button>
+          <Button 
+            onClick={handleSaveStatus} 
+            variant="contained"
+            startIcon={editStatus === 'rescued' ? <PetsIcon /> : undefined}
+          >
+            {editStatus === 'rescued' ? 'Save & Add to Adoption' : 'Save'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

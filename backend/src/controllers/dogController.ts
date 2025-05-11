@@ -143,4 +143,24 @@ export const deleteDog = async (req: Request, res: Response): Promise<void> => {
       error: 'Server Error',
     });
   }
+};
+
+// @desc    Get all dogs from rescue submissions
+// @route   GET /api/dogs/from-rescue
+// @access  Public
+export const getDogsFromRescue = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const rescueDogs = await Dog.find({ rescueId: { $ne: null } }).sort({ createdAt: -1 });
+    
+    res.status(200).json({
+      success: true,
+      count: rescueDogs.length,
+      data: rescueDogs,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error',
+    });
+  }
 }; 

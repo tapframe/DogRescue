@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import RescueSubmission from '../models/RescueSubmission';
+import Dog from '../models/Dog';
 
 // @desc    Get all rescue submissions
 // @route   GET /api/rescue-submissions
@@ -93,6 +94,9 @@ export const updateRescueSubmission = async (req: Request, res: Response) => {
       });
     }
     
+    const previousStatus = rescueSubmission.status;
+    const newStatus = req.body.status;
+    
     rescueSubmission = await RescueSubmission.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -101,6 +105,11 @@ export const updateRescueSubmission = async (req: Request, res: Response) => {
         runValidators: true
       }
     );
+    
+    // If status is changed to 'rescued', create a new dog for adoption
+    if (previousStatus !== 'rescued' && newStatus === 'rescued') {
+      await createDogFromRescue(rescueSubmission);
+    }
     
     res.status(200).json({
       success: true,
@@ -151,5 +160,34 @@ export const deleteRescueSubmission = async (req: Request, res: Response) => {
       success: false,
       error: 'Server Error'
     });
+  }
+};
+
+// Helper function to create a dog entry from a rescue submission
+const createDogFromRescue = async (rescueSubmission: any) => {
+  try {
+    // Prepare dog data from the rescue submission
+    const dogData = {
+      name: rescueSubmission.name || 'Rescue Dog',
+      breed: rescueSubmission.breed || 'Mixed Breed',
+      age: rescueSubmission.age,
+      size: rescueSubmission.size,
+      gender: rescueSubmission.gender,
+      image: rescueSubmission.imageUrls && rescueSubmission.imageUrls.length > 0 
+        ? rescueSubmission.imageUrls[0] 
+        : 'https://via.placeholder.com/500x350?text=Dog+Photo+Coming+Soon',
+      description: `${rescueSubmission.description}\n\nThis dog was rescued from ${rescueSubmission.location}.`,
+      tags: ['Rescue', 'Needs Home'],
+      rescueId: rescueSubmission._id,
+      status: 'available'
+    };
+    
+    // Create new dog entry
+    await Dog.create(dogData);
+    
+    console.log(`Successfully created dog entry from rescue submission: ${rescueSubmission._id}`);
+  } catch (error) {
+    console.error('Error creating dog from rescue submission:', error);
+    // We're not returning an HTTP response here, just logging the error
   }
 }; 
