@@ -9,9 +9,11 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const AboutPage = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   
   // Define animations
   const rotate = keyframes`
@@ -270,6 +272,7 @@ const AboutPage = () => {
                     },
                     transition: 'all 0.3s ease'
                   }}
+                  onClick={() => navigate('/volunteer#join-applications-section')}
                 >
                   Join Our Mission
                 </Button>
@@ -829,6 +832,7 @@ const AboutPage = () => {
                   },
                   transition: 'all 0.3s ease'
                 }}
+                onClick={() => navigate('/volunteer#join-applications-section')}
               >
                 Join Our Team
               </Button>
