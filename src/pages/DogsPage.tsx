@@ -529,8 +529,12 @@ const DogsPage = () => {
                       color="secondary"
                       size="large"
                       endIcon={<ArrowForwardIcon />}
-                      component={RouterLink}
-                      to="#available-dogs"
+                      onClick={() => {
+                        const section = document.getElementById('ready-for-a-home-section');
+                        if (section) {
+                          section.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
                       sx={{
                         borderRadius: 3,
                         py: 1.5,
@@ -1172,7 +1176,7 @@ const DogsPage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <Box sx={{ mb: 5, textAlign: 'center' }}>
+            <Box sx={{ mb: 5, textAlign: 'center' }} id="ready-for-a-home-section">
               <Box
                 sx={{
                   display: 'inline-flex',
