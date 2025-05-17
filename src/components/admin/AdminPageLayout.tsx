@@ -277,25 +277,7 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
         </Typography>
         
         <List sx={{ mt: 1 }}>
-          <ListItem disablePadding sx={{ mb: 0.5 }}>
-            <ListItemButton
-              sx={{
-                borderRadius: 2,
-                py: 1.2,
-                '&:hover': {
-                  backgroundColor: alpha(theme.palette.primary.light, 0.1),
-                }
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
-                <SettingsIcon />
-              </ListItemIcon>
-              <ListItemText 
-                primary="Preferences" 
-                primaryTypographyProps={{ fontSize: '0.95rem', fontWeight: 500 }} 
-              />
-            </ListItemButton>
-          </ListItem>
+          {/* Preferences button removed */}
         </List>
 
         {/* Theme Switcher */}
@@ -422,61 +404,26 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
           </Box>
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Tooltip title="Help">
-              <IconButton
-                size="large"
-                color="inherit"
-                sx={{
-                  ml: 1,
-                  bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
-                  '&:hover': {
-                    bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
-                  }
-                }}
-              >
-                <HelpOutlineIcon />
-              </IconButton>
-            </Tooltip>
+            {/* Notifications button removed */}
             
-            <Tooltip title="Notifications">
-              <IconButton 
-                size="large"
-                color="inherit" 
-                onClick={handleNotificationMenuOpen}
-                sx={{ 
-                  ml: 1,
-                  bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
-                  '&:hover': {
-                    bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
-                  }
-                }}
-              >
-                <Badge badgeContent={3} color="error">
-                  <NotificationsNoneIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
-            
-            <Tooltip title="Account">
-              <IconButton 
-                size="large"
-                edge="end" 
-                color="inherit" 
-                onClick={handleUserMenuOpen}
-                sx={{ 
-                  ml: 1, 
-                  display: { xs: 'none', md: 'flex' },
-                  bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
-                  '&:hover': {
-                    bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
-                  }
-                }}
-              >
-                <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.main }}>
-                  {currentAdmin?.name ? currentAdmin.name.charAt(0).toUpperCase() : <PersonIcon sx={{ fontSize: 20 }} />}
-                </Avatar>
-              </IconButton>
-            </Tooltip>
+            <IconButton 
+              size="large"
+              edge="end" 
+              color="inherit" 
+              onClick={handleUserMenuOpen}
+              sx={{ 
+                ml: 1, 
+                display: { xs: 'none', md: 'flex' },
+                bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.04),
+                '&:hover': {
+                  bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.1) : alpha(theme.palette.common.black, 0.08),
+                }
+              }}
+            >
+              <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.main }}>
+                {currentAdmin?.name ? currentAdmin.name.charAt(0).toUpperCase() : <PersonIcon sx={{ fontSize: 20 }} />}
+              </Avatar>
+            </IconButton>
             
             <IconButton
               size="large"
@@ -498,102 +445,7 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
         </Toolbar>
       </AppBar>
 
-      {/* Notification Menu */}
-      <Menu
-        anchorEl={notificationAnchorEl}
-        open={isNotificationMenuOpen}
-        onClose={handleNotificationMenuClose}
-        PaperProps={{
-          sx: {
-            mt: 1.5,
-            width: 360,
-            maxWidth: '100%',
-            borderRadius: 2,
-            boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
-          }
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >
-        <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="subtitle1" fontWeight="bold">
-            Notifications
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            You have 3 new notifications
-          </Typography>
-        </Box>
-        
-        <Box sx={{ maxHeight: 360, overflow: 'auto' }}>
-          <MenuItem onClick={handleNotificationMenuClose} sx={{ py: 2 }}>
-            <Box sx={{ display: 'flex', width: '100%' }}>
-              <Avatar sx={{ mr: 2, bgcolor: alpha(theme.palette.success.main, 0.2), color: theme.palette.success.main }}>
-                <PetsIcon />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" fontWeight="medium">
-                  New dog added
-                </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
-                  "Max" was added to the system
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
-                  10 minutes ago
-                </Typography>
-              </Box>
-            </Box>
-          </MenuItem>
-          
-          <MenuItem onClick={handleNotificationMenuClose} sx={{ py: 2 }}>
-            <Box sx={{ display: 'flex', width: '100%' }}>
-              <Avatar sx={{ mr: 2, bgcolor: alpha(theme.palette.warning.main, 0.2), color: theme.palette.warning.main }}>
-                <VolunteerActivismIcon />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" fontWeight="medium">
-                  Volunteer application
-                </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
-                  New volunteer application received
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
-                  2 hours ago
-                </Typography>
-              </Box>
-            </Box>
-          </MenuItem>
-          
-          <MenuItem onClick={handleNotificationMenuClose} sx={{ py: 2 }}>
-            <Box sx={{ display: 'flex', width: '100%' }}>
-              <Avatar sx={{ mr: 2, bgcolor: alpha(theme.palette.info.main, 0.2), color: theme.palette.info.main }}>
-                <NotificationsIcon />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" fontWeight="medium">
-                  System update
-                </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
-                  System updates completed successfully
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
-                  1 day ago
-                </Typography>
-              </Box>
-            </Box>
-          </MenuItem>
-        </Box>
-        
-        <Box sx={{ p: 1.5, textAlign: 'center', borderTop: '1px solid', borderColor: 'divider' }}>
-          <Typography 
-            variant="body2" 
-            color="primary" 
-            sx={{ fontWeight: 'medium', cursor: 'pointer' }}
-            onClick={handleNotificationMenuClose}
-          >
-            View all notifications
-          </Typography>
-        </Box>
-      </Menu>
+      {/* Notification Menu removed */}
       
       {/* User Menu */}
       <Menu
@@ -619,20 +471,6 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
             {currentAdmin?.email || 'admin@example.com'}
           </Typography>
         </Box>
-        <Divider />
-        <MenuItem onClick={handleUserMenuClose} sx={{ py: 1.5 }}>
-          <ListItemIcon>
-            <PersonIcon fontSize="small" />
-          </ListItemIcon>
-          <Typography variant="body2">My Profile</Typography>
-        </MenuItem>
-        <MenuItem onClick={handleUserMenuClose} sx={{ py: 1.5 }}>
-          <ListItemIcon>
-            <SettingsIcon fontSize="small" />
-          </ListItemIcon>
-          <Typography variant="body2">Account Settings</Typography>
-        </MenuItem>
-        <Divider />
         <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" />
@@ -656,18 +494,8 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <MenuItem onClick={handleMoreMenuClose} sx={{ py: 1.5 }}>
-          <ListItemIcon>
-            <PersonIcon fontSize="small" />
-          </ListItemIcon>
-          <Typography variant="body2">My Profile</Typography>
-        </MenuItem>
-        <MenuItem onClick={handleMoreMenuClose} sx={{ py: 1.5 }}>
-          <ListItemIcon>
-            <SettingsIcon fontSize="small" />
-          </ListItemIcon>
-          <Typography variant="body2">Settings</Typography>
-        </MenuItem>
+        {/* My Profile menu item removed */}
+        {/* Settings menu item removed */}
         <MenuItem onClick={handleThemeToggle} sx={{ py: 1.5 }}>
           <ListItemIcon>
             {isDarkMode ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
