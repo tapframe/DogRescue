@@ -8,6 +8,7 @@ import dogRoutes from './routes/dogs';
 import volunteerRoutes from './routes/volunteers';
 import authRoutes from './routes/auth';
 import rescueSubmissionRoutes from './routes/rescueSubmissions';
+import adoptionRoutes from './routes/adoptionRoutes';
 
 // Load env vars
 dotenv.config();
@@ -26,6 +27,7 @@ app.use('/api/dogs', dogRoutes);
 app.use('/api/volunteers', volunteerRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/rescue-submissions', rescueSubmissionRoutes);
+app.use('/api/adoptions', adoptionRoutes);
 
 // Base route
 app.get('/', (req, res) => {
