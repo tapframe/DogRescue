@@ -14,12 +14,15 @@ import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminPage from './pages/AdminPage';
 import RescueSubmissionPage from './pages/RescueSubmissionPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 
 // Import secret admin login page
 import SecretLoginPage from './pages/admin/SecretLoginPage';
 
-// Import protected route component
+// Import protected route components
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import UserProtectedRoute from './components/auth/UserProtectedRoute';
 
 // Import keyboard shortcut listener
 import KeyboardShortcutListener from './components/auth/KeyboardShortcutListener';
@@ -50,6 +53,10 @@ function App() {
           } 
         />
         
+        {/* User authentication routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        
         {/* Regular routes with standard layout */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
@@ -60,7 +67,13 @@ function App() {
           <Route path="/donate" element={<DonatePage />} />
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/rescue" element={<RescueSubmissionPage />} />
+          
+          {/* Protected routes that require user authentication */}
+          <Route path="/rescue" element={
+            <UserProtectedRoute>
+              <RescueSubmissionPage />
+            </UserProtectedRoute>
+          } />
         </Route>
         
         {/* 404 route - this should be last */}

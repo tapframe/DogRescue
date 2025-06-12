@@ -17,14 +17,21 @@ import {
   alpha,
   Avatar,
   Divider,
-  Slide
+  Slide,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import PetsIcon from '@mui/icons-material/Pets';
 import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import HeartIcon from '@mui/icons-material/Favorite';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { motion } from 'framer-motion';
+import { userAuthService, User } from '../../services/userAuthService';
 
 const navItems = [
   { name: 'Home', path: '/' },
@@ -43,9 +50,24 @@ const Header = () => {
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
   const [atTop, setAtTop] = useState(true);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
+  
+  useEffect(() => {
+    const checkAuth = async () => {
+      const isAuthenticated = await userAuthService.verifyToken();
+      if (isAuthenticated) {
+        setCurrentUser(userAuthService.getCurrentUser());
+      } else {
+        setCurrentUser(null);
+      }
+    };
+    
+    checkAuth();
+  }, [location.pathname]);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -69,6 +91,21 @@ const Header = () => {
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
+  };
+  
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchorEl(event.currentTarget);
+  };
+  
+  const handleUserMenuClose = () => {
+    setUserMenuAnchorEl(null);
+  };
+  
+  const handleLogout = () => {
+    userAuthService.logout();
+    setCurrentUser(null);
+    handleUserMenuClose();
+    window.location.href = '/';
   };
 
   const drawer = (
@@ -158,7 +195,80 @@ const Header = () => {
         ))}
       </List>
       
-      <Box sx={{ px: 3 }}>
+      <Box sx={{ px: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {currentUser ? (
+          <Button
+            fullWidth
+            variant="outlined"
+            size="large"
+            onClick={handleLogout}
+            startIcon={<LogoutIcon />}
+            sx={{
+              borderRadius: 30,
+              py: 1.5,
+              fontWeight: 600,
+              textTransform: 'none',
+              fontSize: '1rem',
+              borderColor: 'rgba(255,255,255,0.5)',
+              color: 'white',
+              '&:hover': {
+                borderColor: 'white',
+                backgroundColor: 'rgba(255,255,255,0.1)'
+              }
+            }}
+          >
+            Sign Out
+          </Button>
+        ) : (
+          <>
+            <Button
+              fullWidth
+              variant="outlined"
+              size="large"
+              component={RouterLink}
+              to="/login"
+              startIcon={<LoginIcon />}
+              sx={{
+                borderRadius: 30,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: 'none',
+                fontSize: '1rem',
+                borderColor: 'rgba(255,255,255,0.5)',
+                color: 'white',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255,255,255,0.1)'
+                }
+              }}
+            >
+              Sign In
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              size="large"
+              component={RouterLink}
+              to="/register"
+              startIcon={<PersonAddIcon />}
+              sx={{
+                borderRadius: 30,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: 'none',
+                fontSize: '1rem',
+                backgroundColor: 'white',
+                color: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: 'rgba(255,255,255,0.9)'
+                }
+              }}
+            >
+              Sign Up
+            </Button>
+          </>
+        )}
+        
         <Button
           fullWidth
           variant="contained"
@@ -185,178 +295,307 @@ const Header = () => {
 
   return (
     <Slide appear={false} direction="down" in={visible}>
-      <AppBar 
-        position="fixed" 
-        color="default" 
-        elevation={atTop ? 0 : 4}
-        sx={{
-          width: '100%',
-          transition: 'all 0.3s',
-          bgcolor: atTop ? 'transparent' : 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: atTop ? 'none' : 'blur(10px)',
-          borderBottom: atTop ? 'none' : `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-          boxShadow: atTop ? 'none' : `0 4px 20px ${alpha('#000000', 0.1)}`,
-          '& .MuiToolbar-root': {
+      <Box sx={{ width: '100%' }}>
+        <AppBar 
+          position="fixed" 
+          color="default" 
+          elevation={atTop ? 0 : 4}
+          sx={{
+            width: '100%',
             transition: 'all 0.3s',
-            minHeight: atTop ? 80 : 64,
-          },
-        }}
-      >
-        <Toolbar sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          width: '100%',
-          maxWidth: '1920px',
-          mx: 'auto',
-          px: { xs: 2, sm: 3, md: 4, lg: 5 }
-        }}>
-          {/* Logo */}
-          <MotionBox 
-            sx={{ display: 'flex', alignItems: 'center' }}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Avatar 
-              sx={{ 
-                bgcolor: atTop ? 'white' : alpha(theme.palette.primary.main, 0.1), 
-                color: theme.palette.primary.main, 
-                mr: 1.5,
-                transition: 'all 0.3s',
-                width: atTop ? 48 : 40,
-                height: atTop ? 48 : 40
-              }}
-            >
-              <PetsIcon />
-            </Avatar>
-            <Typography
-              variant="h6"
-              component={RouterLink}
-              to="/"
-              sx={{
-                fontWeight: 800,
-                textDecoration: 'none',
-                color: atTop ? 'white' : 'text.primary',
-                fontSize: atTop ? '1.5rem' : '1.35rem',
-                transition: 'all 0.3s',
-                textShadow: atTop ? '1px 1px 3px rgba(0,0,0,0.3)' : 'none',
-              }}
-            >
-              Dog Rescue Mission
-            </Typography>
-          </MotionBox>
-
-          {/* Desktop Navigation */}
-          {!isMobile && (
+            bgcolor: atTop ? 'transparent' : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: atTop ? 'none' : 'blur(10px)',
+            borderBottom: atTop ? 'none' : `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+            boxShadow: atTop ? 'none' : `0 4px 20px ${alpha('#000000', 0.1)}`,
+            '& .MuiToolbar-root': {
+              transition: 'all 0.3s',
+              minHeight: atTop ? 80 : 64,
+            },
+          }}
+        >
+          <Toolbar sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            width: '100%',
+            maxWidth: '1920px',
+            mx: 'auto',
+            px: { xs: 2, sm: 3, md: 4, lg: 5 }
+          }}>
+            {/* Logo */}
             <MotionBox 
               sx={{ display: 'flex', alignItems: 'center' }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Avatar 
+                sx={{ 
+                  bgcolor: atTop ? 'white' : alpha(theme.palette.primary.main, 0.1), 
+                  color: theme.palette.primary.main, 
+                  mr: 1.5,
+                  transition: 'all 0.3s',
+                  width: atTop ? 48 : 40,
+                  height: atTop ? 48 : 40
+                }}
+              >
+                <PetsIcon />
+              </Avatar>
+              <Typography
+                variant="h6"
+                component={RouterLink}
+                to="/"
+                sx={{
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                  color: atTop ? 'white' : 'text.primary',
+                  fontSize: atTop ? '1.5rem' : '1.35rem',
+                  transition: 'all 0.3s',
+                  textShadow: atTop ? '1px 1px 3px rgba(0,0,0,0.3)' : 'none',
+                }}
+              >
+                Dog Rescue Mission
+              </Typography>
+            </MotionBox>
+
+            {/* Desktop Navigation */}
+            {!isMobile && (
+              <MotionBox 
+                sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 1
+                }}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                {navItems.map((item) => (
+                  <Button
+                    key={item.name}
+                    component={RouterLink}
+                    to={item.path}
+                    sx={{
+                      color: atTop ? 'white' : 'text.primary',
+                      fontWeight: location.pathname === item.path ? 700 : 500,
+                      textTransform: 'none',
+                      fontSize: '1rem',
+                      px: 1.5,
+                      py: 1,
+                      borderRadius: 2,
+                      transition: 'all 0.2s',
+                      position: 'relative',
+                      textShadow: atTop ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                      '&::after': location.pathname === item.path ? {
+                        content: '""',
+                        position: 'absolute',
+                        bottom: 6,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '20px',
+                        height: '3px',
+                        backgroundColor: atTop ? 'white' : theme.palette.primary.main,
+                        borderRadius: '3px',
+                      } : {},
+                      '&:hover': {
+                        backgroundColor: alpha(atTop ? '#ffffff' : theme.palette.primary.main, 0.1),
+                      },
+                    }}
+                  >
+                    {item.name}
+                  </Button>
+                ))}
+              </MotionBox>
+            )}
+
+            {/* Right side buttons */}
+            <MotionBox 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1
+              }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              {navItems.map((item, index) => (
+              {/* User Authentication */}
+              {!isMobile && (
+                <>
+                  {currentUser ? (
+                    <>
+                      <Button
+                        aria-label="Account menu"
+                        aria-controls="user-menu"
+                        aria-haspopup="true"
+                        onClick={handleUserMenuOpen}
+                        startIcon={
+                          <Avatar 
+                            sx={{ 
+                              width: 32, 
+                              height: 32, 
+                              bgcolor: atTop ? alpha(theme.palette.primary.main, 0.8) : alpha(theme.palette.primary.main, 0.1),
+                              color: atTop ? 'white' : theme.palette.primary.main,
+                            }}
+                          >
+                            {currentUser.name.charAt(0).toUpperCase()}
+                          </Avatar>
+                        }
+                        endIcon={<KeyboardArrowDownIcon />}
+                        sx={{
+                          color: atTop ? 'white' : 'text.primary',
+                          textTransform: 'none',
+                          fontSize: '0.95rem',
+                          fontWeight: 500,
+                          textShadow: atTop ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                        }}
+                      >
+                        {currentUser.name}
+                      </Button>
+                      <Menu
+                        id="user-menu"
+                        anchorEl={userMenuAnchorEl}
+                        open={Boolean(userMenuAnchorEl)}
+                        onClose={handleUserMenuClose}
+                        PaperProps={{
+                          elevation: 3,
+                          sx: { 
+                            mt: 1.5, 
+                            minWidth: 180,
+                            borderRadius: 2,
+                            overflow: 'visible',
+                            '&:before': {
+                              content: '""',
+                              display: 'block',
+                              position: 'absolute',
+                              top: 0,
+                              right: 14,
+                              width: 10,
+                              height: 10,
+                              bgcolor: 'background.paper',
+                              transform: 'translateY(-50%) rotate(45deg)',
+                              zIndex: 0,
+                            },
+                          },
+                        }}
+                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                      >
+                        <MenuItem 
+                          onClick={handleLogout}
+                          sx={{ py: 1.5, px: 2.5 }}
+                        >
+                          <LogoutIcon sx={{ mr: 1.5, fontSize: '1.25rem', color: theme.palette.text.secondary }} />
+                          <Typography variant="body2">Sign Out</Typography>
+                        </MenuItem>
+                      </Menu>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        component={RouterLink}
+                        to="/login"
+                        startIcon={<LoginIcon />}
+                        sx={{
+                          color: atTop ? 'white' : 'text.primary',
+                          textTransform: 'none',
+                          fontSize: '0.95rem',
+                          fontWeight: 500,
+                          textShadow: atTop ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                        }}
+                      >
+                        Sign In
+                      </Button>
+                      <Button
+                        component={RouterLink}
+                        to="/register"
+                        variant="outlined"
+                        startIcon={<PersonAddIcon />}
+                        sx={{
+                          textTransform: 'none',
+                          fontSize: '0.95rem',
+                          fontWeight: 500,
+                          borderColor: atTop ? 'white' : theme.palette.primary.main,
+                          color: atTop ? 'white' : theme.palette.primary.main,
+                          '&:hover': {
+                            borderColor: atTop ? 'white' : theme.palette.primary.main,
+                            backgroundColor: alpha(atTop ? '#ffffff' : theme.palette.primary.main, 0.1),
+                          },
+                          textShadow: atTop ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                        }}
+                      >
+                        Sign Up
+                      </Button>
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* Donate Button */}
+              {!isMobile && (
                 <Button
-                  key={item.name}
+                  variant="contained"
+                  color="secondary"
                   component={RouterLink}
-                  to={item.path}
-                  sx={{ 
-                    color: atTop ? 'white' : 'text.primary',
-                    mx: 0.5,
-                    px: 2,
+                  to="/donate"
+                  startIcon={<HeartIcon />}
+                  sx={{
+                    ml: 1,
+                    borderRadius: 30,
+                    px: 2.5,
                     py: 1,
-                    fontWeight: location.pathname === item.path ? 700 : 500,
-                    position: 'relative',
                     textTransform: 'none',
-                    fontSize: '1rem',
-                    transition: 'all 0.3s ease',
-                    textShadow: atTop ? '1px 1px 3px rgba(0,0,0,0.2)' : 'none',
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      width: location.pathname === item.path ? '80%' : '0%',
-                      height: '3px',
-                      bottom: '5px',
-                      left: '10%',
-                      backgroundColor: theme.palette.secondary.main,
-                      transition: 'width 0.3s ease',
-                      borderRadius: '3px',
-                    },
+                    fontWeight: 600,
+                    boxShadow: atTop ? '0 4px 10px rgba(0,0,0,0.2)' : '0 2px 5px rgba(0,0,0,0.1)',
                     '&:hover': {
-                      backgroundColor: 'transparent',
-                      '&::after': {
-                        width: '80%',
-                      }
+                      boxShadow: atTop ? '0 6px 12px rgba(0,0,0,0.25)' : '0 4px 8px rgba(0,0,0,0.15)',
                     }
                   }}
                 >
-                  {item.name}
+                  Donate
                 </Button>
-              ))}
-              <Button 
-                variant="contained" 
-                color="secondary"
-                component={RouterLink}
-                to="/donate"
-                startIcon={<HeartIcon />}
-                sx={{ 
-                  ml: 2,
-                  px: 3,
-                  py: 1,
-                  borderRadius: 50,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  backgroundColor: theme.palette.secondary.main,
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    backgroundColor: theme.palette.secondary.dark,
-                    transform: 'translateY(-3px)',
-                    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
-                  }
-                }}
-              >
-                Donate Now
-              </Button>
+              )}
+              
+              {/* Mobile menu button */}
+              {isMobile && (
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  edge="start"
+                  onClick={handleDrawerToggle}
+                  sx={{ 
+                    color: atTop ? 'white' : 'text.primary',
+                    '&:hover': {
+                      backgroundColor: alpha(atTop ? '#ffffff' : theme.palette.primary.main, 0.1),
+                    }
+                  }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
             </MotionBox>
-          )}
-
-          {/* Mobile Menu Icon */}
-          {isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="end"
-              onClick={handleDrawerToggle}
-              sx={{ 
-                color: atTop ? 'white' : 'text.primary',
-                border: atTop ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(0,0,0,0.1)', 
-                borderRadius: '12px',
-                p: 1
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-        </Toolbar>
-
+          </Toolbar>
+        </AppBar>
+        
         {/* Mobile Navigation Drawer */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
           sx={{
             display: { xs: 'block', md: 'none' },
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: '85%',
-              maxWidth: 360,
-              borderRadius: '0 20px 20px 0'
+              maxWidth: '320px'
             },
           }}
         >
           {drawer}
         </Drawer>
-      </AppBar>
+      </Box>
     </Slide>
   );
 };
