@@ -118,14 +118,14 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
       const prevStatus = editingSubmission.status;
       await rescueApi.updateRescueSubmission(editingSubmission._id as string, {
         status: editStatus,
-        // In a real app, you would also save the notes to the backend
+        statusNotes: editNotes || editingSubmission.statusNotes
       });
       
       // Update local state
       setRescueSubmissions(prev => 
         prev.map(submission => 
           submission._id === editingSubmission._id 
-            ? { ...submission, status: editStatus } 
+            ? { ...submission, status: editStatus, statusNotes: editNotes || submission.statusNotes } 
             : submission
         )
       );
@@ -251,61 +251,58 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
           {error}
         </Alert>
       )}
-      
-      <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-        <TableContainer sx={{ maxHeight: 'calc(100vh - 240px)' }}>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow sx={{ '& th': { fontWeight: 600, bgcolor: alpha(theme.palette.primary.main, 0.05) } }}>
-                <TableCell>ID</TableCell>
-                <TableCell>Contact</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell>Dog Details</TableCell>
-                <TableCell>Submitted</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
+
+      <Paper sx={{ width: '100%', overflow: 'hidden', borderRadius: 2 }}>
+        <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Table stickyHeader aria-label="rescue submissions table">
+              <TableHead>
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 5 }}>
-                    <CircularProgress size={40} />
-                    <Typography variant="body1" sx={{ mt: 2 }}>
-                      Loading rescue submissions...
-                    </Typography>
-                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Dog Info</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Location</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Submitted By</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
                 </TableRow>
-              ) : (
-                rescueSubmissions
+              </TableHead>
+              <TableBody>
+                {rescueSubmissions
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((submission) => (
-                    <TableRow key={submission._id} hover>
-                      <TableCell component="th" scope="row">
-                        #{submission.id || submission._id?.substring(0, 8)}
+                    <TableRow hover key={submission._id || submission.id}>
+                      <TableCell>
+                        #{submission._id?.toString().slice(-6) || submission.id}
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" fontWeight={500}>
-                          {submission.contactName}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {submission.contactEmail}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Tooltip title={submission.location}>
-                          <Typography variant="body2" noWrap sx={{ maxWidth: 150 }}>
-                            {submission.location}
+                        <Box>
+                          <Typography variant="body2" fontWeight={500}>
+                            {submission.name || 'Unknown Dog'}
                           </Typography>
-                        </Tooltip>
+                          <Typography variant="body2" color="textSecondary">
+                            {submission.gender}, {submission.age}, {submission.size}
+                          </Typography>
+                        </Box>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2">
-                          {submission.name || 'Unnamed'} • {submission.breed || 'Unknown breed'}
+                        <Typography variant="body2" sx={{ maxWidth: 200, whiteSpace: 'normal' }}>
+                          {submission.location}
                         </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {submission.gender} • {submission.age} • {submission.size}
-                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Box>
+                          <Typography variant="body2" fontWeight={500}>
+                            {submission.userName || submission.contactName}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            {submission.userEmail || submission.contactEmail}
+                          </Typography>
+                        </Box>
                       </TableCell>
                       <TableCell>
                         {formatDate(submission.submittedAt)}
@@ -313,29 +310,27 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
                       <TableCell>
                         {getStatusChip(submission.status)}
                       </TableCell>
-                      <TableCell align="right">
-                        <Stack direction="row" spacing={1} justifyContent="flex-end">
+                      <TableCell>
+                        <Stack direction="row" spacing={1}>
                           <Tooltip title="View Details">
-                            <IconButton
-                              size="small"
+                            <IconButton 
+                              size="small" 
                               onClick={() => handleViewDetails(submission)}
                               sx={{ 
-                                bgcolor: alpha(theme.palette.info.main, 0.1),
                                 color: theme.palette.info.main,
-                                '&:hover': { bgcolor: alpha(theme.palette.info.main, 0.2) }
+                                '&:hover': { bgcolor: alpha(theme.palette.info.main, 0.1) }
                               }}
                             >
                               <VisibilityIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Update Status">
-                            <IconButton
-                              size="small"
+                            <IconButton 
+                              size="small" 
                               onClick={() => handleEditOpen(submission)}
                               sx={{ 
-                                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                color: theme.palette.primary.main,
-                                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.2) }
+                                color: theme.palette.warning.main,
+                                '&:hover': { bgcolor: alpha(theme.palette.warning.main, 0.1) }
                               }}
                             >
                               <EditIcon fontSize="small" />
@@ -344,10 +339,10 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
                         </Stack>
                       </TableCell>
                     </TableRow>
-                  ))
-              )}
-            </TableBody>
-          </Table>
+                  ))}
+              </TableBody>
+            </Table>
+          )}
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
@@ -360,156 +355,209 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
         />
       </Paper>
 
-      {/* Details Dialog */}
-      <Dialog open={detailOpen} onClose={() => setDetailOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ px: 3, pt: 3, fontWeight: 600 }}>
-          Rescue Submission Details
+      {/* Detail Dialog */}
+      <Dialog
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle sx={{ pb: 1 }}>
+          <Typography variant="h6" fontWeight={600}>
+            Rescue Submission Details
+          </Typography>
         </DialogTitle>
-        <DialogContent sx={{ px: 3, py: 2 }}>
+        <DialogContent>
           {selectedSubmission && (
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Typography variant="overline" color="textSecondary">
-                  Submission ID
-                </Typography>
-                <Typography variant="body1">
-                  #{selectedSubmission.id || selectedSubmission._id}
-                </Typography>
-              </Grid>
-              
+            <Grid container spacing={3} sx={{ mt: 0 }}>
               <Grid item xs={12} md={6}>
-                <Typography variant="overline" color="textSecondary">
+                <Typography variant="subtitle1" fontWeight={600} gutterBottom>
                   Dog Information
                 </Typography>
-                <Paper elevation={0} sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 2 }}>
+                <Paper sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 2 }}>
                   <Stack spacing={2}>
                     <Box>
-                      <Typography variant="subtitle2">Name</Typography>
-                      <Typography variant="body2">{selectedSubmission.name || 'Unknown'}</Typography>
+                      <Typography variant="body2" color="textSecondary">Name</Typography>
+                      <Typography variant="body1">{selectedSubmission.name || 'Unknown'}</Typography>
                     </Box>
                     <Box>
-                      <Typography variant="subtitle2">Breed</Typography>
-                      <Typography variant="body2">{selectedSubmission.breed || 'Unknown'}</Typography>
+                      <Typography variant="body2" color="textSecondary">Breed</Typography>
+                      <Typography variant="body1">{selectedSubmission.breed || 'Unknown'}</Typography>
                     </Box>
                     <Box>
-                      <Typography variant="subtitle2">Gender / Age / Size</Typography>
-                      <Typography variant="body2">
-                        {selectedSubmission.gender} / {selectedSubmission.age} / {selectedSubmission.size}
+                      <Typography variant="body2" color="textSecondary">Gender</Typography>
+                      <Typography variant="body1">{selectedSubmission.gender}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" color="textSecondary">Age</Typography>
+                      <Typography variant="body1">{selectedSubmission.age}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" color="textSecondary">Size</Typography>
+                      <Typography variant="body1">{selectedSubmission.size}</Typography>
+                    </Box>
+                  </Stack>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                  Submission Information
+                </Typography>
+                <Paper sx={{ p: 2, bgcolor: alpha(theme.palette.secondary.main, 0.05), borderRadius: 2 }}>
+                  <Stack spacing={2}>
+                    <Box>
+                      <Typography variant="body2" color="textSecondary">Submitted By</Typography>
+                      <Typography variant="body1" fontWeight={500}>
+                        {selectedSubmission.userName || selectedSubmission.contactName}
+                        {selectedSubmission.userName && selectedSubmission.userName !== selectedSubmission.contactName && (
+                          <Chip 
+                            label="Registered User" 
+                            size="small" 
+                            color="primary" 
+                            sx={{ ml: 1, height: 20, fontSize: '0.7rem' }} 
+                          />
+                        )}
                       </Typography>
                     </Box>
                     <Box>
-                      <Typography variant="subtitle2">Description</Typography>
-                      <Typography variant="body2">{selectedSubmission.description}</Typography>
+                      <Typography variant="body2" color="textSecondary">Email</Typography>
+                      <Typography variant="body1">{selectedSubmission.userEmail || selectedSubmission.contactEmail}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" color="textSecondary">Phone</Typography>
+                      <Typography variant="body1">{selectedSubmission.contactPhone}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" color="textSecondary">Date Submitted</Typography>
+                      <Typography variant="body1">{formatDate(selectedSubmission.submittedAt)}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" color="textSecondary">Status</Typography>
+                      <Box sx={{ mt: 0.5 }}>{getStatusChip(selectedSubmission.status)}</Box>
                     </Box>
                   </Stack>
                 </Paper>
               </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <Typography variant="overline" color="textSecondary">
-                  Contact Information
-                </Typography>
-                <Paper elevation={0} sx={{ p: 2, bgcolor: alpha(theme.palette.background.default, 0.5), borderRadius: 2 }}>
-                  <Stack spacing={2}>
-                    <Box>
-                      <Typography variant="subtitle2">Contact Name</Typography>
-                      <Typography variant="body2">{selectedSubmission.contactName}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="subtitle2">Email</Typography>
-                      <Typography variant="body2">{selectedSubmission.contactEmail}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="subtitle2">Phone</Typography>
-                      <Typography variant="body2">{selectedSubmission.contactPhone}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="subtitle2">Location</Typography>
-                      <Typography variant="body2">{selectedSubmission.location}</Typography>
-                    </Box>
-                  </Stack>
-                </Paper>
-              </Grid>
-              
+
               <Grid item xs={12}>
-                <Typography variant="overline" color="textSecondary">
-                  Submission Details
+                <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                  Location Information
                 </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="body2">
-                    Submitted on {formatDate(selectedSubmission.submittedAt)}
-                  </Typography>
-                  <Typography variant="body2">
-                    Status: {getStatusChip(selectedSubmission.status)}
-                  </Typography>
-                </Box>
+                <Paper sx={{ p: 2, borderRadius: 2 }}>
+                  <Typography variant="body1">{selectedSubmission.location}</Typography>
+                </Paper>
               </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                  Description
+                </Typography>
+                <Paper sx={{ p: 2, borderRadius: 2 }}>
+                  <Typography variant="body1">{selectedSubmission.description}</Typography>
+                </Paper>
+              </Grid>
+
+              {selectedSubmission.statusNotes && (
+                <Grid item xs={12}>
+                  <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                    Status Notes
+                  </Typography>
+                  <Paper sx={{ p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.info.main, 0.05) }}>
+                    <Typography variant="body1">{selectedSubmission.statusNotes}</Typography>
+                  </Paper>
+                </Grid>
+              )}
             </Grid>
           )}
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setDetailOpen(false)}>Close</Button>
           <Button 
-            variant="contained" 
-            onClick={() => {
-              setDetailOpen(false);
-              if (selectedSubmission) {
-                handleEditOpen(selectedSubmission);
-              }
-            }}
+            onClick={() => setDetailOpen(false)}
+            variant="outlined"
+            sx={{ borderRadius: 2 }}
           >
-            Update Status
+            Close
           </Button>
+          {selectedSubmission && (
+            <Button 
+              onClick={() => {
+                setDetailOpen(false);
+                handleEditOpen(selectedSubmission);
+              }}
+              variant="contained"
+              color="primary"
+              sx={{ borderRadius: 2 }}
+            >
+              Update Status
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 
       {/* Edit Status Dialog */}
-      <Dialog open={editOpen} onClose={handleEditClose}>
-        <DialogTitle>Update Rescue Request Status</DialogTitle>
-        <DialogContent sx={{ minWidth: 400 }}>
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="status-label">Status</InputLabel>
-            <Select
-              labelId="status-label"
-              value={editStatus}
-              label="Status"
-              onChange={handleStatusChange}
-            >
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="processing">Processing</MenuItem>
-              <MenuItem value="rescued">
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <PetsIcon fontSize="small" sx={{ mr: 1, color: 'success.main' }} />
-                  Rescued (adds to adoption list)
-                </Box>
-              </MenuItem>
-              <MenuItem value="closed">Closed</MenuItem>
-            </Select>
-          </FormControl>
-          {editStatus === 'rescued' && (
-            <Alert severity="info" sx={{ mt: 2 }}>
-              Marking as rescued will automatically add this dog to the available dogs list for adoption.
-            </Alert>
+      <Dialog
+        open={editOpen}
+        onClose={handleEditClose}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          <Typography variant="h6" fontWeight={600}>
+            Update Rescue Status
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          {editingSubmission && (
+            <Box sx={{ pt: 1 }}>
+              <Typography variant="body1" gutterBottom>
+                Update the status for rescue submission from {editingSubmission.userName || editingSubmission.contactName}
+              </Typography>
+              
+              <FormControl fullWidth sx={{ mt: 2 }}>
+                <InputLabel id="status-select-label">Status</InputLabel>
+                <Select
+                  labelId="status-select-label"
+                  value={editStatus}
+                  label="Status"
+                  onChange={handleStatusChange}
+                >
+                  <MenuItem value="pending">Pending</MenuItem>
+                  <MenuItem value="processing">Processing</MenuItem>
+                  <MenuItem value="rescued">Rescued</MenuItem>
+                  <MenuItem value="closed">Closed</MenuItem>
+                </Select>
+              </FormControl>
+              
+              <TextField
+                margin="normal"
+                fullWidth
+                multiline
+                rows={4}
+                label="Status Notes (Optional)"
+                value={editNotes}
+                onChange={handleNotesChange}
+                placeholder="Add any notes about this status update"
+                sx={{ mt: 3 }}
+              />
+            </Box>
           )}
-          <TextField
-            margin="normal"
-            label="Notes (Optional)"
-            multiline
-            rows={4}
-            fullWidth
-            value={editNotes}
-            onChange={handleNotesChange}
-            placeholder="Add any additional notes about this rescue case..."
-          />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleEditClose}>Cancel</Button>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button 
-            onClick={handleSaveStatus} 
-            variant="contained"
-            startIcon={editStatus === 'rescued' ? <PetsIcon /> : undefined}
+            onClick={handleEditClose}
+            variant="outlined"
+            sx={{ borderRadius: 2 }}
           >
-            {editStatus === 'rescued' ? 'Save & Add to Adoption' : 'Save'}
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSaveStatus}
+            variant="contained"
+            color="primary"
+            sx={{ borderRadius: 2 }}
+          >
+            Save Status
           </Button>
         </DialogActions>
       </Dialog>

@@ -44,6 +44,7 @@ import { Helmet } from 'react-helmet-async';
 
 // Import API service
 import { rescueApi, RescueSubmissionData } from '../services/api';
+import { userAuthService } from '../services/userAuthService';
 
 // Animation variants
 const fadeIn = {
@@ -383,6 +384,9 @@ const RescueSubmissionPage = () => {
     setIsSubmitting(true);
     
     try {
+      // Get current user information
+      const currentUser = userAuthService.getCurrentUser();
+      
       // Convert form data to API submission format
       const submissionData: RescueSubmissionData = {
         name: formData.name,
@@ -396,7 +400,11 @@ const RescueSubmissionPage = () => {
         contactEmail: formData.contactEmail,
         contactPhone: formData.contactPhone,
         // In a real application, you would upload images and get URLs
-        imageUrls: formData.images.length > 0 ? ['placeholder-image-url.jpg'] : []
+        imageUrls: formData.images.length > 0 ? ['placeholder-image-url.jpg'] : [],
+        // Include user information if logged in
+        user: currentUser?.id?.toString() || currentUser?._id,
+        userName: currentUser?.name,
+        userEmail: currentUser?.email
       };
       
       // Submit to API

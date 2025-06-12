@@ -400,7 +400,12 @@ export interface RescueSubmissionData {
   contactPhone: string;
   imageUrls?: string[];
   status?: 'pending' | 'processing' | 'rescued' | 'closed';
+  statusNotes?: string;
   submittedAt?: string;
+  // User information
+  user?: string;
+  userName?: string;
+  userEmail?: string;
 }
 
 // Mock rescue submissions data

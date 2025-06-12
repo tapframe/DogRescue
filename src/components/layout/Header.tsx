@@ -30,6 +30,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import { motion } from 'framer-motion';
 import { userAuthService, User } from '../../services/userAuthService';
 
@@ -197,28 +198,53 @@ const Header = () => {
       
       <Box sx={{ px: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
         {currentUser ? (
-          <Button
-            fullWidth
-            variant="outlined"
-            size="large"
-            onClick={handleLogout}
-            startIcon={<LogoutIcon />}
-            sx={{
-              borderRadius: 30,
-              py: 1.5,
-              fontWeight: 600,
-              textTransform: 'none',
-              fontSize: '1rem',
-              borderColor: 'rgba(255,255,255,0.5)',
-              color: 'white',
-              '&:hover': {
-                borderColor: 'white',
-                backgroundColor: 'rgba(255,255,255,0.1)'
-              }
-            }}
-          >
-            Sign Out
-          </Button>
+          <>
+            <Button
+              fullWidth
+              variant="outlined"
+              size="large"
+              component={RouterLink}
+              to="/dashboard"
+              startIcon={<DashboardIcon />}
+              sx={{
+                borderRadius: 30,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: 'none',
+                fontSize: '1rem',
+                borderColor: 'rgba(255,255,255,0.5)',
+                color: 'white',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255,255,255,0.1)'
+                }
+              }}
+            >
+              My Dashboard
+            </Button>
+            <Button
+              fullWidth
+              variant="outlined"
+              size="large"
+              onClick={handleLogout}
+              startIcon={<LogoutIcon />}
+              sx={{
+                borderRadius: 30,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: 'none',
+                fontSize: '1rem',
+                borderColor: 'rgba(255,255,255,0.5)',
+                color: 'white',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255,255,255,0.1)'
+                }
+              }}
+            >
+              Sign Out
+            </Button>
+          </>
         ) : (
           <>
             <Button
@@ -480,6 +506,15 @@ const Header = () => {
                         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                       >
+                        <MenuItem 
+                          component={RouterLink}
+                          to="/dashboard"
+                          onClick={handleUserMenuClose}
+                          sx={{ py: 1.5, px: 2.5 }}
+                        >
+                          <DashboardIcon sx={{ mr: 1.5, fontSize: '1.25rem', color: theme.palette.text.secondary }} />
+                          <Typography variant="body2">My Dashboard</Typography>
+                        </MenuItem>
                         <MenuItem 
                           onClick={handleLogout}
                           sx={{ py: 1.5, px: 2.5 }}

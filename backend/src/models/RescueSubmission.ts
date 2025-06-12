@@ -55,9 +55,24 @@ const rescueSubmissionSchema = new mongoose.Schema({
     enum: ['pending', 'processing', 'rescued', 'closed'],
     default: 'pending'
   },
+  statusNotes: {
+    type: String,
+    default: ''
+  },
   submittedAt: {
     type: Date,
     default: Date.now
+  },
+  // User information
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  userName: {
+    type: String
+  },
+  userEmail: {
+    type: String
   }
 }, {
   timestamps: true,

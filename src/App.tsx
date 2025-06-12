@@ -16,6 +16,7 @@ import AdminPage from './pages/AdminPage';
 import RescueSubmissionPage from './pages/RescueSubmissionPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import UserDashboardPage from './pages/UserDashboardPage';
 
 // Import secret admin login page
 import SecretLoginPage from './pages/admin/SecretLoginPage';
@@ -72,6 +73,11 @@ function App() {
           <Route path="/rescue" element={
             <UserProtectedRoute>
               <RescueSubmissionPage />
+            </UserProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <UserProtectedRoute>
+              <UserDashboardPage />
             </UserProtectedRoute>
           } />
         </Route>
