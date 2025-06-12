@@ -53,32 +53,6 @@ export interface AuthResponse {
   message?: string;
 }
 
-// Mock user data for fallback when API is not available
-const mockUsers: Array<User & { password: string }> = [
-  {
-    id: 1,
-    _id: '1',
-    username: 'user1',
-    password: 'password123', // In a real app, would never store plaintext passwords
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '(555) 123-4567',
-    role: 'user' as const,
-    status: 'active' as const,
-    createdAt: '2023-01-01T00:00:00Z'
-  }
-];
-
-// Use mock mode if backend is not available
-let useMockMode = false;
-
-// Function to handle API errors and switch to mock mode
-const handleApiError = (error: any) => {
-  console.warn('Backend API not available, using mock data:', error);
-  useMockMode = true;
-  return null;
-};
-
 // Set user in localStorage
 const setUser = (user: User | null) => {
   if (user) {
@@ -93,7 +67,6 @@ const clearStorage = () => {
   localStorage.removeItem('userToken');
   localStorage.removeItem('user');
   delete auth.defaults.headers.common['Authorization'];
-  useMockMode = false;
   console.log('User auth storage cleared, state reset');
 };
 
@@ -116,77 +89,25 @@ export const userAuthService = {
         email
       };
       
-      // Skip API call if we already know it's not available
-      if (!useMockMode) {
-        try {
-          console.log('Attempting API registration with:', registrationData.username);
-          const response = await auth.post('/auth/user/register', registrationData);
-          console.log('Registration API response:', response.data);
-          
-          // If successful, automatically log in
-          if (response.data.success && response.data.token) {
-            setAuthToken(response.data.token);
-            
-            if (response.data.user) {
-              setUser(response.data.user);
-            }
-          }
-          
-          return response.data;
-        } catch (apiError: any) {
-          console.error('Registration API error:', apiError.response?.data || apiError.message);
-          // Check if it's a validation error or server is unavailable
-          if (apiError.response && apiError.response.data) {
-            return apiError.response.data;
-          }
-          handleApiError(apiError);
+      console.log('Attempting API registration with:', registrationData.username);
+      const response = await auth.post('/auth/user/register', registrationData);
+      console.log('Registration API response:', response.data);
+      
+      // If successful, automatically log in
+      if (response.data.success && response.data.token) {
+        setAuthToken(response.data.token);
+        
+        if (response.data.user) {
+          setUser(response.data.user);
         }
       }
       
-      // Check if username already exists in mock data
-      if (mockUsers.some(u => u.username === userData.username)) {
-        return {
-          success: false,
-          message: 'Username already exists'
-        };
-      }
-      
-      // Create new user in mock data
-      const newUser = {
-        id: mockUsers.length > 0 ? Math.max(...mockUsers.map(u => Number(u.id))) + 1 : 1,
-        _id: (mockUsers.length > 0 ? Math.max(...mockUsers.map(u => Number(u.id))) + 1 : 1).toString(),
-        username: userData.username,
-        password: userData.password,
-        name: userData.name || userData.username,
-        email,
-        phone: userData.phone || '',
-        role: 'user' as const,
-        status: 'active' as const,
-        createdAt: new Date().toISOString()
-      };
-      
-      mockUsers.push(newUser);
-      
-      // Generate a mock token
-      const mockToken = `mock_${Math.random().toString(36).substring(2)}`;
-      setAuthToken(mockToken);
-      
-      const { password, ...userWithoutPassword } = newUser;
-      
-      // Store the user data
-      setUser(userWithoutPassword);
-      
-      return {
-        success: true,
-        token: mockToken,
-        user: userWithoutPassword,
-        message: 'Registration successful'
-      };
-    } catch (error) {
-      console.error('Registration error:', error);
+      return response.data;
+    } catch (error: any) {
+      console.error('Registration error:', error.response?.data || error);
       return {
         success: false,
-        message: 'Registration failed. Please try again.'
+        message: error.response?.data?.message || 'Registration failed. Please try again.'
       };
     }
   },
@@ -194,66 +115,26 @@ export const userAuthService = {
   // User login
   login: async (credentials: UserCredentials): Promise<AuthResponse> => {
     try {
-      // Skip API call if we already know it's not available
-      if (!useMockMode) {
-        try {
-          console.log('Attempting API login with:', credentials.username);
-          const response = await auth.post('/auth/user/login', credentials);
-          console.log('Login API response:', response.data);
-          
-          const { token, user } = response.data;
-          
-          if (token) {
-            setAuthToken(token);
-          }
-          
-          if (user) {
-            setUser(user);
-          }
-          
-          return response.data;
-        } catch (apiError: any) {
-          console.error('Login API error:', apiError.response?.data || apiError.message);
-          if (apiError.response?.data) {
-            return apiError.response.data;
-          }
-          handleApiError(apiError);
-        }
+      console.log('Attempting API login with:', credentials.username);
+      const response = await auth.post('/auth/user/login', credentials);
+      console.log('Login API response:', response.data);
+      
+      const { token, user } = response.data;
+      
+      if (token) {
+        setAuthToken(token);
       }
       
-      // Fallback to mock data
-      console.log('Using mock login with:', credentials.username);
-      const user = mockUsers.find(u => 
-        u.username === credentials.username && 
-        u.password === credentials.password
-      );
-      
-      if (!user) {
-        return {
-          success: false,
-          message: 'Invalid credentials'
-        };
+      if (user) {
+        setUser(user);
       }
       
-      // Generate a mock token (never do this in production)
-      const mockToken = `mock_${Math.random().toString(36).substring(2)}`;
-      setAuthToken(mockToken);
-      
-      const { password, ...userWithoutPassword } = user;
-      
-      // Store the user data
-      setUser(userWithoutPassword);
-      
-      return {
-        success: true,
-        token: mockToken,
-        user: userWithoutPassword
-      };
-    } catch (error) {
-      console.error('Login error:', error);
+      return response.data;
+    } catch (error: any) {
+      console.error('Login error:', error.response?.data || error);
       return {
         success: false,
-        message: 'Login failed. Please try again.'
+        message: error.response?.data?.message || 'Login failed. Please try again.'
       };
     }
   },
@@ -279,42 +160,14 @@ export const userAuthService = {
   // Verify user token
   verifyToken: async (): Promise<boolean> => {
     try {
-      // Skip API call if we already know it's not available
-      if (!useMockMode) {
-        try {
-          const response = await auth.get('/auth/user/verify');
-          
-          // If we get user data from verification, store it
-          if (response.data.success && response.data.user) {
-            setUser(response.data.user);
-          }
-          
-          return response.data.success;
-        } catch (apiError) {
-          handleApiError(apiError);
-        }
+      const response = await auth.get('/auth/user/verify');
+      
+      // If we get user data from verification, store it
+      if (response.data.success && response.data.user) {
+        setUser(response.data.user);
       }
       
-      // For mock data, just check if token exists (this is NOT secure for production)
-      const isAuthenticated = !!localStorage.getItem('userToken');
-      
-      // If authenticated but no user data, use a default user
-      if (isAuthenticated && !localStorage.getItem('user')) {
-        const defaultUser: User = {
-          id: '1',
-          _id: '1',
-          username: 'user1',
-          name: 'John Doe',
-          email: 'john@example.com',
-          phone: '(555) 123-4567',
-          role: 'user',
-          status: 'active',
-          createdAt: new Date().toISOString()
-        };
-        setUser(defaultUser);
-      }
-      
-      return isAuthenticated;
+      return response.data.success;
     } catch (error) {
       console.error('Token verification error:', error);
       return false;

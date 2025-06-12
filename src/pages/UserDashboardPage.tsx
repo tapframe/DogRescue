@@ -15,7 +15,10 @@ import {
   CardActions,
   useTheme,
   alpha,
-  Stack
+  Stack,
+  Avatar,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import {
   Timeline,
@@ -35,9 +38,42 @@ import PendingIcon from '@mui/icons-material/Pending';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddIcon from '@mui/icons-material/Add';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import CallOutlinedIcon from '@mui/icons-material/CallOutlined';
+import { motion } from 'framer-motion';
 
 import { rescueApi, RescueSubmissionData } from '../services/api';
 import { userAuthService } from '../services/userAuthService';
+
+// Animation variants
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.6 } }
+};
+
+const slideUp = {
+  hidden: { y: 30, opacity: 0 },
+  visible: { 
+    y: 0, 
+    opacity: 1, 
+    transition: { 
+      type: "spring", 
+      stiffness: 100,
+      damping: 15
+    }
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 const UserDashboardPage = () => {
   const theme = useTheme();
@@ -102,8 +138,8 @@ const UserDashboardPage = () => {
             icon={<SettingsIcon />}
             label="Processing" 
             color="warning" 
-            variant="outlined"
-            sx={{ fontWeight: 500 }}
+            variant="filled"
+            sx={{ fontWeight: 500, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
           />
         );
       case 'rescued':
@@ -112,8 +148,8 @@ const UserDashboardPage = () => {
             icon={<CheckCircleIcon />}
             label="Rescued" 
             color="success" 
-            variant="outlined"
-            sx={{ fontWeight: 500 }}
+            variant="filled"
+            sx={{ fontWeight: 500, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
           />
         );
       case 'closed':
@@ -122,8 +158,8 @@ const UserDashboardPage = () => {
             icon={<CancelIcon />}
             label="Closed" 
             color="error" 
-            variant="outlined"
-            sx={{ fontWeight: 500 }}
+            variant="filled"
+            sx={{ fontWeight: 500, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
           />
         );
       case 'pending':
@@ -133,8 +169,8 @@ const UserDashboardPage = () => {
             icon={<PendingIcon />}
             label="Pending" 
             color="info" 
-            variant="outlined"
-            sx={{ fontWeight: 500 }}
+            variant="filled"
+            sx={{ fontWeight: 500, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
           />
         );
     }
@@ -176,6 +212,7 @@ const UserDashboardPage = () => {
                       : 'grey'
                   }
                   variant={isActive && !isCurrentStatus ? "outlined" : "filled"}
+                  sx={{ boxShadow: isCurrentStatus ? '0 0 10px rgba(0,0,0,0.2)' : 'none' }}
                 />
                 {index < statusOrder.length - 1 && (
                   <TimelineConnector sx={{ 
@@ -205,157 +242,436 @@ const UserDashboardPage = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', py: 8 }}>
-          <CircularProgress />
-          <Typography sx={{ mt: 2 }}>Loading your rescue submissions...</Typography>
+      <Box sx={{ 
+        height: '100vh', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        background: `linear-gradient(to bottom, ${alpha(theme.palette.background.default, 0.8)}, ${alpha(theme.palette.background.paper, 0.9)})`,
+      }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <CircularProgress size={60} thickness={4} />
+          <Typography sx={{ mt: 2, fontWeight: 500 }}>Loading your rescue submissions...</Typography>
         </Box>
-      </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 8 }}>
-      <Box sx={{ mb: 4 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/')}
-          sx={{ mb: 2 }}
+    <Box sx={{ 
+      minHeight: '100vh',
+      pt: { xs: 10, md: 12 },
+      pb: 8,
+      background: `linear-gradient(135deg, ${alpha(theme.palette.background.default, 0.8)} 0%, ${alpha(theme.palette.background.paper, 0.9)} 100%)`,
+      backgroundAttachment: 'fixed',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundImage: 'url(https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=2069)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        opacity: 0.05,
+        zIndex: -1
+      }
+    }}>
+      <Container maxWidth="lg">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
         >
-          Back to Home
-        </Button>
-        <Typography variant="h4" component="h1" fontWeight={700} gutterBottom>
-          My Rescue Submissions
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Track the status of your dog rescue submissions
-        </Typography>
-      </Box>
+          <Box sx={{ 
+            mb: 5,
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', sm: 'center' }
+          }}>
+            <Box>
+              <Button
+                startIcon={<ArrowBackIcon />}
+                onClick={() => navigate('/')}
+                sx={{ 
+                  mb: 2,
+                  color: theme.palette.text.primary,
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                  }
+                }}
+              >
+                Back to Home
+              </Button>
+              <Typography 
+                variant="h3" 
+                component="h1" 
+                fontWeight={800} 
+                gutterBottom
+                sx={{
+                  background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  textFillColor: 'transparent',
+                  letterSpacing: '-0.5px'
+                }}
+              >
+                My Rescue Dashboard
+              </Typography>
+              <Typography variant="h6" color="text.secondary" fontWeight={400}>
+                Track the status of your rescue submissions
+              </Typography>
+            </Box>
+            
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => navigate('/rescue')}
+              startIcon={<AddIcon />}
+              sx={{ 
+                mt: { xs: 3, sm: 0 },
+                borderRadius: 2,
+                px: 3,
+                py: 1.2,
+                boxShadow: `0 8px 16px -4px ${alpha(theme.palette.primary.main, 0.2)}`,
+                background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                fontWeight: 600,
+                '&:hover': {
+                  boxShadow: `0 10px 20px -6px ${alpha(theme.palette.primary.main, 0.4)}`,
+                }
+              }}
+            >
+              New Rescue Request
+            </Button>
+          </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 4 }}>
-          {error}
-        </Alert>
-      )}
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 4, 
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+              }}
+            >
+              {error}
+            </Alert>
+          )}
 
-      {userRescues.length === 0 ? (
-        <Paper 
-          sx={{ 
-            p: 4, 
-            textAlign: 'center',
-            borderRadius: 2,
-            bgcolor: alpha(theme.palette.primary.main, 0.05)
-          }}
-        >
-          <PetsIcon sx={{ fontSize: 60, color: alpha(theme.palette.primary.main, 0.6), mb: 2 }} />
-          <Typography variant="h5" gutterBottom fontWeight={600}>
-            No Rescue Submissions Yet
-          </Typography>
-          <Typography variant="body1" paragraph>
-            You haven't submitted any dog rescue requests yet.
-          </Typography>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={() => navigate('/rescue')}
-            sx={{ mt: 2 }}
-          >
-            Submit a Rescue Request
-          </Button>
-        </Paper>
-      ) : (
-        <Grid container spacing={3}>
-          {userRescues.map((rescue) => (
-            <Grid item xs={12} key={rescue._id || rescue.id}>
-              <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
-                <Box sx={{ 
-                  p: 2, 
-                  bgcolor: alpha(theme.palette.primary.main, 0.05),
-                  borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`
-                }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <PetsIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
-                      <Typography variant="h6">
-                        {rescue.name || 'Unnamed Dog'} 
-                        <Typography component="span" variant="body2" sx={{ ml: 1 }}>
-                          ({rescue.gender}, {rescue.age}, {rescue.size})
-                        </Typography>
-                      </Typography>
-                    </Box>
-                    {getStatusChip(rescue.status)}
-                  </Stack>
-                </Box>
+          {userRescues.length === 0 ? (
+            <motion.div variants={slideUp}>
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  p: 6, 
+                  textAlign: 'center',
+                  borderRadius: 4,
+                  bgcolor: alpha(theme.palette.background.paper, 0.7),
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
+              >
+                <Box 
+                  sx={{ 
+                    position: 'absolute',
+                    top: -30,
+                    right: -30,
+                    width: 150,
+                    height: 150,
+                    borderRadius: '50%',
+                    background: `radial-gradient(circle, ${alpha(theme.palette.primary.light, 0.2)}, transparent 70%)`,
+                    zIndex: 0
+                  }}
+                />
                 
-                <CardContent>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                      <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                          Location
-                        </Typography>
-                        <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
-                          <LocationOnIcon fontSize="small" sx={{ mr: 0.5, color: theme.palette.error.main }} />
-                          {rescue.location}
-                        </Typography>
-                      </Box>
-                      
-                      <Box>
-                        <Typography variant="subtitle2" color="text.secondary">
-                          Submitted On
-                        </Typography>
-                        <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
-                          <AccessTimeIcon fontSize="small" sx={{ mr: 0.5, color: theme.palette.info.main }} />
-                          {formatDate(rescue.submittedAt)}
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={6}>
-                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                        Status Timeline
-                      </Typography>
-                      {getStatusTimeline(rescue.status)}
-                    </Grid>
-                    
-                    {rescue.statusNotes && (
-                      <Grid item xs={12}>
-                        <Divider sx={{ my: 1 }} />
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                          Notes from our team
-                        </Typography>
-                        <Paper 
-                          variant="outlined" 
-                          sx={{ 
-                            p: 2, 
-                            bgcolor: alpha(theme.palette.info.main, 0.05),
-                            borderRadius: 2
-                          }}
-                        >
-                          <Typography variant="body2">
-                            {rescue.statusNotes}
-                          </Typography>
-                        </Paper>
-                      </Grid>
-                    )}
+                <Box 
+                  sx={{ 
+                    position: 'absolute',
+                    bottom: -40,
+                    left: -40,
+                    width: 200,
+                    height: 200,
+                    borderRadius: '50%',
+                    background: `radial-gradient(circle, ${alpha(theme.palette.secondary.light, 0.15)}, transparent 70%)`,
+                    zIndex: 0
+                  }}
+                />
+                
+                <Avatar 
+                  sx={{ 
+                    width: 100, 
+                    height: 100, 
+                    bgcolor: alpha(theme.palette.primary.main, 0.1), 
+                    color: theme.palette.primary.main,
+                    margin: '0 auto 24px',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.08)'
+                  }}
+                >
+                  <PetsIcon sx={{ fontSize: 60 }} />
+                </Avatar>
+                
+                <Typography variant="h4" gutterBottom fontWeight={700}>
+                  No Rescue Submissions Yet
+                </Typography>
+                
+                <Typography variant="body1" paragraph color="text.secondary" sx={{ maxWidth: 500, mx: 'auto', mb: 4 }}>
+                  You haven't submitted any dog rescue requests yet. Help us save dogs in need by reporting stray or abandoned dogs.
+                </Typography>
+                
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  size="large"
+                  onClick={() => navigate('/rescue')}
+                  startIcon={<PetsIcon />}
+                  sx={{ 
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 2,
+                    fontWeight: 600,
+                    boxShadow: `0 8px 16px -4px ${alpha(theme.palette.primary.main, 0.2)}`,
+                    background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                    '&:hover': {
+                      boxShadow: `0 12px 24px -8px ${alpha(theme.palette.primary.main, 0.4)}`,
+                    }
+                  }}
+                >
+                  Submit a Rescue Request
+                </Button>
+              </Paper>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+            >
+              <Grid container spacing={3}>
+                {userRescues.map((rescue, index) => (
+                  <Grid item xs={12} key={rescue._id || rescue.id}>
+                    <motion.div variants={slideUp}>
+                      <Card 
+                        sx={{ 
+                          borderRadius: 4, 
+                          overflow: 'hidden',
+                          boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+                          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                          '&:hover': {
+                            transform: 'translateY(-5px)',
+                            boxShadow: '0 15px 50px rgba(0,0,0,0.12)'
+                          },
+                          position: 'relative',
+                          border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+                          bgcolor: alpha(theme.palette.background.paper, 0.7),
+                          backdropFilter: 'blur(10px)'
+                        }}
+                      >
+                        <Box sx={{ 
+                          p: 3, 
+                          bgcolor: alpha(theme.palette.primary.main, 0.03),
+                          borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
+                          position: 'relative'
+                        }}>
+                          <Stack 
+                            direction={{ xs: 'column', sm: 'row' }} 
+                            justifyContent="space-between" 
+                            alignItems={{ xs: 'flex-start', sm: 'center' }}
+                            spacing={2}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Avatar 
+                                sx={{ 
+                                  bgcolor: alpha(theme.palette.primary.main, 0.1), 
+                                  color: theme.palette.primary.main,
+                                  mr: 2,
+                                  width: 54,
+                                  height: 54,
+                                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+                                }}
+                              >
+                                <PetsIcon sx={{ fontSize: 30 }} />
+                              </Avatar>
+                              <Box>
+                                <Typography variant="h5" fontWeight={700}>
+                                  {rescue.name || 'Unnamed Dog'} 
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  {rescue.gender}, {rescue.age}, {rescue.size}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                              <Typography 
+                                variant="caption" 
+                                sx={{ 
+                                  display: { xs: 'none', md: 'block' },
+                                  color: 'text.secondary',
+                                  fontWeight: 500
+                                }}
+                              >
+                                Status:
+                              </Typography>
+                              {getStatusChip(rescue.status)}
+                            </Box>
+                          </Stack>
+                          
+                          {/* Status indicator line */}
+                          <Box 
+                            sx={{ 
+                              position: 'absolute', 
+                              top: 0, 
+                              left: 0, 
+                              width: '100%', 
+                              height: 4,
+                              background: rescue.status === 'rescued' 
+                                ? `linear-gradient(90deg, ${theme.palette.success.main}, ${theme.palette.success.light})`
+                                : rescue.status === 'processing'
+                                ? `linear-gradient(90deg, ${theme.palette.warning.main}, ${theme.palette.warning.light})`
+                                : rescue.status === 'closed'
+                                ? `linear-gradient(90deg, ${theme.palette.error.main}, ${theme.palette.error.light})`
+                                : `linear-gradient(90deg, ${theme.palette.info.main}, ${theme.palette.info.light})`
+                            }} 
+                          />
+                        </Box>
+                        
+                        <CardContent sx={{ p: 0 }}>
+                          <Grid container>
+                            <Grid item xs={12} md={5} sx={{ p: 3 }}>
+                              <Stack spacing={2.5}>
+                                <Box>
+                                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                    Location
+                                  </Typography>
+                                  <Typography 
+                                    variant="body1" 
+                                    sx={{ 
+                                      display: 'flex', 
+                                      alignItems: 'center',
+                                      fontWeight: 500
+                                    }}
+                                  >
+                                    <LocationOnIcon 
+                                      fontSize="small" 
+                                      sx={{ 
+                                        mr: 1, 
+                                        color: theme.palette.error.main,
+                                        filter: `drop-shadow(0 2px 4px ${alpha(theme.palette.error.main, 0.4)})`
+                                      }} 
+                                    />
+                                    {rescue.location}
+                                  </Typography>
+                                </Box>
+                                
+                                <Box>
+                                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                    Submitted On
+                                  </Typography>
+                                  <Typography 
+                                    variant="body1" 
+                                    sx={{ 
+                                      display: 'flex', 
+                                      alignItems: 'center',
+                                      fontWeight: 500
+                                    }}
+                                  >
+                                    <AccessTimeIcon 
+                                      fontSize="small" 
+                                      sx={{ 
+                                        mr: 1, 
+                                        color: theme.palette.info.main,
+                                        filter: `drop-shadow(0 2px 4px ${alpha(theme.palette.info.main, 0.4)})`
+                                      }} 
+                                    />
+                                    {formatDate(rescue.submittedAt)}
+                                  </Typography>
+                                </Box>
+                                
+                                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                                  <Tooltip title="View rescue details">
+                                    <IconButton 
+                                      color="primary" 
+                                      sx={{ 
+                                        border: `1px solid ${alpha(theme.palette.primary.main, 0.5)}`,
+                                        '&:hover': {
+                                          bgcolor: alpha(theme.palette.primary.main, 0.1)
+                                        }
+                                      }}
+                                      onClick={() => navigate('/contact')}
+                                    >
+                                      <InfoOutlinedIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Contact about this rescue">
+                                    <IconButton 
+                                      color="secondary" 
+                                      sx={{ 
+                                        border: `1px solid ${alpha(theme.palette.secondary.main, 0.5)}`,
+                                        '&:hover': {
+                                          bgcolor: alpha(theme.palette.secondary.main, 0.1)
+                                        }
+                                      }}
+                                      onClick={() => navigate('/contact')}
+                                    >
+                                      <CallOutlinedIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Box>
+                              </Stack>
+                            </Grid>
+                            
+                            <Grid item xs={12} md={7} sx={{ 
+                              bgcolor: alpha(theme.palette.background.default, 0.4),
+                              p: 3,
+                              borderLeft: { xs: 'none', md: `1px solid ${alpha(theme.palette.divider, 0.1)}` },
+                              borderTop: { xs: `1px solid ${alpha(theme.palette.divider, 0.1)}`, md: 'none' }
+                            }}>
+                              <Typography variant="subtitle1" color="text.secondary" gutterBottom fontWeight={600}>
+                                Rescue Progress
+                              </Typography>
+                              {getStatusTimeline(rescue.status)}
+                              
+                              {rescue.statusNotes && (
+                                <Box sx={{ mt: 2 }}>
+                                  <Divider sx={{ my: 2 }} />
+                                  <Typography variant="subtitle2" color="text.secondary" gutterBottom fontWeight={600}>
+                                    Notes from our team
+                                  </Typography>
+                                  <Paper 
+                                    variant="outlined" 
+                                    sx={{ 
+                                      p: 2, 
+                                      bgcolor: alpha(theme.palette.info.main, 0.03),
+                                      borderRadius: 2,
+                                      borderColor: alpha(theme.palette.info.main, 0.2)
+                                    }}
+                                  >
+                                    <Typography variant="body2">
+                                      {rescue.statusNotes}
+                                    </Typography>
+                                  </Paper>
+                                </Box>
+                              )}
+                            </Grid>
+                          </Grid>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
                   </Grid>
-                </CardContent>
-                
-                <CardActions sx={{ p: 2, pt: 0 }}>
-                  <Button 
-                    size="small" 
-                    variant="outlined"
-                    onClick={() => navigate('/contact')}
-                  >
-                    Contact Us About This Rescue
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
-    </Container>
+                ))}
+              </Grid>
+            </motion.div>
+          )}
+        </motion.div>
+      </Container>
+    </Box>
   );
 };
 
