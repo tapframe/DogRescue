@@ -251,7 +251,7 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
           {error}
         </Alert>
       )}
-
+      
       <Paper sx={{ width: '100%', overflow: 'hidden', borderRadius: 2 }}>
         <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
           {loading ? (
@@ -260,7 +260,7 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
             </Box>
           ) : (
             <Table stickyHeader aria-label="rescue submissions table">
-              <TableHead>
+            <TableHead>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 'bold' }}>ID</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Dog Info</TableCell>
@@ -281,27 +281,27 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
                       </TableCell>
                       <TableCell>
                         <Box>
-                          <Typography variant="body2" fontWeight={500}>
+                        <Typography variant="body2" fontWeight={500}>
                             {submission.name || 'Unknown Dog'}
-                          </Typography>
+                        </Typography>
                           <Typography variant="body2" color="textSecondary">
                             {submission.gender}, {submission.age}, {submission.size}
-                          </Typography>
+                        </Typography>
                         </Box>
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" sx={{ maxWidth: 200, whiteSpace: 'normal' }}>
-                          {submission.location}
-                        </Typography>
+                            {submission.location}
+                          </Typography>
                       </TableCell>
                       <TableCell>
                         <Box>
                           <Typography variant="body2" fontWeight={500}>
                             {submission.userName || submission.contactName}
-                          </Typography>
+                        </Typography>
                           <Typography variant="body2" color="textSecondary">
                             {submission.userEmail || submission.contactEmail}
-                          </Typography>
+                        </Typography>
                         </Box>
                       </TableCell>
                       <TableCell>
@@ -313,8 +313,8 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
                       <TableCell>
                         <Stack direction="row" spacing={1}>
                           <Tooltip title="View Details">
-                            <IconButton 
-                              size="small" 
+                            <IconButton
+                              size="small"
                               onClick={() => handleViewDetails(submission)}
                               sx={{ 
                                 color: theme.palette.info.main,
@@ -325,8 +325,8 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Update Status">
-                            <IconButton 
-                              size="small" 
+                            <IconButton
+                              size="small"
                               onClick={() => handleEditOpen(submission)}
                               sx={{ 
                                 color: theme.palette.warning.main,
@@ -340,8 +340,8 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
                       </TableCell>
                     </TableRow>
                   ))}
-              </TableBody>
-            </Table>
+            </TableBody>
+          </Table>
           )}
         </TableContainer>
         <TablePagination
@@ -364,7 +364,7 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
       >
         <DialogTitle sx={{ pb: 1 }}>
           <Typography variant="h6" fontWeight={600}>
-            Rescue Submission Details
+          Rescue Submission Details
           </Typography>
         </DialogTitle>
         <DialogContent>
@@ -399,7 +399,7 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
                   </Stack>
                 </Paper>
               </Grid>
-
+              
               <Grid item xs={12} md={6}>
                 <Typography variant="subtitle1" fontWeight={600} gutterBottom>
                   Submission Information
@@ -439,7 +439,7 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
                   </Stack>
                 </Paper>
               </Grid>
-
+              
               <Grid item xs={12}>
                 <Typography variant="subtitle1" fontWeight={600} gutterBottom>
                   Location Information
@@ -452,7 +452,7 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
               <Grid item xs={12}>
                 <Typography variant="subtitle1" fontWeight={600} gutterBottom>
                   Description
-                </Typography>
+                  </Typography>
                 <Paper sx={{ p: 2, borderRadius: 2 }}>
                   <Typography variant="body1">{selectedSubmission.description}</Typography>
                 </Paper>
@@ -466,7 +466,7 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
                   <Paper sx={{ p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.info.main, 0.05) }}>
                     <Typography variant="body1">{selectedSubmission.statusNotes}</Typography>
                   </Paper>
-                </Grid>
+              </Grid>
               )}
             </Grid>
           )}
@@ -481,16 +481,16 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
           </Button>
           {selectedSubmission && (
             <Button 
-              onClick={() => {
-                setDetailOpen(false);
+            onClick={() => {
+              setDetailOpen(false);
                 handleEditOpen(selectedSubmission);
-              }}
+            }}
               variant="contained"
               color="primary"
               sx={{ borderRadius: 2 }}
-            >
-              Update Status
-            </Button>
+          >
+            Update Status
+          </Button>
           )}
         </DialogActions>
       </Dialog>
@@ -516,30 +516,30 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
               
               <FormControl fullWidth sx={{ mt: 2 }}>
                 <InputLabel id="status-select-label">Status</InputLabel>
-                <Select
+            <Select
                   labelId="status-select-label"
-                  value={editStatus}
-                  label="Status"
-                  onChange={handleStatusChange}
-                >
-                  <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="processing">Processing</MenuItem>
+              value={editStatus}
+              label="Status"
+              onChange={handleStatusChange}
+            >
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="processing">Processing</MenuItem>
                   <MenuItem value="rescued">Rescued</MenuItem>
-                  <MenuItem value="closed">Closed</MenuItem>
-                </Select>
-              </FormControl>
+              <MenuItem value="closed">Closed</MenuItem>
+            </Select>
+          </FormControl>
               
-              <TextField
-                margin="normal"
+          <TextField
+            margin="normal"
                 fullWidth
-                multiline
-                rows={4}
+            multiline
+            rows={4}
                 label="Status Notes (Optional)"
-                value={editNotes}
-                onChange={handleNotesChange}
+            value={editNotes}
+            onChange={handleNotesChange}
                 placeholder="Add any notes about this status update"
                 sx={{ mt: 3 }}
-              />
+          />
             </Box>
           )}
         </DialogContent>
@@ -552,7 +552,7 @@ const RescueManagementTab = ({ showNotification }: RescueManagementTabProps) => 
             Cancel
           </Button>
           <Button 
-            onClick={handleSaveStatus}
+            onClick={handleSaveStatus} 
             variant="contained"
             color="primary"
             sx={{ borderRadius: 2 }}

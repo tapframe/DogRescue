@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -24,20 +24,7 @@ import {
   Grow,
   lighten,
   Zoom,
-  Slide,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControlLabel,
-  Switch,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-  SelectChangeEvent,
-  Snackbar
+  Slide
 } from '@mui/material';
 import PetsIcon from '@mui/icons-material/Pets';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -54,8 +41,6 @@ import { motion } from 'framer-motion';
 
 // Import the API service and DogData type
 import { dogApi, DogData } from '../services/api';
-import { userAuthService } from '../services/userAuthService';
-import { adoptionApi } from '../services/api';
 
 // Animation variants for framer-motion
 const fadeInUp = {
@@ -84,21 +69,6 @@ const DogDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const theme = useTheme();
-  const navigate = useNavigate();
-  
-  // Adoption application state
-  const [adoptionDialogOpen, setAdoptionDialogOpen] = useState(false);
-  const [reasonForAdoption, setReasonForAdoption] = useState('');
-  const [homeType, setHomeType] = useState('');
-  const [hasYard, setHasYard] = useState(false);
-  const [hasChildren, setHasChildren] = useState(false);
-  const [hasOtherPets, setHasOtherPets] = useState(false);
-  const [otherPetsDetails, setOtherPetsDetails] = useState('');
-  const [veterinarianInfo, setVeterinarianInfo] = useState('');
-  const [userPhone, setUserPhone] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   
   useEffect(() => {
     const fetchDog = async () => {
@@ -119,85 +89,6 @@ const DogDetailPage = () => {
 
     fetchDog();
   }, [id]); // Refetch if ID changes
-
-  const handleAdoptButtonClick = () => {
-    const currentUser = userAuthService.getCurrentUser();
-    if (!currentUser) {
-      // Redirect to login if not logged in
-      navigate('/login', { state: { from: `/dogs/${id}`, message: 'Please log in to submit an adoption application' } });
-      return;
-    }
-    
-    // Pre-fill phone if available
-    if (currentUser.phone) {
-      setUserPhone(currentUser.phone);
-    }
-    
-    setAdoptionDialogOpen(true);
-  };
-  
-  const handleDialogClose = () => {
-    setAdoptionDialogOpen(false);
-  };
-  
-  const handleHomeTypeChange = (event: SelectChangeEvent) => {
-    setHomeType(event.target.value);
-  };
-  
-  const handleAdoptionSubmit = async () => {
-    if (!id || !dog) return;
-    
-    // Validate form
-    if (!reasonForAdoption || !homeType) {
-      setSubmitError('Please fill in all required fields');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setSubmitError(null);
-    
-    try {
-      await adoptionApi.submitAdoptionApplication({
-        dog: id,
-        reasonForAdoption,
-        homeType,
-        hasYard,
-        hasChildren,
-        hasOtherPets,
-        otherPetsDetails,
-        veterinarianInfo,
-        userPhone
-      });
-      
-      setSubmitSuccess(true);
-      setAdoptionDialogOpen(false);
-      
-      // Reset form
-      setReasonForAdoption('');
-      setHomeType('');
-      setHasYard(false);
-      setHasChildren(false);
-      setHasOtherPets(false);
-      setOtherPetsDetails('');
-      setVeterinarianInfo('');
-      setUserPhone('');
-      
-      // Show success message and redirect to dashboard after a delay
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 3000);
-    } catch (error: any) {
-      console.error('Error submitting adoption application:', error);
-      setSubmitError(error.response?.data?.message || 'Failed to submit application. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
-  const handleSnackbarClose = () => {
-    setSubmitSuccess(false);
-    setSubmitError(null);
-  };
 
   // Loading state
   if (isLoading) {
@@ -776,7 +667,8 @@ const DogDetailPage = () => {
                             variant="contained"
                             size="large"
                             color="primary"
-                            onClick={handleAdoptButtonClick}
+                            component={RouterLink}
+                            to="/contact"
                             sx={{ 
                               flex: 1,
                               py: 1.5,
@@ -1155,177 +1047,6 @@ const DogDetailPage = () => {
           </Fade>
         </Box>
       </Container>
-      
-      {/* Adoption Application Dialog */}
-      <Dialog 
-        open={adoptionDialogOpen} 
-        onClose={handleDialogClose}
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle sx={{ 
-          pb: 1, 
-          pt: 3,
-          fontWeight: 700,
-          fontSize: '1.5rem',
-          color: theme.palette.primary.main
-        }}>
-          Adoption Application for {dog?.name}
-        </DialogTitle>
-        
-        <DialogContent sx={{ pt: 3 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Typography variant="body1" paragraph>
-                Thank you for your interest in adopting {dog?.name}! Please fill out this application so we can find out if {dog?.name} would be a good match for your home.
-              </Typography>
-            </Grid>
-            
-            <Grid item xs={12}>
-              <TextField
-                label="Why do you want to adopt this dog?"
-                multiline
-                rows={4}
-                fullWidth
-                required
-                value={reasonForAdoption}
-                onChange={(e) => setReasonForAdoption(e.target.value)}
-                placeholder="Tell us why you're interested in this particular dog and what kind of home you can provide."
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth required>
-                <InputLabel id="home-type-label">Home Type</InputLabel>
-                <Select
-                  labelId="home-type-label"
-                  value={homeType}
-                  label="Home Type"
-                  onChange={handleHomeTypeChange}
-                >
-                  <MenuItem value="house">House</MenuItem>
-                  <MenuItem value="apartment">Apartment</MenuItem>
-                  <MenuItem value="condo">Condo</MenuItem>
-                  <MenuItem value="townhouse">Townhouse</MenuItem>
-                  <MenuItem value="farm">Farm/Rural Property</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Phone Number"
-                fullWidth
-                value={userPhone}
-                onChange={(e) => setUserPhone(e.target.value)}
-                placeholder="Your contact phone number"
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Switch 
-                    checked={hasYard} 
-                    onChange={(e) => setHasYard(e.target.checked)}
-                    color="primary"
-                  />
-                }
-                label="Do you have a yard?"
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Switch 
-                    checked={hasChildren} 
-                    onChange={(e) => setHasChildren(e.target.checked)}
-                    color="primary"
-                  />
-                }
-                label="Do you have children?"
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Switch 
-                    checked={hasOtherPets} 
-                    onChange={(e) => setHasOtherPets(e.target.checked)}
-                    color="primary"
-                  />
-                }
-                label="Do you have other pets?"
-              />
-            </Grid>
-            
-            {hasOtherPets && (
-              <Grid item xs={12}>
-                <TextField
-                  label="Tell us about your other pets"
-                  multiline
-                  rows={2}
-                  fullWidth
-                  value={otherPetsDetails}
-                  onChange={(e) => setOtherPetsDetails(e.target.value)}
-                  placeholder="Species, breeds, ages, and temperaments of your current pets"
-                />
-              </Grid>
-            )}
-            
-            <Grid item xs={12}>
-              <TextField
-                label="Veterinarian Information (if any)"
-                multiline
-                rows={2}
-                fullWidth
-                value={veterinarianInfo}
-                onChange={(e) => setVeterinarianInfo(e.target.value)}
-                placeholder="Name and contact information for your veterinarian"
-              />
-            </Grid>
-            
-            {submitError && (
-              <Grid item xs={12}>
-                <Alert severity="error">{submitError}</Alert>
-              </Grid>
-            )}
-          </Grid>
-        </DialogContent>
-        
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={handleDialogClose} color="inherit">
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleAdoptionSubmit} 
-            variant="contained" 
-            color="primary"
-            disabled={isSubmitting || !reasonForAdoption || !homeType}
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Application'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-      
-      {/* Success Snackbar */}
-      <Snackbar
-        open={submitSuccess}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert 
-          onClose={handleSnackbarClose} 
-          severity="success" 
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
-          Your adoption application has been submitted successfully! You can track its status in your dashboard.
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

@@ -322,70 +322,70 @@ const Header = () => {
   return (
     <Slide appear={false} direction="down" in={visible}>
       <Box sx={{ width: '100%' }}>
-        <AppBar 
-          position="fixed" 
-          color="default" 
-          elevation={atTop ? 0 : 4}
-          sx={{
-            width: '100%',
+      <AppBar 
+        position="fixed" 
+        color="default" 
+        elevation={atTop ? 0 : 4}
+        sx={{
+          width: '100%',
+          transition: 'all 0.3s',
+          bgcolor: atTop ? 'transparent' : 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: atTop ? 'none' : 'blur(10px)',
+          borderBottom: atTop ? 'none' : `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+          boxShadow: atTop ? 'none' : `0 4px 20px ${alpha('#000000', 0.1)}`,
+          '& .MuiToolbar-root': {
             transition: 'all 0.3s',
-            bgcolor: atTop ? 'transparent' : 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: atTop ? 'none' : 'blur(10px)',
-            borderBottom: atTop ? 'none' : `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-            boxShadow: atTop ? 'none' : `0 4px 20px ${alpha('#000000', 0.1)}`,
-            '& .MuiToolbar-root': {
-              transition: 'all 0.3s',
-              minHeight: atTop ? 80 : 64,
-            },
-          }}
-        >
-          <Toolbar sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            width: '100%',
-            maxWidth: '1920px',
-            mx: 'auto',
-            px: { xs: 2, sm: 3, md: 4, lg: 5 }
-          }}>
-            {/* Logo */}
-            <MotionBox 
-              sx={{ display: 'flex', alignItems: 'center' }}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
+            minHeight: atTop ? 80 : 64,
+          },
+        }}
+      >
+        <Toolbar sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          width: '100%',
+          maxWidth: '1920px',
+          mx: 'auto',
+          px: { xs: 2, sm: 3, md: 4, lg: 5 }
+        }}>
+          {/* Logo */}
+          <MotionBox 
+            sx={{ display: 'flex', alignItems: 'center' }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Avatar 
+              sx={{ 
+                bgcolor: atTop ? 'white' : alpha(theme.palette.primary.main, 0.1), 
+                color: theme.palette.primary.main, 
+                mr: 1.5,
+                transition: 'all 0.3s',
+                width: atTop ? 48 : 40,
+                height: atTop ? 48 : 40
+              }}
             >
-              <Avatar 
-                sx={{ 
-                  bgcolor: atTop ? 'white' : alpha(theme.palette.primary.main, 0.1), 
-                  color: theme.palette.primary.main, 
-                  mr: 1.5,
-                  transition: 'all 0.3s',
-                  width: atTop ? 48 : 40,
-                  height: atTop ? 48 : 40
-                }}
-              >
-                <PetsIcon />
-              </Avatar>
-              <Typography
-                variant="h6"
-                component={RouterLink}
-                to="/"
-                sx={{
-                  fontWeight: 800,
-                  textDecoration: 'none',
-                  color: atTop ? 'white' : 'text.primary',
-                  fontSize: atTop ? '1.5rem' : '1.35rem',
-                  transition: 'all 0.3s',
-                  textShadow: atTop ? '1px 1px 3px rgba(0,0,0,0.3)' : 'none',
-                }}
-              >
-                Dog Rescue Mission
-              </Typography>
-            </MotionBox>
+              <PetsIcon />
+            </Avatar>
+            <Typography
+              variant="h6"
+              component={RouterLink}
+              to="/"
+              sx={{
+                fontWeight: 800,
+                textDecoration: 'none',
+                color: atTop ? 'white' : 'text.primary',
+                fontSize: atTop ? '1.5rem' : '1.35rem',
+                transition: 'all 0.3s',
+                textShadow: atTop ? '1px 1px 3px rgba(0,0,0,0.3)' : 'none',
+              }}
+            >
+              Dog Rescue Mission
+            </Typography>
+          </MotionBox>
 
-            {/* Desktop Navigation */}
-            {!isMobile && (
-              <MotionBox 
+          {/* Desktop Navigation */}
+          {!isMobile && (
+            <MotionBox 
                 sx={{ 
                   display: 'flex', 
                   alignItems: 'center', 
@@ -394,17 +394,17 @@ const Header = () => {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-              >
+            >
                 {navItems.map((item) => (
-                  <Button
-                    key={item.name}
-                    component={RouterLink}
-                    to={item.path}
-                    sx={{
-                      color: atTop ? 'white' : 'text.primary',
-                      fontWeight: location.pathname === item.path ? 700 : 500,
-                      textTransform: 'none',
-                      fontSize: '1rem',
+                <Button
+                  key={item.name}
+                  component={RouterLink}
+                  to={item.path}
+                  sx={{ 
+                    color: atTop ? 'white' : 'text.primary',
+                    fontWeight: location.pathname === item.path ? 700 : 500,
+                    textTransform: 'none',
+                    fontSize: '1rem',
                       px: 1.5,
                       py: 1,
                       borderRadius: 2,
@@ -412,24 +412,24 @@ const Header = () => {
                       position: 'relative',
                       textShadow: atTop ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
                       '&::after': location.pathname === item.path ? {
-                        content: '""',
-                        position: 'absolute',
+                      content: '""',
+                      position: 'absolute',
                         bottom: 6,
                         left: '50%',
                         transform: 'translateX(-50%)',
                         width: '20px',
-                        height: '3px',
+                      height: '3px',
                         backgroundColor: atTop ? 'white' : theme.palette.primary.main,
-                        borderRadius: '3px',
+                      borderRadius: '3px',
                       } : {},
-                      '&:hover': {
+                    '&:hover': {
                         backgroundColor: alpha(atTop ? '#ffffff' : theme.palette.primary.main, 0.1),
                       },
-                    }}
-                  >
-                    {item.name}
-                  </Button>
-                ))}
+                  }}
+                >
+                  {item.name}
+                </Button>
+              ))}
               </MotionBox>
             )}
 
@@ -567,50 +567,50 @@ const Header = () => {
 
               {/* Donate Button */}
               {!isMobile && (
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  component={RouterLink}
-                  to="/donate"
-                  startIcon={<HeartIcon />}
-                  sx={{
+              <Button 
+                variant="contained" 
+                color="secondary"
+                component={RouterLink}
+                to="/donate"
+                startIcon={<HeartIcon />}
+                sx={{ 
                     ml: 1,
                     borderRadius: 30,
                     px: 2.5,
-                    py: 1,
-                    textTransform: 'none',
-                    fontWeight: 600,
+                  py: 1,
+                  textTransform: 'none',
+                  fontWeight: 600,
                     boxShadow: atTop ? '0 4px 10px rgba(0,0,0,0.2)' : '0 2px 5px rgba(0,0,0,0.1)',
-                    '&:hover': {
+                  '&:hover': {
                       boxShadow: atTop ? '0 6px 12px rgba(0,0,0,0.25)' : '0 4px 8px rgba(0,0,0,0.15)',
-                    }
-                  }}
-                >
+                  }
+                }}
+              >
                   Donate
-                </Button>
-              )}
-              
+              </Button>
+          )}
+
               {/* Mobile menu button */}
-              {isMobile && (
-                <IconButton
-                  color="inherit"
-                  aria-label="open drawer"
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
                   edge="start"
-                  onClick={handleDrawerToggle}
-                  sx={{ 
-                    color: atTop ? 'white' : 'text.primary',
+              onClick={handleDrawerToggle}
+              sx={{ 
+                color: atTop ? 'white' : 'text.primary',
                     '&:hover': {
                       backgroundColor: alpha(atTop ? '#ffffff' : theme.palette.primary.main, 0.1),
                     }
-                  }}
-                >
-                  <MenuIcon />
-                </IconButton>
-              )}
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
             </MotionBox>
-          </Toolbar>
+        </Toolbar>
         </AppBar>
-        
+
         {/* Mobile Navigation Drawer */}
         <Drawer
           variant="temporary"

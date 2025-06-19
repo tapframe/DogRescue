@@ -9,26 +9,6 @@ const api = axios.create({
   }
 });
 
-// Add request interceptor to include auth token
-api.interceptors.request.use(
-  (config) => {
-    // Check for user token first, then admin token
-    const userToken = localStorage.getItem('userToken');
-    const adminToken = localStorage.getItem('adminToken');
-    
-    if (userToken) {
-      config.headers.Authorization = `Bearer ${userToken}`;
-    } else if (adminToken) {
-      config.headers.Authorization = `Bearer ${adminToken}`;
-    }
-    
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
 export interface DogData {
   _id?: string;
   id?: number;
@@ -560,87 +540,6 @@ export const rescueApi = {
         status: data.status || 'pending',
         submittedAt: new Date().toISOString()
       });
-    }
-  }
-};
-
-// Add this interface for adoption applications
-export interface AdoptionApplicationData {
-  _id?: string;
-  id?: string;
-  user?: string;
-  dog?: string;
-  dogName?: string;
-  userName?: string;
-  userEmail?: string;
-  userPhone?: string;
-  status?: 'pending' | 'reviewing' | 'approved' | 'rejected';
-  applicationDate?: string;
-  notes?: string;
-  reasonForAdoption?: string;
-  homeType?: string;
-  hasYard?: boolean;
-  hasChildren?: boolean;
-  hasOtherPets?: boolean;
-  otherPetsDetails?: string;
-  veterinarianInfo?: string;
-  updatedAt?: string;
-}
-
-// Add this to the api object
-export const adoptionApi = {
-  // Submit a new adoption application
-  submitAdoptionApplication: async (applicationData: Partial<AdoptionApplicationData>): Promise<AdoptionApplicationData> => {
-    try {
-      const response = await api.post('/adoptions', applicationData);
-      return response.data.application;
-    } catch (error) {
-      console.error('Error submitting adoption application:', error);
-      throw error;
-    }
-  },
-
-  // Get all adoption applications for the current user
-  getUserAdoptionApplications: async (): Promise<AdoptionApplicationData[]> => {
-    try {
-      const response = await api.get('/adoptions/user');
-      return response.data.applications;
-    } catch (error) {
-      console.error('Error fetching user adoption applications:', error);
-      throw error;
-    }
-  },
-
-  // Get a single adoption application by ID
-  getAdoptionApplicationById: async (id: string): Promise<AdoptionApplicationData> => {
-    try {
-      const response = await api.get(`/adoptions/${id}`);
-      return response.data.application;
-    } catch (error) {
-      console.error(`Error fetching adoption application ${id}:`, error);
-      throw error;
-    }
-  },
-
-  // Admin: Get all adoption applications
-  getAllAdoptionApplications: async (): Promise<AdoptionApplicationData[]> => {
-    try {
-      const response = await api.get('/adoptions');
-      return response.data.applications;
-    } catch (error) {
-      console.error('Error fetching all adoption applications:', error);
-      throw error;
-    }
-  },
-
-  // Admin: Update adoption application status
-  updateAdoptionApplicationStatus: async (id: string, status: string, notes?: string): Promise<AdoptionApplicationData> => {
-    try {
-      const response = await api.put(`/adoptions/${id}`, { status, notes });
-      return response.data.application;
-    } catch (error) {
-      console.error(`Error updating adoption application ${id}:`, error);
-      throw error;
     }
   }
 };
