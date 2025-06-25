@@ -1,19 +1,16 @@
 import { Request, Response } from 'express';
-import { Application, IApplication } from '../models/Application';
+import { Application } from '../models/Application';
 import Dog from '../models/Dog';
 import User from '../models/User';
+import { sendEmail } from '../utils/emailService';
 
-// Extend Request interface to include user
+// Define AuthenticatedRequest interface
 interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
-    _id: string;
-    username: string;
-    name: string;
-    email: string;
-    phone?: string;
-    role: string;
-    status: string;
+    username?: string;
+    name?: string;
+    email?: string;
   };
 }
 
@@ -49,6 +46,12 @@ export const submitApplication = async (req: AuthenticatedRequest, res: Response
       });
     }
 
+    // Get user details for email
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
     // Create new application
     const application = new Application({
       user: userId,
@@ -58,6 +61,16 @@ export const submitApplication = async (req: AuthenticatedRequest, res: Response
     });
 
     await application.save();
+
+    // Send confirmation email to the applicant
+    await sendEmail(
+      user.email,
+      'adoptionApplication',
+      { 
+        name: user.name || user.username,
+        dogName: dog.name
+      }
+    );
 
     // Populate the application with user and dog details for response
     const populatedApplication = await Application.findById(application._id)
@@ -121,17 +134,42 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid status' });
     }
 
-    const application = await Application.findById(id);
+    const application = await Application.findById(id)
+      .populate('user')
+      .populate('dog');
+      
     if (!application) {
       return res.status(404).json({ message: 'Application not found' });
     }
 
+    // Store previous status to check if it changed
+    const previousStatus = application.status;
+    
+    // Update application
     application.status = status;
     if (adminNotes) {
       application.adminNotes = adminNotes.trim();
     }
 
     await application.save();
+
+    // Send email notification if status changed to Approved or Rejected
+    if (previousStatus !== status && (status === 'Approved' || status === 'Rejected')) {
+      const user = application.user as any;
+      const dog = application.dog as any;
+      
+      if (user && user.email && dog) {
+        await sendEmail(
+          user.email,
+          status === 'Approved' ? 'adoptionApproved' : 'adoptionRejected',
+          { 
+            name: user.name || user.username || user.firstName,
+            dogName: dog.name,
+            adminNotes: adminNotes?.trim() || ''
+          }
+        );
+      }
+    }
 
     const updatedApplication = await Application.findById(application._id)
       .populate('user', 'firstName lastName email phone')

@@ -198,6 +198,7 @@ const AdoptionApplicationForm = () => {
           </Typography>
           <Typography variant="body1" paragraph sx={{ mb: 4, color: 'text.secondary' }}>
             Thank you for your interest in adopting {dog?.name}. We'll review your application and get back to you soon.
+            A confirmation email has been sent to your registered email address.
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
             Redirecting to your dashboard...

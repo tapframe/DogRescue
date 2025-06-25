@@ -777,7 +777,7 @@ const AdminPage = () => {
         
         {/* Adoption Applications Tab */}
         <TabPanel value={tabValue} index={3}>
-          <ApplicationManagementTab />
+          <ApplicationManagementTab showNotification={showNotification} />
         </TabPanel>
         
         {/* Snackbar for notifications */}

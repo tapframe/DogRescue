@@ -38,7 +38,11 @@ import {
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { applicationApi, ApplicationData } from '../../services/api';
 
-const ApplicationManagementTab = () => {
+interface ApplicationManagementTabProps {
+  showNotification: (message: string, severity: 'success' | 'error') => void;
+}
+
+const ApplicationManagementTab = ({ showNotification }: ApplicationManagementTabProps) => {
   const theme = useTheme();
   const [applications, setApplications] = useState<ApplicationData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,6 +84,16 @@ const ApplicationManagementTab = () => {
         newStatus,
         adminNotes.trim() || undefined
       );
+      
+      // Show success notification with email info if status is Approved or Rejected
+      if (newStatus === 'Approved' || newStatus === 'Rejected') {
+        showNotification(
+          `Application ${newStatus.toLowerCase()} successfully! An email notification has been sent to the applicant.`,
+          'success'
+        );
+      } else {
+        showNotification(`Application status updated to ${newStatus} successfully!`, 'success');
+      }
       
       // Refresh applications list
       await fetchApplications();

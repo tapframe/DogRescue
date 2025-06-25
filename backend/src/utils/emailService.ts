@@ -16,6 +16,7 @@ const transporter = nodemailer.createTransport({
 
 // Email templates
 const emailTemplates = {
+  // Volunteer email templates
   volunteerApplication: (name: string) => ({
     subject: 'Dog Rescue Mission - Volunteer Application Received',
     html: `
@@ -73,13 +74,80 @@ const emailTemplates = {
       </div>
     `,
   }),
+
+  // Adoption email templates
+  adoptionApplication: (name: string, dogName: string) => ({
+    subject: `Dog Rescue Mission - Adoption Application Received for ${dogName}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #3f51b5;">Thank You for Your Adoption Application!</h2>
+        <p>Dear ${name},</p>
+        <p>We have received your application to adopt <strong>${dogName}</strong>. Thank you for considering adoption and giving a rescue dog a forever home!</p>
+        <p>Our team will carefully review your application and get back to you within 5-7 business days. During this time, we may contact you for additional information or to schedule a meet-and-greet with ${dogName}.</p>
+        <p>In the meantime, you can check the status of your application through your user dashboard on our website.</p>
+        <p>If you have any questions, please don't hesitate to contact us.</p>
+        <p>Warm regards,<br>The Dog Rescue Mission Team</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    `,
+  }),
+  
+  adoptionApproved: (name: string, dogName: string, adminNotes: string) => ({
+    subject: `Dog Rescue Mission - Adoption Application Approved for ${dogName}!`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4caf50;">Your Adoption Application Has Been Approved!</h2>
+        <p>Dear ${name},</p>
+        <p>Congratulations! We are delighted to inform you that your application to adopt <strong>${dogName}</strong> has been approved!</p>
+        <p>Next steps:</p>
+        <ol>
+          <li>Please contact our adoption coordinator to schedule a time to finalize the adoption.</li>
+          <li>Bring a valid ID and the adoption fee (details available on our website).</li>
+          <li>We recommend bringing a collar, leash, and carrier for safe transport home.</li>
+        </ol>
+        ${adminNotes ? `<p><strong>Note from our team:</strong> ${adminNotes}</p>` : ''}
+        <p>We're excited for ${dogName} to join your family and begin this new chapter!</p>
+        <p>Warm regards,<br>The Dog Rescue Mission Team</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    `,
+  }),
+  
+  adoptionRejected: (name: string, dogName: string, adminNotes: string) => ({
+    subject: `Dog Rescue Mission - Adoption Application Update for ${dogName}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #3f51b5;">Adoption Application Update</h2>
+        <p>Dear ${name},</p>
+        <p>Thank you for your interest in adopting ${dogName} from Dog Rescue Mission.</p>
+        <p>After careful consideration, we regret to inform you that we are unable to approve your adoption application at this time.</p>
+        ${adminNotes ? `<p><strong>Feedback from our team:</strong> ${adminNotes}</p>` : ''}
+        <p>We encourage you to consider other dogs in our care that might be a better match for your situation, or to apply again in the future.</p>
+        <p>We appreciate your understanding and your desire to provide a home for a rescue dog.</p>
+        <p>Warm regards,<br>The Dog Rescue Mission Team</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    `,
+  }),
 };
 
 // Send email function
 export const sendEmail = async (
   to: string,
-  template: 'volunteerApplication' | 'volunteerApproved' | 'volunteerRejected',
-  data: { name: string; volunteerType?: string }
+  template: 'volunteerApplication' | 'volunteerApproved' | 'volunteerRejected' | 
+           'adoptionApplication' | 'adoptionApproved' | 'adoptionRejected',
+  data: { 
+    name: string; 
+    volunteerType?: string;
+    dogName?: string;
+    adminNotes?: string;
+  }
 ) => {
   try {
     // Get the appropriate template
@@ -96,6 +164,24 @@ export const sendEmail = async (
         break;
       case 'volunteerRejected':
         emailContent = emailTemplates.volunteerRejected(data.name);
+        break;
+      case 'adoptionApplication':
+        if (!data.dogName) {
+          throw new Error('Dog name is required for adoption application emails');
+        }
+        emailContent = emailTemplates.adoptionApplication(data.name, data.dogName);
+        break;
+      case 'adoptionApproved':
+        if (!data.dogName) {
+          throw new Error('Dog name is required for adoption approval emails');
+        }
+        emailContent = emailTemplates.adoptionApproved(data.name, data.dogName, data.adminNotes || '');
+        break;
+      case 'adoptionRejected':
+        if (!data.dogName) {
+          throw new Error('Dog name is required for adoption rejection emails');
+        }
+        emailContent = emailTemplates.adoptionRejected(data.name, data.dogName, data.adminNotes || '');
         break;
       default:
         throw new Error('Invalid email template');

@@ -102,7 +102,7 @@ This is the backend API for the Dog Rescue Mission website. It provides endpoint
 
 ## Email Configuration
 
-The application sends emails for volunteer application confirmations and status updates. To configure email functionality:
+The application sends emails for volunteer applications, adoption applications, and status updates. To configure email functionality:
 
 1. Create a `.env` file in the backend directory with the following email configuration:
 
@@ -135,8 +135,14 @@ If using Gmail, you'll need to:
 
 The application sends the following types of emails:
 
+### Volunteer Process Emails
 1. **Volunteer Application Confirmation**: Sent when a user submits a volunteer application
 2. **Volunteer Application Approved**: Sent when an admin approves a volunteer application
 3. **Volunteer Application Rejected**: Sent when an admin rejects a volunteer application
+
+### Adoption Process Emails
+1. **Adoption Application Confirmation**: Sent when a user submits an adoption application
+2. **Adoption Application Approved**: Sent when an admin approves an adoption application
+3. **Adoption Application Rejected**: Sent when an admin rejects an adoption application
 
 You can modify the email templates in `src/utils/emailService.ts`. 
