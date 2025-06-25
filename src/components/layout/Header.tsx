@@ -57,6 +57,15 @@ const Header = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
   
+  // Check if we're on a dog details page
+  const isDogDetailsPage = location.pathname.startsWith('/dogs/') && location.pathname !== '/dogs';
+  
+  // Check if we're on the contact page
+  const isContactPage = location.pathname === '/contact';
+  
+  // Check if we should use colored header
+  const useColoredHeader = isDogDetailsPage || isContactPage;
+  
   useEffect(() => {
     const checkAuth = async () => {
       const isAuthenticated = await userAuthService.verifyToken();
@@ -115,7 +124,7 @@ const Header = () => {
       display: 'flex', 
       flexDirection: 'column',
       background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-      color: 'white',
+      color: '#ffffff',
       pt: 2,
       pb: 4
     }}>
@@ -129,7 +138,7 @@ const Header = () => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Avatar 
             sx={{ 
-              bgcolor: 'white', 
+              bgcolor: '#ffffff', 
               color: theme.palette.primary.main, 
               mr: 1.5,
               width: 40,
@@ -144,7 +153,7 @@ const Header = () => {
             to="/" 
             sx={{ 
               textDecoration: 'none', 
-              color: 'white',
+              color: '#ffffff',
               fontWeight: 700
             }}
           >
@@ -154,7 +163,7 @@ const Header = () => {
         <IconButton 
           onClick={handleDrawerToggle} 
           size="large" 
-          sx={{ color: 'white' }}
+          sx={{ color: '#ffffff' }}
         >
           <CloseIcon />
         </IconButton>
@@ -213,9 +222,9 @@ const Header = () => {
                 textTransform: 'none',
                 fontSize: '1rem',
                 borderColor: 'rgba(255,255,255,0.5)',
-                color: 'white',
+                color: '#ffffff',
                 '&:hover': {
-                  borderColor: 'white',
+                  borderColor: '#ffffff',
                   backgroundColor: 'rgba(255,255,255,0.1)'
                 }
               }}
@@ -235,9 +244,9 @@ const Header = () => {
                 textTransform: 'none',
                 fontSize: '1rem',
                 borderColor: 'rgba(255,255,255,0.5)',
-                color: 'white',
+                color: '#ffffff',
                 '&:hover': {
-                  borderColor: 'white',
+                  borderColor: '#ffffff',
                   backgroundColor: 'rgba(255,255,255,0.1)'
                 }
               }}
@@ -261,9 +270,9 @@ const Header = () => {
                 textTransform: 'none',
                 fontSize: '1rem',
                 borderColor: 'rgba(255,255,255,0.5)',
-                color: 'white',
+                color: '#ffffff',
                 '&:hover': {
-                  borderColor: 'white',
+                  borderColor: '#ffffff',
                   backgroundColor: 'rgba(255,255,255,0.1)'
                 }
               }}
@@ -283,7 +292,7 @@ const Header = () => {
                 fontWeight: 600,
                 textTransform: 'none',
                 fontSize: '1rem',
-                backgroundColor: 'white',
+                backgroundColor: '#ffffff',
                 color: theme.palette.primary.main,
                 '&:hover': {
                   backgroundColor: 'rgba(255,255,255,0.9)'
@@ -319,22 +328,55 @@ const Header = () => {
     </Box>
   );
 
+  // Define background styles based on page
+  const getHeaderBackgroundStyles = () => {
+    if (useColoredHeader) {
+      // Modern colored background for dog details page and contact page
+      return {
+        background: atTop 
+          ? `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.95)} 0%, ${alpha(theme.palette.primary.dark, 0.95)} 100%)`
+          : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.85)} 0%, ${alpha(theme.palette.primary.dark, 0.85)} 100%)`,
+        backdropFilter: 'blur(10px)',
+        borderBottom: `1px solid ${alpha(theme.palette.primary.light, 0.3)}`,
+        boxShadow: `0 8px 32px -8px ${alpha(theme.palette.primary.dark, 0.35)}`
+      };
+    } else {
+      // Default transparent/white background for other pages
+      return {
+        background: atTop 
+          ? 'transparent' 
+          : `rgba(255, 255, 255, ${theme.palette.mode === 'dark' ? '0.85' : '0.95'})`,
+        backdropFilter: atTop ? 'none' : 'blur(10px)',
+        borderBottom: atTop ? 'none' : `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+        boxShadow: atTop ? 'none' : `0 10px 30px -10px ${alpha('#000000', 0.1)}`
+      };
+    }
+  };
+
+  // Define text color styles based on page
+  const getTextColorStyle = () => {
+    if (useColoredHeader) {
+      // Always white text on dog details page and contact page
+      return '#ffffff';
+    } else {
+      // Default behavior (white when at top, dark otherwise)
+      return atTop ? '#ffffff' : 'text.primary';
+    }
+  };
+
   return (
     <Slide appear={false} direction="down" in={visible}>
       <Box sx={{ width: '100%' }}>
       <AppBar 
         position="fixed" 
         color="default" 
-        elevation={atTop ? 0 : 4}
+        elevation={0}
         sx={{
           width: '100%',
-          transition: 'all 0.3s',
-          bgcolor: atTop ? 'transparent' : 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: atTop ? 'none' : 'blur(10px)',
-          borderBottom: atTop ? 'none' : `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-          boxShadow: atTop ? 'none' : `0 4px 20px ${alpha('#000000', 0.1)}`,
+          transition: 'all 0.3s ease-in-out',
+          ...getHeaderBackgroundStyles(),
           '& .MuiToolbar-root': {
-            transition: 'all 0.3s',
+            transition: 'all 0.3s ease-in-out',
             minHeight: atTop ? 80 : 64,
           },
         }}
@@ -356,12 +398,19 @@ const Header = () => {
           >
             <Avatar 
               sx={{ 
-                bgcolor: atTop ? 'white' : alpha(theme.palette.primary.main, 0.1), 
-                color: theme.palette.primary.main, 
+                bgcolor: useColoredHeader 
+                  ? alpha('#ffffff', 0.9)
+                  : (atTop ? '#ffffff' : alpha(theme.palette.primary.main, 0.1)), 
+                color: useColoredHeader 
+                  ? theme.palette.primary.dark
+                  : theme.palette.primary.main,
                 mr: 1.5,
-                transition: 'all 0.3s',
+                transition: 'all 0.3s ease-in-out',
                 width: atTop ? 48 : 40,
-                height: atTop ? 48 : 40
+                height: atTop ? 48 : 40,
+                boxShadow: useColoredHeader 
+                  ? `0 4px 12px ${alpha('#000000', 0.2)}`
+                  : (atTop ? `0 4px 12px ${alpha('#000000', 0.15)}` : 'none'),
               }}
             >
               <PetsIcon />
@@ -373,10 +422,11 @@ const Header = () => {
               sx={{
                 fontWeight: 800,
                 textDecoration: 'none',
-                color: atTop ? 'white' : 'text.primary',
+                color: getTextColorStyle(),
                 fontSize: atTop ? '1.5rem' : '1.35rem',
-                transition: 'all 0.3s',
-                textShadow: atTop ? '1px 1px 3px rgba(0,0,0,0.3)' : 'none',
+                transition: 'all 0.3s ease-in-out',
+                textShadow: (atTop || useColoredHeader) ? '1px 1px 3px rgba(0,0,0,0.3)' : 'none',
+                letterSpacing: '-0.02em',
               }}
             >
               Dog Rescue Mission
@@ -401,30 +451,31 @@ const Header = () => {
                   component={RouterLink}
                   to={item.path}
                   sx={{ 
-                    color: atTop ? 'white' : 'text.primary',
+                    color: getTextColorStyle(),
                     fontWeight: location.pathname === item.path ? 700 : 500,
                     textTransform: 'none',
                     fontSize: '1rem',
-                      px: 1.5,
-                      py: 1,
-                      borderRadius: 2,
-                      transition: 'all 0.2s',
-                      position: 'relative',
-                      textShadow: atTop ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
-                      '&::after': location.pathname === item.path ? {
+                    px: 1.5,
+                    py: 1,
+                    borderRadius: 8,
+                    transition: 'all 0.2s ease-in-out',
+                    position: 'relative',
+                    textShadow: (atTop || useColoredHeader) ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                    '&::after': location.pathname === item.path ? {
                       content: '""',
                       position: 'absolute',
-                        bottom: 6,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: '20px',
+                      bottom: 6,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '20px',
                       height: '3px',
-                        backgroundColor: atTop ? 'white' : theme.palette.primary.main,
+                      backgroundColor: (atTop || useColoredHeader) ? '#ffffff' : theme.palette.primary.main,
                       borderRadius: '3px',
-                      } : {},
+                    } : {},
                     '&:hover': {
-                        backgroundColor: alpha(atTop ? '#ffffff' : theme.palette.primary.main, 0.1),
-                      },
+                      backgroundColor: alpha((atTop || useColoredHeader) ? '#ffffff' : theme.palette.primary.main, 0.1),
+                      transform: 'translateY(-2px)',
+                    },
                   }}
                 >
                   {item.name}
@@ -438,7 +489,7 @@ const Header = () => {
               sx={{ 
                 display: 'flex', 
                 alignItems: 'center', 
-                gap: 1
+                gap: 1.5
               }}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -459,8 +510,9 @@ const Header = () => {
                             sx={{ 
                               width: 32, 
                               height: 32, 
-                              bgcolor: atTop ? alpha(theme.palette.primary.main, 0.8) : alpha(theme.palette.primary.main, 0.1),
-                              color: atTop ? 'white' : theme.palette.primary.main,
+                              bgcolor: (atTop || useColoredHeader) ? alpha('#ffffff', 0.9) : alpha(theme.palette.primary.main, 0.1),
+                              color: (atTop || useColoredHeader) ? theme.palette.primary.main : theme.palette.primary.main,
+                              boxShadow: (atTop || useColoredHeader) ? `0 2px 8px ${alpha('#000000', 0.2)}` : 'none',
                             }}
                           >
                             {currentUser.name.charAt(0).toUpperCase()}
@@ -468,11 +520,17 @@ const Header = () => {
                         }
                         endIcon={<KeyboardArrowDownIcon />}
                         sx={{
-                          color: atTop ? 'white' : 'text.primary',
+                          color: getTextColorStyle(),
                           textTransform: 'none',
                           fontSize: '0.95rem',
                           fontWeight: 500,
-                          textShadow: atTop ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                          textShadow: (atTop || useColoredHeader) ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                          borderRadius: 8,
+                          transition: 'all 0.2s ease-in-out',
+                          '&:hover': {
+                            backgroundColor: alpha((atTop || useColoredHeader) ? '#ffffff' : theme.palette.primary.main, 0.1),
+                            transform: 'translateY(-2px)',
+                          },
                         }}
                       >
                         {currentUser.name}
@@ -489,6 +547,8 @@ const Header = () => {
                             minWidth: 180,
                             borderRadius: 2,
                             overflow: 'visible',
+                            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                            boxShadow: `0 10px 40px -10px ${alpha(theme.palette.common.black, 0.2)}`,
                             '&:before': {
                               content: '""',
                               display: 'block',
@@ -500,6 +560,8 @@ const Header = () => {
                               bgcolor: 'background.paper',
                               transform: 'translateY(-50%) rotate(45deg)',
                               zIndex: 0,
+                              borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                              borderLeft: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                             },
                           },
                         }}
@@ -529,13 +591,20 @@ const Header = () => {
                       <Button
                         component={RouterLink}
                         to="/login"
+                        variant="text"
                         startIcon={<LoginIcon />}
                         sx={{
-                          color: atTop ? 'white' : 'text.primary',
                           textTransform: 'none',
                           fontSize: '0.95rem',
                           fontWeight: 500,
-                          textShadow: atTop ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                          color: getTextColorStyle(),
+                          textShadow: (atTop || useColoredHeader) ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                          borderRadius: 8,
+                          transition: 'all 0.2s ease-in-out',
+                          '&:hover': {
+                            backgroundColor: alpha((atTop || useColoredHeader) ? '#ffffff' : theme.palette.primary.main, 0.1),
+                            transform: 'translateY(-2px)',
+                          },
                         }}
                       >
                         Sign In
@@ -549,13 +618,17 @@ const Header = () => {
                           textTransform: 'none',
                           fontSize: '0.95rem',
                           fontWeight: 500,
-                          borderColor: atTop ? 'white' : theme.palette.primary.main,
-                          color: atTop ? 'white' : theme.palette.primary.main,
+                          borderColor: (atTop || useColoredHeader) ? '#ffffff' : theme.palette.primary.main,
+                          color: (atTop || useColoredHeader) ? '#ffffff' : theme.palette.primary.main,
+                          borderWidth: 1.5,
+                          borderRadius: 8,
                           '&:hover': {
-                            borderColor: atTop ? 'white' : theme.palette.primary.main,
-                            backgroundColor: alpha(atTop ? '#ffffff' : theme.palette.primary.main, 0.1),
+                            borderColor: (atTop || useColoredHeader) ? '#ffffff' : theme.palette.primary.main,
+                            backgroundColor: alpha((atTop || useColoredHeader) ? '#ffffff' : theme.palette.primary.main, 0.1),
+                            transform: 'translateY(-2px)',
                           },
-                          textShadow: atTop ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                          textShadow: (atTop || useColoredHeader) ? '0px 1px 2px rgba(0,0,0,0.2)' : 'none',
+                          transition: 'all 0.2s ease-in-out',
                         }}
                       >
                         Sign Up
@@ -574,39 +647,46 @@ const Header = () => {
                 to="/donate"
                 startIcon={<HeartIcon />}
                 sx={{ 
-                    ml: 1,
-                    borderRadius: 30,
-                    px: 2.5,
+                  ml: 1,
+                  borderRadius: 8,
+                  px: 2.5,
                   py: 1,
                   textTransform: 'none',
                   fontWeight: 600,
-                    boxShadow: atTop ? '0 4px 10px rgba(0,0,0,0.2)' : '0 2px 5px rgba(0,0,0,0.1)',
+                  boxShadow: (atTop || useColoredHeader) ? '0 8px 16px rgba(0,0,0,0.2)' : '0 4px 10px rgba(0,0,0,0.1)',
+                  background: `linear-gradient(45deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`,
+                  transition: 'all 0.2s ease-in-out',
+                  border: 'none',
                   '&:hover': {
-                      boxShadow: atTop ? '0 6px 12px rgba(0,0,0,0.25)' : '0 4px 8px rgba(0,0,0,0.15)',
+                    boxShadow: (atTop || useColoredHeader) ? '0 12px 20px rgba(0,0,0,0.25)' : '0 6px 14px rgba(0,0,0,0.15)',
+                    transform: 'translateY(-2px)',
                   }
                 }}
               >
-                  Donate
+                Donate
               </Button>
-          )}
+            )}
 
               {/* Mobile menu button */}
-          {isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
+              {isMobile && (
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
                   edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ 
-                color: atTop ? 'white' : 'text.primary',
+                  onClick={handleDrawerToggle}
+                  sx={{ 
+                    color: getTextColorStyle(),
+                    borderRadius: 2,
+                    transition: 'all 0.2s ease-in-out',
                     '&:hover': {
-                      backgroundColor: alpha(atTop ? '#ffffff' : theme.palette.primary.main, 0.1),
+                      backgroundColor: alpha((atTop || useColoredHeader) ? '#ffffff' : theme.palette.primary.main, 0.1),
+                      transform: 'rotate(180deg)',
                     }
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
+                  }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
             </MotionBox>
         </Toolbar>
         </AppBar>

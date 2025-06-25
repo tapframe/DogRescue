@@ -103,24 +103,59 @@ const ContactPage = () => {
     <Box 
       sx={{ 
         position: 'relative',
-        pt: 4,
+        pt: { xs: 8, sm: 9, md: 10 },
         pb: 8,
         backgroundColor: alpha(theme.palette.primary.light, 0.05),
         backgroundImage: 'radial-gradient(circle at 25px 25px, rgba(0,0,0,0.1) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(0,0,0,0.05) 2%, transparent 0%)',
         backgroundSize: '100px 100px',
+        background: `linear-gradient(135deg, 
+          ${alpha(theme.palette.primary.light, 0.15)} 0%, 
+          ${alpha(theme.palette.background.default, 0.9)} 40%, 
+          ${alpha(theme.palette.secondary.light, 0.1)} 100%)`,
       }}
     >
-      {/* Decorative element */}
+      {/* Decorative elements similar to DogDetails page */}
       <Box 
         sx={{ 
-          position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          right: 0, 
-          height: '200px', 
-          background: `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.15)} 0%, transparent 100%)`,
-          zIndex: 0 
-        }} 
+          position: 'absolute',
+          top: '5%',
+          right: '5%',
+          width: '300px',
+          height: '300px',
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${alpha(theme.palette.primary.light, 0.3)}, transparent 70%)`,
+          filter: 'blur(40px)',
+          zIndex: 0
+        }}
+      />
+      
+      <Box 
+        sx={{ 
+          position: 'absolute',
+          bottom: '10%',
+          left: '5%',
+          width: '400px',
+          height: '400px',
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${alpha(theme.palette.secondary.light, 0.25)}, transparent 70%)`,
+          filter: 'blur(50px)',
+          zIndex: 0
+        }}
+      />
+      
+      <Box 
+        sx={{ 
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: '600px',
+          height: '600px',
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${alpha(theme.palette.primary.light, 0.08)}, transparent 60%)`,
+          filter: 'blur(60px)',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 0
+        }}
       />
       
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>

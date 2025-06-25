@@ -231,7 +231,7 @@ const DogDetailPage = () => {
           ${alpha(theme.palette.secondary.light, 0.1)} 100%)`,
         position: 'relative',
         overflow: 'hidden',
-        pt: 2,
+        pt: { xs: 8, sm: 9, md: 10 },
         pb: 10
       }}
     >
