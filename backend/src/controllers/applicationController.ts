@@ -62,15 +62,18 @@ export const submitApplication = async (req: AuthenticatedRequest, res: Response
 
     await application.save();
 
-    // Send confirmation email to the applicant
-    await sendEmail(
+    // Send confirmation email to the applicant (non-blocking)
+    sendEmail(
       user.email,
       'adoptionApplication',
       { 
         name: user.name || user.username,
         dogName: dog.name
       }
-    );
+    ).catch(error => {
+      // Just log the error but don't block the response
+      console.error('Failed to send adoption application email:', error);
+    });
 
     // Populate the application with user and dog details for response
     const populatedApplication = await Application.findById(application._id)
@@ -153,13 +156,13 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
 
     await application.save();
 
-    // Send email notification if status changed to Approved or Rejected
+    // Send email notification if status changed to Approved or Rejected (non-blocking)
     if (previousStatus !== status && (status === 'Approved' || status === 'Rejected')) {
       const user = application.user as any;
       const dog = application.dog as any;
       
       if (user && user.email && dog) {
-        await sendEmail(
+        sendEmail(
           user.email,
           status === 'Approved' ? 'adoptionApproved' : 'adoptionRejected',
           { 
@@ -167,7 +170,10 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
             dogName: dog.name,
             adminNotes: adminNotes?.trim() || ''
           }
-        );
+        ).catch(error => {
+          // Just log the error but don't block the response
+          console.error(`Failed to send adoption ${status} email:`, error);
+        });
       }
     }
 

@@ -56,12 +56,15 @@ export const createVolunteer = async (req: Request, res: Response): Promise<void
   try {
     const volunteer = await Volunteer.create(req.body);
 
-    // Send confirmation email to the volunteer
-    await sendEmail(
+    // Send confirmation email to the volunteer (non-blocking)
+    sendEmail(
       volunteer.email,
       'volunteerApplication',
       { name: volunteer.name }
-    );
+    ).catch(error => {
+      // Just log the error but don't block the response
+      console.error('Failed to send volunteer application email:', error);
+    });
 
     res.status(201).json({
       success: true,
@@ -182,22 +185,19 @@ export const updateVolunteerStatus = async (req: Request, res: Response): Promis
       return;
     }
 
-    // Send email based on status update
-    if (status === 'approved') {
-      await sendEmail(
+    // Send email based on status update (non-blocking)
+    if (status === 'approved' || status === 'rejected') {
+      sendEmail(
         volunteer.email,
-        'volunteerApproved',
+        status === 'approved' ? 'volunteerApproved' : 'volunteerRejected',
         { 
           name: volunteer.name,
           volunteerType: volunteer.volunteerType
         }
-      );
-    } else if (status === 'rejected') {
-      await sendEmail(
-        volunteer.email,
-        'volunteerRejected',
-        { name: volunteer.name }
-      );
+      ).catch(error => {
+        // Just log the error but don't block the response
+        console.error(`Failed to send volunteer ${status} email:`, error);
+      });
     }
 
     res.status(200).json({
