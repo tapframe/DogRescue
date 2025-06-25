@@ -29,6 +29,7 @@ import AddIcon from '@mui/icons-material/Add';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import ParkIcon from '@mui/icons-material/Park';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 // Components
 import AdminPageLayout from '../components/admin/AdminPageLayout';
@@ -45,7 +46,7 @@ import authService from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 
 // Mock data and API
-import { dogApi, volunteerApi, rescueApi } from '../services/api';
+import { dogApi, volunteerApi, rescueApi, applicationApi } from '../services/api';
 
 // Tab Panel component
 interface TabPanelProps {
@@ -86,7 +87,9 @@ const Dashboard = ({ showNotification, onTabChange }: {
     totalVolunteers: 0,
     pendingApplications: 0,
     rescueSubmissions: 0,
-    pendingRescues: 0
+    pendingRescues: 0,
+    adoptionApplications: 0,
+    pendingAdoptionApplications: 0
   });
   const [loading, setLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState<Array<{
@@ -111,10 +114,14 @@ const Dashboard = ({ showNotification, onTabChange }: {
         // Fetch rescue submissions data
         const rescueData = await rescueApi.getAllRescueSubmissions();
         
+        // Fetch adoption applications data
+        const adoptionApplicationsData = await applicationApi.getAllApplications();
+        
         // Calculate statistics
         const adoptedDogs = dogsData.filter(dog => dog.status === 'adopted').length;
         const pendingApplications = volunteersData.filter(vol => vol.status === 'pending').length;
         const pendingRescues = rescueData.filter(rescue => rescue.status === 'pending').length;
+        const pendingAdoptionApplications = adoptionApplicationsData.filter(app => app.status === 'Pending').length;
         
         setStats({
           totalDogs: dogsData.length,
@@ -122,7 +129,9 @@ const Dashboard = ({ showNotification, onTabChange }: {
           totalVolunteers: volunteersData.length,
           pendingApplications,
           rescueSubmissions: rescueData.length,
-          pendingRescues
+          pendingRescues,
+          adoptionApplications: adoptionApplicationsData.length,
+          pendingAdoptionApplications
         });
 
         // Generate actual activity data from the API data
@@ -182,6 +191,25 @@ const Dashboard = ({ showNotification, onTabChange }: {
             subject: rescue.location,
             timestamp: formatTimeAgo(rescue.submittedAt || new Date().toISOString()),
             icon: <PetsIcon />
+          });
+        });
+
+        // Add most recent adoption applications (up to 2)
+        const sortedApplications = [...adoptionApplicationsData].sort((a, b) => {
+          const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : Date.now();
+          const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : Date.now();
+          return dateB - dateA;
+        }).slice(0, 2);
+        
+        sortedApplications.forEach((application, index) => {
+          const dogName = application.dog?.name || 'Unknown Dog';
+          const userName = application.user ? `${application.user.firstName} ${application.user.lastName}` : 'Unknown User';
+          activityItems.push({
+            id: application._id || application.id || `application-${index}`,
+            action: application.status === 'Approved' ? 'Application Approved' : 'Adoption Application',
+            subject: `${userName} for ${dogName}`,
+            timestamp: formatTimeAgo(application.submittedAt || new Date().toISOString()),
+            icon: <AssignmentIcon />
           });
         });
         
@@ -446,7 +474,7 @@ const Dashboard = ({ showNotification, onTabChange }: {
           </Card>
         </Grid>
         
-        {/* Pending Applications */}
+        {/* Adoption Applications */}
         <Grid item xs={12} sm={6} md={3}>
           <Card elevation={0} sx={{ height: '100%', borderRadius: 3, position: 'relative', overflow: 'visible' }}>
             <CardContent sx={{ p: 3, pb: 3 }}>
@@ -457,14 +485,14 @@ const Dashboard = ({ showNotification, onTabChange }: {
               }}>
                 <Avatar 
                   sx={{ 
-                    bgcolor: alpha(theme.palette.warning.main, 0.15), 
-                    color: theme.palette.warning.main,
+                    bgcolor: alpha(theme.palette.secondary.main, 0.15), 
+                    color: theme.palette.secondary.main,
                     width: 48,
                     height: 48,
                     borderRadius: 2,
                   }}
                 >
-                  <PersonAddAltIcon />
+                  <AssignmentIcon />
                 </Avatar>
                 <IconButton 
                   size="small" 
@@ -474,27 +502,28 @@ const Dashboard = ({ showNotification, onTabChange }: {
                     right: 12,
                     color: 'text.secondary',
                   }}
+                  onClick={() => onTabChange?.(4)}
                 >
                   <MoreHorizIcon fontSize="small" />
                 </IconButton>
               </Box>
               
               <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5 }}>
-                {loading ? '...' : stats.pendingApplications}
+                {loading ? '...' : stats.adoptionApplications}
               </Typography>
               
               <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                Pending Applications
+                Adoption Applications
               </Typography>
               
               <Chip 
                 size="small" 
-                icon={<TrendingDownIcon fontSize="small" />} 
-                label="3% Decrease" 
+                icon={<TrendingUpIcon fontSize="small" />} 
+                label={`${stats.pendingAdoptionApplications} pending`}
                 sx={{ 
                   mt: 1, 
-                  bgcolor: alpha(theme.palette.error.main, 0.1), 
-                  color: theme.palette.error.main,
+                  bgcolor: alpha(theme.palette.warning.main, 0.1), 
+                  color: theme.palette.warning.main,
                   fontWeight: 500,
                   borderRadius: 1,
                 }} 
@@ -549,6 +578,148 @@ const Dashboard = ({ showNotification, onTabChange }: {
         </Grid>
       </Grid>
 
+      {/* Additional Stats Row */}
+      <Grid container spacing={3} sx={{ mt: 1 }}>
+        {/* Volunteer Applications */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card elevation={0} sx={{ height: '100%', borderRadius: 3, position: 'relative', overflow: 'visible' }}>
+            <CardContent sx={{ p: 3, pb: 3 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                mb: 2 
+              }}>
+                <Avatar 
+                  sx={{ 
+                    bgcolor: alpha(theme.palette.warning.main, 0.15), 
+                    color: theme.palette.warning.main,
+                    width: 48,
+                    height: 48,
+                    borderRadius: 2,
+                  }}
+                >
+                  <PersonAddAltIcon />
+                </Avatar>
+                <IconButton 
+                  size="small" 
+                  sx={{ 
+                    position: 'absolute', 
+                    top: 12, 
+                    right: 12,
+                    color: 'text.secondary',
+                  }}
+                  onClick={() => onTabChange?.(2)}
+                >
+                  <MoreHorizIcon fontSize="small" />
+                </IconButton>
+              </Box>
+              
+              <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5 }}>
+                {loading ? '...' : stats.pendingApplications}
+              </Typography>
+              
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                Pending Volunteer Apps
+              </Typography>
+              
+              <Chip 
+                size="small" 
+                icon={<TrendingDownIcon fontSize="small" />} 
+                label="3% Decrease" 
+                sx={{ 
+                  mt: 1, 
+                  bgcolor: alpha(theme.palette.error.main, 0.1), 
+                  color: theme.palette.error.main,
+                  fontWeight: 500,
+                  borderRadius: 1,
+                }} 
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Application Status Overview */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card 
+            elevation={0} 
+            sx={{ 
+              p: 3, 
+              borderRadius: 3, 
+              bgcolor: alpha(theme.palette.secondary.main, 0.05),
+              height: '100%'
+            }}
+          >
+            <CardContent sx={{ p: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Avatar 
+                  sx={{ 
+                    width: 50, 
+                    height: 50, 
+                    bgcolor: alpha(theme.palette.secondary.main, 0.2),
+                    color: theme.palette.secondary.main,
+                    mr: 2
+                  }}
+                >
+                  <AssignmentIcon />
+                </Avatar>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  App Status
+                </Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" color="text.secondary">Pending:</Typography>
+                  <Typography variant="body2" fontWeight={600}>{loading ? '...' : stats.pendingAdoptionApplications}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" color="text.secondary">Total:</Typography>
+                  <Typography variant="body2" fontWeight={600}>{loading ? '...' : stats.adoptionApplications}</Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Quick Stats */}
+        <Grid item xs={12} sm={6} md={6}>
+          <Card 
+            elevation={0} 
+            sx={{ 
+              p: 3, 
+              borderRadius: 3, 
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              height: '100%'
+            }}
+          >
+            <CardContent sx={{ p: 0 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                Quick Overview
+              </Typography>
+              
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Box sx={{ textAlign: 'center', p: 2, bgcolor: alpha(theme.palette.success.main, 0.1), borderRadius: 2 }}>
+                    <Typography variant="h5" fontWeight="bold" color="success.main">
+                      {loading ? '...' : stats.adoptedDogs}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">Adopted</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box sx={{ textAlign: 'center', p: 2, bgcolor: alpha(theme.palette.primary.main, 0.1), borderRadius: 2 }}>
+                    <Typography variant="h5" fontWeight="bold" color="primary.main">
+                      {loading ? '...' : (stats.totalDogs - stats.adoptedDogs)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">Available</Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
       {/* Quick Actions and Recent Activity */}
       <Grid container spacing={3} sx={{ mt: 0.5 }}>
         {/* Quick Actions Card */}
@@ -598,6 +769,7 @@ const Dashboard = ({ showNotification, onTabChange }: {
                   variant="outlined" 
                   startIcon={<VolunteerActivismIcon />} 
                   fullWidth 
+                  onClick={() => onTabChange && onTabChange(2)}
                   sx={{ 
                     py: 1.5, 
                     borderRadius: 2,
@@ -605,7 +777,22 @@ const Dashboard = ({ showNotification, onTabChange }: {
                     color: theme.palette.secondary.main,
                   }}
                 >
-                  Review Applications
+                  Review Volunteers
+                </Button>
+
+                <Button 
+                  variant="outlined" 
+                  startIcon={<AssignmentIcon />} 
+                  fullWidth 
+                  onClick={() => onTabChange && onTabChange(4)}
+                  sx={{ 
+                    py: 1.5, 
+                    borderRadius: 2,
+                    borderColor: theme.palette.warning.main,
+                    color: theme.palette.warning.main,
+                  }}
+                >
+                  Adoption Apps
                 </Button>
                 
                 <Button 
