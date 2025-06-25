@@ -9,6 +9,15 @@ const api = axios.create({
   }
 });
 
+// Add token to requests if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('userToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export interface DogData {
   _id?: string;
   id?: number;
@@ -540,6 +549,162 @@ export const rescueApi = {
         status: data.status || 'pending',
         submittedAt: new Date().toISOString()
       });
+    }
+  }
+};
+
+// Application interface
+export interface ApplicationData {
+  _id?: string;
+  id?: number;
+  user?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+  };
+  dog?: {
+    _id: string;
+    name: string;
+    breed: string;
+    age: string;
+    image: string;
+  };
+  status: 'Pending' | 'Under Review' | 'Approved' | 'Rejected' | 'Withdrawn';
+  applicationNotes?: string;
+  adminNotes?: string;
+  submittedAt?: string;
+  updatedAt?: string;
+}
+
+// Mock application data
+const mockApplications: ApplicationData[] = [
+  {
+    id: 1,
+    _id: '1',
+    user: {
+      _id: 'user1',
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john.doe@example.com',
+      phone: '(555) 123-4567'
+    },
+    dog: {
+      _id: '1',
+      name: 'Max',
+      breed: 'Labrador Retriever',
+      age: '3 years',
+      image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+    },
+    status: 'Pending',
+    applicationNotes: 'I would love to adopt Max. I have experience with large dogs.',
+    submittedAt: '2023-06-15T10:30:00Z'
+  }
+];
+
+// Application API calls
+export const applicationApi = {
+  // Submit a new adoption application
+  submitApplication: async (dogId: string, applicationNotes?: string): Promise<ApplicationData> => {
+    try {
+      const response = await api.post('/applications', { dogId, applicationNotes });
+      return response.data.application;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      // Create a mock response
+      const mockResponse: ApplicationData = {
+        _id: Math.random().toString(36).substring(2, 15),
+        id: Math.max(...mockApplications.map(a => a.id || 0)) + 1,
+        status: 'Pending',
+        applicationNotes: applicationNotes,
+        submittedAt: new Date().toISOString()
+      };
+      // Add to mock data for future reference
+      mockApplications.push(mockResponse);
+      return Promise.resolve(mockResponse);
+    }
+  },
+
+  // Get user's applications
+  getUserApplications: async (): Promise<ApplicationData[]> => {
+    try {
+      const response = await api.get('/applications/my-applications');
+      return response.data;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      // Return mock data
+      return Promise.resolve([...mockApplications]);
+    }
+  },
+
+  // Get all applications (admin only)
+  getAllApplications: async (): Promise<ApplicationData[]> => {
+    try {
+      const response = await api.get('/applications');
+      return response.data;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      // Return mock data
+      return Promise.resolve([...mockApplications]);
+    }
+  },
+
+  // Update application status (admin only)
+  updateApplicationStatus: async (id: string, status: string, adminNotes?: string): Promise<ApplicationData> => {
+    try {
+      const response = await api.patch(`/applications/${id}/status`, { status, adminNotes });
+      return response.data.application;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      // Update mock data
+      const index = mockApplications.findIndex(a => a.id === parseInt(id) || a._id === id);
+      if (index !== -1) {
+        mockApplications[index] = {
+          ...mockApplications[index],
+          status: status as any,
+          adminNotes: adminNotes,
+          updatedAt: new Date().toISOString()
+        };
+        return Promise.resolve(mockApplications[index]);
+      }
+      throw new Error('Application not found');
+    }
+  },
+
+  // Withdraw application
+  withdrawApplication: async (id: string): Promise<{ message: string }> => {
+    try {
+      const response = await api.patch(`/applications/${id}/withdraw`);
+      return response.data;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      // Update mock data
+      const index = mockApplications.findIndex(a => a.id === parseInt(id) || a._id === id);
+      if (index !== -1) {
+        mockApplications[index] = {
+          ...mockApplications[index],
+          status: 'Withdrawn',
+          updatedAt: new Date().toISOString()
+        };
+        return Promise.resolve({ message: 'Application withdrawn successfully' });
+      }
+      throw new Error('Application not found');
+    }
+  },
+
+  // Get application by ID
+  getApplicationById: async (id: string): Promise<ApplicationData> => {
+    try {
+      const response = await api.get(`/applications/${id}`);
+      return response.data;
+    } catch (apiError) {
+      console.warn('Backend API not available, using mock data:', apiError);
+      const application = mockApplications.find(a => a.id === parseInt(id) || a._id === id);
+      if (!application) {
+        throw new Error('Application not found');
+      }
+      return Promise.resolve(application);
     }
   }
 };

@@ -4,11 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "start": "concurrently --names \"FRONTEND,BACKEND\" --prefix-colors \"cyan,yellow\" \"npm run start:frontend\" \"npm run start:backend\"",
+    "start:frontend": "vite",
+    "start:backend": "cd backend && npm run dev",
+    "dev": "npm start",
     "dev:frontend": "vite",
     "dev:backend": "cd backend && npm run dev",
     "dev:all": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "build": "tsc && vite build",
+    "build:backend": "cd backend && npm run build",
     "preview": "vite preview"
   },
   "devDependencies": {

@@ -43,7 +43,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CallOutlinedIcon from '@mui/icons-material/CallOutlined';
 import { motion } from 'framer-motion';
 
-import { rescueApi, RescueSubmissionData } from '../services/api';
+import { rescueApi, RescueSubmissionData, applicationApi, ApplicationData } from '../services/api';
 import { userAuthService } from '../services/userAuthService';
 
 // Animation variants
@@ -79,8 +79,11 @@ const UserDashboardPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [userRescues, setUserRescues] = useState<RescueSubmissionData[]>([]);
+  const [userApplications, setUserApplications] = useState<ApplicationData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [applicationLoading, setApplicationLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [applicationError, setApplicationError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState(userAuthService.getCurrentUser());
 
   useEffect(() => {
@@ -115,6 +118,28 @@ const UserDashboardPage = () => {
 
     fetchUserRescues();
   }, [currentUser, navigate]);
+
+  // Fetch user applications
+  useEffect(() => {
+    const fetchUserApplications = async () => {
+      if (!currentUser) {
+        return;
+      }
+
+      setApplicationLoading(true);
+      try {
+        const applications = await applicationApi.getUserApplications();
+        setUserApplications(applications);
+      } catch (err) {
+        console.error('Error fetching user applications:', err);
+        setApplicationError('Failed to load your adoption applications. Please try again later.');
+      } finally {
+        setApplicationLoading(false);
+      }
+    };
+
+    fetchUserApplications();
+  }, [currentUser]);
 
   // Format date
   const formatDate = (dateString?: string) => {
@@ -238,6 +263,63 @@ const UserDashboardPage = () => {
         })}
       </Timeline>
     );
+  };
+
+  // Get application status chip
+  const getApplicationStatusChip = (status?: string) => {
+    switch (status) {
+      case 'Under Review':
+        return (
+          <Chip 
+            icon={<SettingsIcon />}
+            label="Under Review" 
+            color="warning" 
+            variant="filled"
+            sx={{ fontWeight: 500, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+          />
+        );
+      case 'Approved':
+        return (
+          <Chip 
+            icon={<CheckCircleIcon />}
+            label="Approved" 
+            color="success" 
+            variant="filled"
+            sx={{ fontWeight: 500, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+          />
+        );
+      case 'Rejected':
+        return (
+          <Chip 
+            icon={<CancelIcon />}
+            label="Rejected" 
+            color="error" 
+            variant="filled"
+            sx={{ fontWeight: 500, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+          />
+        );
+      case 'Withdrawn':
+        return (
+          <Chip 
+            icon={<CancelIcon />}
+            label="Withdrawn" 
+            color="default" 
+            variant="filled"
+            sx={{ fontWeight: 500, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+          />
+        );
+      case 'Pending':
+      default:
+        return (
+          <Chip 
+            icon={<PendingIcon />}
+            label="Pending" 
+            color="info" 
+            variant="filled"
+            sx={{ fontWeight: 500, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+          />
+        );
+    }
   };
 
   if (loading) {
@@ -669,6 +751,300 @@ const UserDashboardPage = () => {
               </Grid>
             </motion.div>
           )}
+
+          {/* Adoption Applications Section */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeIn}
+            style={{ marginTop: '3rem' }}
+          >
+            <Typography 
+              variant="h4" 
+              component="h2" 
+              fontWeight={700} 
+              gutterBottom
+              sx={{
+                background: `linear-gradient(90deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textFillColor: 'transparent',
+                letterSpacing: '-0.5px',
+                mb: 3
+              }}
+            >
+              My Adoption Applications
+            </Typography>
+
+            {applicationError && (
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  mb: 4, 
+                  borderRadius: 2,
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                }}
+              >
+                {applicationError}
+              </Alert>
+            )}
+
+            {applicationLoading ? (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <CircularProgress size={40} />
+                <Typography sx={{ mt: 2 }}>Loading applications...</Typography>
+              </Box>
+            ) : userApplications.length === 0 ? (
+              <motion.div variants={slideUp}>
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    p: 6, 
+                    textAlign: 'center',
+                    borderRadius: 4,
+                    bgcolor: alpha(theme.palette.background.paper, 0.7),
+                    backdropFilter: 'blur(10px)',
+                    boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+                    border: `1px solid ${alpha(theme.palette.secondary.main, 0.1)}`,
+                  }}
+                >
+                  <PetsIcon 
+                    sx={{ 
+                      fontSize: 80, 
+                      color: alpha(theme.palette.secondary.main, 0.5),
+                      mb: 2
+                    }} 
+                  />
+                  <Typography variant="h5" fontWeight={600} gutterBottom>
+                    No adoption applications yet
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" paragraph>
+                    You haven't submitted any adoption applications. Browse our available dogs and find your perfect companion!
+                  </Typography>
+                  <Button 
+                    variant="contained"
+                    color="secondary"
+                    size="large"
+                    onClick={() => navigate('/dogs')}
+                    startIcon={<PetsIcon />}
+                    sx={{ 
+                      mt: 2,
+                      borderRadius: 2,
+                      px: 3,
+                      py: 1.2,
+                      fontWeight: 600
+                    }}
+                  >
+                    Browse Dogs
+                  </Button>
+                </Paper>
+              </motion.div>
+            ) : (
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+              >
+                <Grid container spacing={3}>
+                  {userApplications.map((application, index) => (
+                    <Grid item xs={12} key={application._id || index}>
+                      <motion.div variants={slideUp}>
+                        <Card 
+                          elevation={0}
+                          sx={{ 
+                            overflow: 'hidden',
+                            borderRadius: 3,
+                            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                            bgcolor: alpha(theme.palette.background.paper, 0.9),
+                            backdropFilter: 'blur(10px)',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                            transition: 'all 0.3s',
+                            '&:hover': {
+                              boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
+                              transform: 'translateY(-4px)'
+                            }
+                          }}
+                        >
+                          <Box sx={{ 
+                            p: 3,
+                            bgcolor: alpha(theme.palette.secondary.main, 0.03),
+                            borderBottom: `1px solid ${alpha(theme.palette.secondary.main, 0.08)}`,
+                            position: 'relative'
+                          }}>
+                            <Stack 
+                              direction={{ xs: 'column', sm: 'row' }} 
+                              justifyContent="space-between" 
+                              alignItems={{ xs: 'flex-start', sm: 'center' }}
+                              spacing={2}
+                            >
+                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Avatar 
+                                  src={application.dog?.image}
+                                  sx={{ 
+                                    mr: 2,
+                                    width: 54,
+                                    height: 54,
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+                                  }}
+                                >
+                                  <PetsIcon />
+                                </Avatar>
+                                <Box>
+                                  <Typography variant="h5" fontWeight={700}>
+                                    {application.dog?.name || 'Unknown Dog'} 
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary">
+                                    {application.dog?.breed}, {application.dog?.age}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Typography 
+                                  variant="caption" 
+                                  sx={{ 
+                                    display: { xs: 'none', md: 'block' },
+                                    color: 'text.secondary',
+                                    fontWeight: 500
+                                  }}
+                                >
+                                  Status:
+                                </Typography>
+                                {getApplicationStatusChip(application.status)}
+                              </Box>
+                            </Stack>
+                            
+                            {/* Status indicator line */}
+                            <Box 
+                              sx={{ 
+                                position: 'absolute', 
+                                top: 0, 
+                                left: 0, 
+                                width: '100%', 
+                                height: 4,
+                                background: application.status === 'Approved' 
+                                  ? `linear-gradient(90deg, ${theme.palette.success.main}, ${theme.palette.success.light})`
+                                  : application.status === 'Under Review'
+                                  ? `linear-gradient(90deg, ${theme.palette.warning.main}, ${theme.palette.warning.light})`
+                                  : application.status === 'Rejected'
+                                  ? `linear-gradient(90deg, ${theme.palette.error.main}, ${theme.palette.error.light})`
+                                  : `linear-gradient(90deg, ${theme.palette.info.main}, ${theme.palette.info.light})`
+                              }} 
+                            />
+                          </Box>
+                          
+                          <CardContent sx={{ p: 3 }}>
+                            <Grid container spacing={3}>
+                              <Grid item xs={12} md={6}>
+                                <Stack spacing={2}>
+                                  <Box>
+                                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                      Application Notes
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ fontWeight: 400 }}>
+                                      {application.applicationNotes || 'No notes provided'}
+                                    </Typography>
+                                  </Box>
+                                  
+                                  <Box>
+                                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                      Submitted On
+                                    </Typography>
+                                    <Typography 
+                                      variant="body1" 
+                                      sx={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center',
+                                        fontWeight: 500
+                                      }}
+                                    >
+                                      <AccessTimeIcon 
+                                        fontSize="small" 
+                                        sx={{ 
+                                          mr: 1, 
+                                          color: theme.palette.info.main,
+                                        }} 
+                                      />
+                                      {formatDate(application.submittedAt)}
+                                    </Typography>
+                                  </Box>
+                                </Stack>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6}>
+                                {application.adminNotes && (
+                                  <Box>
+                                    <Typography variant="subtitle2" color="text.secondary" gutterBottom fontWeight={600}>
+                                      Notes from our team
+                                    </Typography>
+                                    <Paper 
+                                      variant="outlined" 
+                                      sx={{ 
+                                        p: 2, 
+                                        bgcolor: alpha(theme.palette.info.main, 0.03),
+                                        borderRadius: 2,
+                                        borderColor: alpha(theme.palette.info.main, 0.2)
+                                      }}
+                                    >
+                                      <Typography variant="body2">
+                                        {application.adminNotes}
+                                      </Typography>
+                                    </Paper>
+                                  </Box>
+                                )}
+                                
+                                <Box sx={{ mt: application.adminNotes ? 2 : 0, display: 'flex', gap: 1 }}>
+                                  <Tooltip title="View dog details">
+                                    <IconButton 
+                                      color="secondary" 
+                                      sx={{ 
+                                        border: `1px solid ${alpha(theme.palette.secondary.main, 0.5)}`,
+                                        '&:hover': {
+                                          bgcolor: alpha(theme.palette.secondary.main, 0.1)
+                                        }
+                                      }}
+                                      onClick={() => navigate(`/dogs/${application.dog?._id}`)}
+                                    >
+                                      <InfoOutlinedIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                  {(application.status === 'Pending' || application.status === 'Under Review') && (
+                                    <Tooltip title="Withdraw application">
+                                      <IconButton 
+                                        color="error" 
+                                        sx={{ 
+                                          border: `1px solid ${alpha(theme.palette.error.main, 0.5)}`,
+                                          '&:hover': {
+                                            bgcolor: alpha(theme.palette.error.main, 0.1)
+                                          }
+                                        }}
+                                        onClick={async () => {
+                                          try {
+                                            await applicationApi.withdrawApplication(application._id!);
+                                            // Refresh applications
+                                            const updatedApplications = await applicationApi.getUserApplications();
+                                            setUserApplications(updatedApplications);
+                                          } catch (err) {
+                                            console.error('Error withdrawing application:', err);
+                                          }
+                                        }}
+                                      >
+                                        <CancelIcon />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
+                                </Box>
+                              </Grid>
+                            </Grid>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    </Grid>
+                  ))}
+                </Grid>
+              </motion.div>
+            )}
+          </motion.div>
         </motion.div>
       </Container>
     </Box>

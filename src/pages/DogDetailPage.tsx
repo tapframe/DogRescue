@@ -668,7 +668,7 @@ const DogDetailPage = () => {
                             size="large"
                             color="primary"
                             component={RouterLink}
-                            to="/contact"
+                            to={`/adopt/${dog._id || dog.id}`}
                             sx={{ 
                               flex: 1,
                               py: 1.5,
@@ -886,7 +886,7 @@ const DogDetailPage = () => {
                     variant="contained" 
                     size="large" 
                     component={RouterLink} 
-                    to="/contact"
+                    to={`/adopt/${dog._id || dog.id}`}
                     sx={{ 
                       px: 5, 
                       py: 1.8,

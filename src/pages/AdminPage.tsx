@@ -35,6 +35,7 @@ import AdminPageLayout from '../components/admin/AdminPageLayout';
 import DogManagementTab from '../components/admin/DogManagementTab';
 import VolunteerManagementTab from '../components/admin/VolunteerManagementTab';
 import RescueManagementTab from '../components/admin/RescueManagementTab';
+import ApplicationManagementTab from '../components/admin/ApplicationManagementTab';
 import { AdminThemeProvider } from '../contexts/AdminThemeContext';
 
 // Auth service
@@ -728,6 +729,8 @@ const AdminPage = () => {
         return 'Volunteer Management';
       case 2:
         return 'Rescue Submissions';
+      case 3:
+        return 'Adoption Applications';
       default:
         return 'Dashboard';
     }
@@ -770,6 +773,11 @@ const AdminPage = () => {
         {/* Rescue Submissions Tab */}
         <TabPanel value={tabValue} index={2}>
           <RescueManagementTab showNotification={showNotification} />
+        </TabPanel>
+        
+        {/* Adoption Applications Tab */}
+        <TabPanel value={tabValue} index={3}>
+          <ApplicationManagementTab />
         </TabPanel>
         
         {/* Snackbar for notifications */}

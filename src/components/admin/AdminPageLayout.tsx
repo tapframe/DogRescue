@@ -184,6 +184,7 @@ const AdminPageLayout: React.FC<AdminPageLayoutProps> = ({
     { name: 'Dog Management', icon: <PetsIcon />, index: 0 },
     { name: 'Volunteer Management', icon: <VolunteerActivismIcon />, index: 1 },
     { name: 'Rescue Submissions', icon: <PetsIcon />, index: 2 },
+    { name: 'Adoption Applications', icon: <PersonIcon />, index: 3 },
   ];
 
   const drawer = (

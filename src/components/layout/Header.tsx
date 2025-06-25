@@ -204,7 +204,7 @@ const Header = () => {
               variant="outlined"
               size="large"
               component={RouterLink}
-              to="/dashboard"
+              to="/user-dashboard"
               startIcon={<DashboardIcon />}
               sx={{
                 borderRadius: 30,
@@ -508,7 +508,7 @@ const Header = () => {
                       >
                         <MenuItem 
                           component={RouterLink}
-                          to="/dashboard"
+                          to="/user-dashboard"
                           onClick={handleUserMenuClose}
                           sx={{ py: 1.5, px: 2.5 }}
                         >

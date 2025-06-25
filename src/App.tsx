@@ -18,6 +18,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import UserDashboardPage from './pages/UserDashboardPage';
 
+// Import adoption components
+import AdoptionApplicationForm from './components/adoption/AdoptionApplicationForm';
+
 // Import secret admin login page
 import SecretLoginPage from './pages/admin/SecretLoginPage';
 
@@ -64,6 +67,11 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/dogs" element={<DogsPage />} />
           <Route path="/dogs/:id" element={<DogDetailPage />} />
+          <Route path="/adopt/:dogId" element={
+            <UserProtectedRoute>
+              <AdoptionApplicationForm />
+            </UserProtectedRoute>
+          } />
           <Route path="/volunteer" element={<VolunteerPage />} />
           <Route path="/donate" element={<DonatePage />} />
           <Route path="/resources" element={<ResourcesPage />} />
@@ -75,7 +83,7 @@ function App() {
               <RescueSubmissionPage />
             </UserProtectedRoute>
           } />
-          <Route path="/dashboard" element={
+          <Route path="/user-dashboard" element={
             <UserProtectedRoute>
               <UserDashboardPage />
             </UserProtectedRoute>
