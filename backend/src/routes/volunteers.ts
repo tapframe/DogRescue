@@ -1,7 +1,7 @@
 import express from 'express';
 import {
   getVolunteers,
-  getVolunteerById,
+  getVolunteer,
   createVolunteer,
   updateVolunteer,
   deleteVolunteer,
@@ -15,7 +15,7 @@ router.route('/')
   .post(createVolunteer);
 
 router.route('/:id')
-  .get(getVolunteerById)
+  .get(getVolunteer)
   .put(updateVolunteer)
   .delete(deleteVolunteer);
 

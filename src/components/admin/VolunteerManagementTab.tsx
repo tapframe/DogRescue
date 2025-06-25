@@ -307,7 +307,10 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
     setLoading(true);
     try {
       await volunteerApi.updateVolunteerStatus(id, status);
-      showNotification(`Volunteer ${status === 'approved' ? 'approved' : 'rejected'} successfully!`, 'success');
+      showNotification(
+        `Volunteer ${status === 'approved' ? 'approved' : 'rejected'} successfully! An email notification has been sent.`, 
+        'success'
+      );
       fetchVolunteers();
     } catch (err) {
       console.error(`Error updating volunteer status:`, err);
@@ -573,7 +576,7 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                       <TableCell align="right">
                         {volunteer.status === 'pending' && (
                           <>
-                            <Tooltip title="Approve">
+                            <Tooltip title="Approve (will send email notification)">
                               <IconButton 
                                 color="success" 
                                 onClick={() => handleUpdateVolunteerStatus(volunteer._id || volunteer.id?.toString() || '', 'approved')}
@@ -589,7 +592,8 @@ const VolunteerManagementTab: React.FC<VolunteerManagementTabProps> = ({ showNot
                                 <CheckCircleIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title="Reject">
+                            
+                            <Tooltip title="Reject (will send email notification)">
                               <IconButton 
                                 color="error" 
                                 onClick={() => handleUpdateVolunteerStatus(volunteer._id || volunteer.id?.toString() || '', 'rejected')}

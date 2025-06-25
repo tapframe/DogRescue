@@ -1408,14 +1408,9 @@ const VolunteerPage = () => {
 
         {/* Success/Error Notifications */}
         <Snackbar open={submitSuccess} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-            <Alert 
-              onClose={handleCloseSnackbar} 
-              severity="success" 
-              variant="filled"
-              sx={{ width: '100%' }}
-            >
-            Thank you for your application! We'll contact you soon.
-          </Alert>
+            <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+              Your volunteer application has been submitted successfully! You will receive a confirmation email shortly.
+            </Alert>
         </Snackbar>
         <Snackbar open={submitError} autoHideDuration={6000} onClose={handleCloseSnackbar}>
             <Alert 

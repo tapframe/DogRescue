@@ -98,4 +98,45 @@ This is the backend API for the Dog Rescue Mission website. It provides endpoint
   status: string;        // Required, enum: ['pending', 'approved', 'rejected'], default: 'pending'
   submittedAt: Date;     // Automatically set to the current date
 }
-``` 
+```
+
+## Email Configuration
+
+The application sends emails for volunteer application confirmations and status updates. To configure email functionality:
+
+1. Create a `.env` file in the backend directory with the following email configuration:
+
+```
+# Email Configuration
+EMAIL_HOST=smtp.example.com
+EMAIL_PORT=587
+EMAIL_SECURE=false
+EMAIL_USER=your_email@example.com
+EMAIL_PASSWORD=your_password
+EMAIL_FROM=noreply@dogrescuemission.com
+```
+
+2. Replace the placeholder values with your actual SMTP server details:
+   - `EMAIL_HOST`: Your SMTP server hostname (e.g., smtp.gmail.com for Gmail)
+   - `EMAIL_PORT`: SMTP port (usually 587 for TLS or 465 for SSL)
+   - `EMAIL_SECURE`: Set to `true` for port 465, `false` for other ports
+   - `EMAIL_USER`: Your email username/address
+   - `EMAIL_PASSWORD`: Your email password or app password
+   - `EMAIL_FROM`: The "from" address that will appear in sent emails
+
+### Using Gmail
+
+If using Gmail, you'll need to:
+1. Enable 2-Step Verification for your Google account
+2. Generate an App Password (Google Account > Security > App Passwords)
+3. Use that App Password in your `.env` file instead of your regular password
+
+## Email Templates
+
+The application sends the following types of emails:
+
+1. **Volunteer Application Confirmation**: Sent when a user submits a volunteer application
+2. **Volunteer Application Approved**: Sent when an admin approves a volunteer application
+3. **Volunteer Application Rejected**: Sent when an admin rejects a volunteer application
+
+You can modify the email templates in `src/utils/emailService.ts`. 

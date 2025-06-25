@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import Volunteer from '../models/Volunteer';
+import { sendEmail } from '../utils/emailService';
 
 // @desc    Get all volunteers
 // @route   GET /api/volunteers
 // @access  Private (would require auth in production)
 export const getVolunteers = async (req: Request, res: Response): Promise<void> => {
   try {
-    const volunteers = await Volunteer.find().sort({ createdAt: -1 });
+    const volunteers = await Volunteer.find().sort({ submittedAt: -1 });
     
     res.status(200).json({
       success: true,
@@ -24,7 +25,7 @@ export const getVolunteers = async (req: Request, res: Response): Promise<void> 
 // @desc    Get single volunteer
 // @route   GET /api/volunteers/:id
 // @access  Private (would require auth in production)
-export const getVolunteerById = async (req: Request, res: Response): Promise<void> => {
+export const getVolunteer = async (req: Request, res: Response): Promise<void> => {
   try {
     const volunteer = await Volunteer.findById(req.params.id);
 
@@ -54,6 +55,13 @@ export const getVolunteerById = async (req: Request, res: Response): Promise<voi
 export const createVolunteer = async (req: Request, res: Response): Promise<void> => {
   try {
     const volunteer = await Volunteer.create(req.body);
+
+    // Send confirmation email to the volunteer
+    await sendEmail(
+      volunteer.email,
+      'volunteerApplication',
+      { name: volunteer.name }
+    );
 
     res.status(201).json({
       success: true,
@@ -172,6 +180,24 @@ export const updateVolunteerStatus = async (req: Request, res: Response): Promis
         error: 'Volunteer not found',
       });
       return;
+    }
+
+    // Send email based on status update
+    if (status === 'approved') {
+      await sendEmail(
+        volunteer.email,
+        'volunteerApproved',
+        { 
+          name: volunteer.name,
+          volunteerType: volunteer.volunteerType
+        }
+      );
+    } else if (status === 'rejected') {
+      await sendEmail(
+        volunteer.email,
+        'volunteerRejected',
+        { name: volunteer.name }
+      );
     }
 
     res.status(200).json({
