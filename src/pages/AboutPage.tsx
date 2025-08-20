@@ -671,17 +671,7 @@ const AboutPage = () => {
                         }} 
                       />
                       
-                      {/* Image section */}
-                      <CardMedia
-                        component="img"
-                        height="240"
-                        image={member.image}
-                        alt={member.name}
-                        sx={{ 
-                          objectFit: 'cover',
-                          transform: 'scale(1.01)'
-                        }}
-                      />
+
                       
                       {/* Content section */}
                       <CardContent sx={{ p: 3, position: 'relative' }}>
