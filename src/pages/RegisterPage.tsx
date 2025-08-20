@@ -238,42 +238,7 @@ const RegisterPage = () => {
             Create an account and become part of our community dedicated to rescuing and rehoming dogs in need
           </Typography>
           
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 3,
-              flexWrap: 'wrap'
-            }}
-          >
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                50+
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                Active Volunteers
-              </Typography>
-            </Box>
-            <Divider orientation="vertical" flexItem sx={{ borderColor: alpha('#ffffff', 0.3) }} />
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                5000+
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                Supporters
-              </Typography>
-            </Box>
-            <Divider orientation="vertical" flexItem sx={{ borderColor: alpha('#ffffff', 0.3) }} />
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                12+
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                Years of Service
-              </Typography>
-            </Box>
-          </Box>
+          {/* Removed dummy stats */}
         </Box>
       </Box>
 

@@ -203,23 +203,7 @@ const LoginPage = () => {
               flexWrap: 'wrap'
             }}
           >
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                350+
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                Dogs Rescued
-              </Typography>
-            </Box>
-            <Divider orientation="vertical" flexItem sx={{ borderColor: alpha('#ffffff', 0.3) }} />
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                300+
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                Happy Adoptions
-              </Typography>
-            </Box>
+            {/* Removed dummy stats */}
           </Box>
         </Box>
       </Box>

@@ -71,12 +71,12 @@ const successStories = [
   }
 ];
 
-// Quick stats
+// Quick stats (labels only, no dummy numbers)
 const stats = [
-  { icon: <PetsIcon fontSize="large" />, count: '350+', label: 'Dogs Rescued' },
-  { icon: <HomeIcon fontSize="large" />, count: '300+', label: 'Adoptions' },
-  { icon: <VolunteerActivismIcon fontSize="large" />, count: '50+', label: 'Volunteers' },
-  { icon: <FavoriteIcon fontSize="large" />, count: '5000+', label: 'Supporters' },
+  { icon: <PetsIcon fontSize="large" />, count: '', label: 'Rescues' },
+  { icon: <HomeIcon fontSize="large" />, count: '', label: 'Adoptions' },
+  { icon: <VolunteerActivismIcon fontSize="large" />, count: '', label: 'Volunteers' },
+  { icon: <FavoriteIcon fontSize="large" />, count: '', label: 'Supporters' },
 ];
 
 // Animation variants
@@ -540,18 +540,20 @@ const HomePage = () => {
                     >
                       {stat.icon}
                     </Box>
-                    <Typography 
-                      variant="h3" 
-                      component="div"
-                      sx={{ 
-                        fontWeight: 700,
-                        mb: 1,
-                        color: theme.palette.primary.main,
-                        fontSize: { xs: '2.5rem', md: '3rem' }
-                      }}
-                    >
-                      {stat.count}
-                    </Typography>
+                    {stat.count && (
+                      <Typography 
+                        variant="h3" 
+                        component="div"
+                        sx={{ 
+                          fontWeight: 700,
+                          mb: 1,
+                          color: theme.palette.primary.main,
+                          fontSize: { xs: '2.5rem', md: '3rem' }
+                        }}
+                      >
+                        {stat.count}
+                      </Typography>
+                    )}
                     <Typography 
                       variant="subtitle1" 
                       sx={{ 

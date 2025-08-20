@@ -405,7 +405,7 @@ const VolunteerPage = () => {
                 }}
               >
                 <FavoriteIcon fontSize="small" sx={{ color: theme.palette.secondary.light, mr: 1 }} />
-                Over 500+ dogs helped by volunteers like you
+                Join volunteers like you making a real impact
         </Typography>
             </Paper>
           </motion.div>

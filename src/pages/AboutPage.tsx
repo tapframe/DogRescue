@@ -79,7 +79,7 @@ const AboutPage = () => {
       name: 'Aliya Fathima',
       role: 'Founder & Executive Director',
       image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-      bio: 'Aliya has been rescuing dogs for over 15 years and founded Dog Rescue Mission in 2010. Her passion for animal welfare has transformed the lives of hundreds of dogs in need.',
+      bio: 'Aliya founded Dog Rescue Mission. Her passion for animal welfare drives our work to help dogs in need.',
       socialLinks: {
         email: 'aliya@example.com',
         linkedin: '#',
@@ -90,7 +90,7 @@ const AboutPage = () => {
       name: 'Sandra Suresh',
       role: 'Adoption Coordinator',
       image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-      bio: 'Sandra works tirelessly to match dogs with their perfect forever families. Her intuition for pairing dogs with the right homes has led to hundreds of successful adoptions.',
+      bio: 'Sandra works to match dogs with loving homes, focusing on the best fit for both the dog and the family.',
       socialLinks: {
         email: 'sandra@example.com',
         linkedin: '#',
@@ -101,7 +101,7 @@ const AboutPage = () => {
       name: 'Alan Jose',
       role: 'Veterinary Director',
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-      bio: 'Alan has 20 years of veterinary experience and oversees all medical care for our dogs. His expertise ensures that every rescue receives the highest quality treatment and rehabilitation.',
+      bio: 'Alan oversees medical care for our dogs and ensures every rescue receives quality treatment and rehabilitation.',
       socialLinks: {
         email: 'alan@example.com',
         linkedin: '#',
@@ -373,7 +373,7 @@ const AboutPage = () => {
                       mb: 3
                     }}
                   >
-            Founded in 2010, our organization has rescued and rehomed over 300 dogs from high-kill shelters, abusive situations, and abandonment. We work tirelessly to provide medical care, training, and socialization to help each dog become ready for their forever home.
+            We rescue and rehome dogs from shelters, neglect, and abandonment. We work tirelessly to provide medical care, training, and socialization to help each dog become ready for their forever home.
           </Typography>
                   
                   <Box sx={{ 
@@ -395,7 +395,7 @@ const AboutPage = () => {
                       <KeyboardArrowRightIcon />
                     </Box>
                     <Typography fontWeight={500}>
-                      Rescued 350+ dogs from high-kill shelters
+                      Rescue dogs from high-kill shelters
           </Typography>
         </Box>
 
@@ -440,7 +440,7 @@ const AboutPage = () => {
                       <KeyboardArrowRightIcon />
                     </Box>
                     <Typography fontWeight={500}>
-                      Facilitated 300+ successful adoptions since 2010
+                      Facilitate successful adoptions
                     </Typography>
                   </Box>
                 </motion.div>
@@ -480,47 +480,7 @@ const AboutPage = () => {
                     />
                   </Box>
                   
-                  <Box
-                    component={Paper}
-                    elevation={16}
-                    sx={{
-                      position: 'absolute',
-                      bottom: { xs: -40, md: -50 },
-                      right: { xs: 20, md: -30 },
-                      width: { xs: 120, md: 180 },
-                      height: { xs: 120, md: 180 },
-                      borderRadius: '20px',
-                      background: theme.palette.primary.main,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexDirection: 'column',
-                      color: 'white',
-                      boxShadow: '0 15px 35px rgba(0,0,0,0.2)',
-                      zIndex: 2
-                    }}
-                  >
-                    <Typography 
-                      variant="h3" 
-                      sx={{ 
-                        fontWeight: 800, 
-                        mb: 1,
-                        fontSize: { xs: '2rem', md: '3rem' }
-                      }}
-                    >
-                      12+
-                    </Typography>
-                    <Typography 
-                      variant="body2"
-                      align="center"
-                      sx={{ 
-                        fontWeight: 500,
-                        px: 1
-                      }}
-                    >
-                      Years of Rescue
-                    </Typography>
-                  </Box>
+                  {/* Removed numeric badge */}
                 </Box>
               </motion.div>
               </Grid>
@@ -1049,7 +1009,7 @@ const AboutPage = () => {
                   lineHeight: 1.2
                 }}
               >
-                Our Impact By The Numbers
+                Our Impact
                   </Typography>
               
               <Typography 
@@ -1063,17 +1023,17 @@ const AboutPage = () => {
                   lineHeight: 1.6
                 }}
               >
-                Since our founding in 2010, we've made a measurable difference in the lives of dogs and communities.
+                We are committed to making a positive difference in the lives of dogs and our community.
                   </Typography>
             </motion.div>
           </Box>
           
           <Grid container spacing={4} justifyContent="center">
             {[
-              { number: '350+', label: 'Dogs Rescued' },
-              { number: '300+', label: 'Successful Adoptions' },
-              { number: '50+', label: 'Active Volunteers' },
-              { number: '5000+', label: 'Donors & Supporters' }
+              { number: '', label: 'Rescues' },
+              { number: '', label: 'Adoptions' },
+              { number: '', label: 'Volunteers' },
+              { number: '', label: 'Supporters' }
             ].map((stat, index) => (
               <Grid key={index} item xs={6} md={3}>
                 <motion.div
@@ -1109,18 +1069,20 @@ const AboutPage = () => {
                       }
                     }}
                   >
-                    <Typography 
-                      variant="h2" 
-                      sx={{ 
-                        fontWeight: 800, 
-                        mb: 1,
-                        fontSize: { xs: '2.5rem', md: '3.5rem' },
-                        color: 'white',
-                        textShadow: '0 2px 10px rgba(0,0,0,0.2)'
-                      }}
-                    >
-                      {stat.number}
-                  </Typography>
+                    {stat.number && (
+                      <Typography 
+                        variant="h2" 
+                        sx={{ 
+                          fontWeight: 800, 
+                          mb: 1,
+                          fontSize: { xs: '2.5rem', md: '3.5rem' },
+                          color: 'white',
+                          textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+                        }}
+                      >
+                        {stat.number}
+                      </Typography>
+                    )}
                     <Typography 
                       variant="h6"
                       sx={{ 
