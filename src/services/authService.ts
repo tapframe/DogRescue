@@ -71,7 +71,7 @@ const mockAdmins = [
 ];
 
 // Secret key for accessing admin registration (would be environment variable in real app)
-const ADMIN_SECRET_KEY = 'DogRescue_SuperSecret_2024';
+const ADMIN_SECRET_KEY = '815787';
 
 // Use mock mode if backend is not available
 let useMockMode = false;

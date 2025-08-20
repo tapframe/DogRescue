@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import Admin, { IAdmin } from '../models/Admin';
 
 // Secret key for accessing admin registration (would be environment variable in real app)
-const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'DogRescue_SuperSecret_2024';
+const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || '815787';
 
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET || 'dogrescue_jwt_secret_2024';
