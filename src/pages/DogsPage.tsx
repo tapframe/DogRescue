@@ -1612,7 +1612,7 @@ const DogsPage = () => {
                     <Tooltip title="View details">
                       <IconButton 
                         component={RouterLink}
-                        to={`/dogs/${selectedDog.id}`}
+                        to={`/dogs/${selectedDog._id || selectedDog.id}`}
                         sx={{ 
                           bgcolor: 'rgba(255,255,255,0.85)', 
                           backdropFilter: 'blur(5px)',
@@ -1627,17 +1627,17 @@ const DogsPage = () => {
                       </IconButton>
                     </Tooltip>
                     
-                    <Tooltip title={favorited.includes(selectedDog.id?.toString() || '') ? "Remove from favorites" : "Add to favorites"}>
+                    <Tooltip title={favorited.includes((selectedDog._id || selectedDog.id)?.toString() || '') ? "Remove from favorites" : "Add to favorites"}>
                       <IconButton 
-                        onClick={() => toggleFavorite(selectedDog.id || '')}
+                        onClick={() => toggleFavorite(selectedDog._id || selectedDog.id || '')}
                         sx={{ 
-                          bgcolor: favorited.includes(selectedDog.id?.toString() || '') 
+                          bgcolor: favorited.includes((selectedDog._id || selectedDog.id)?.toString() || '') 
                             ? alpha(theme.palette.secondary.main, 0.85)
                             : 'rgba(255,255,255,0.85)', 
-                          color: favorited.includes(selectedDog.id?.toString() || '') ? 'white' : 'inherit',
+                          color: favorited.includes((selectedDog._id || selectedDog.id)?.toString() || '') ? 'white' : 'inherit',
                           backdropFilter: 'blur(5px)',
                           '&:hover': { 
-                            bgcolor: favorited.includes(selectedDog.id?.toString() || '') 
+                            bgcolor: favorited.includes((selectedDog._id || selectedDog.id)?.toString() || '') 
                               ? theme.palette.secondary.main 
                               : 'white',
                             transform: 'scale(1.1)'
@@ -1645,9 +1645,59 @@ const DogsPage = () => {
                           transition: 'all 0.2s ease'
                         }}
                       >
-                        {favorited.includes(selectedDog.id?.toString() || '') ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        {favorited.includes((selectedDog._id || selectedDog.id)?.toString() || '') ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                       </IconButton>
                     </Tooltip>
+                  </Box>
+                </Box>
+                <Box 
+                  sx={{ 
+                    width: { xs: '100%', md: '50%' },
+                    p: { xs: 2, md: 3 },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2
+                  }}
+                >
+                  <Typography 
+                    variant="h4" 
+                    sx={{ fontWeight: 800, color: theme.palette.primary.dark }}
+                  >
+                    {selectedDog.name}
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+                    <Chip label={selectedDog.breed} size="small" />
+                    {selectedDog.size && <Chip label={selectedDog.size} size="small" />}
+                    {selectedDog.gender && <Chip label={selectedDog.gender} size="small" />}
+                    {selectedDog.age && <Chip label={selectedDog.age} size="small" />}
+                  </Box>
+                  {selectedDog.description && (
+                    <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                      {selectedDog.description}
+                    </Typography>
+                  )}
+                  {selectedDog.tags && selectedDog.tags.length > 0 && (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {selectedDog.tags.map((tag, idx) => (
+                        <Chip key={idx} label={tag} size="small" variant="outlined" />
+                      ))}
+                    </Box>
+                  )}
+                  <Box sx={{ display: 'flex', gap: 2, mt: 'auto' }}>
+                    <Button 
+                      component={RouterLink} 
+                      to={`/dogs/${selectedDog._id || selectedDog.id}`}
+                      variant="contained"
+                      color="primary"
+                    >
+                      View Details
+                    </Button>
+                    <Button 
+                      onClick={closeQuickView}
+                      variant="outlined"
+                    >
+                      Close
+                    </Button>
                   </Box>
                 </Box>
               </Paper>

@@ -194,6 +194,18 @@ export const dogApi = {
   }
 };
 
+// Uploads API
+export const uploadApi = {
+  uploadImage: async (file: File): Promise<{ url: string; filename: string }> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await api.post('/uploads', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  }
+};
+
 // Mock volunteer data for fallback
 const mockVolunteers: VolunteerData[] = [
   {

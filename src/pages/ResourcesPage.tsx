@@ -160,32 +160,32 @@ const ResourcesPage = () => {
 
   const emergencyContacts = [
     {
-      name: 'Pet Poison Helpline',
-      phone: '(855) 764-7661',
-      description: '24/7 animal poison control service (fee may apply)',
-      hours: '24/7',
-      website: 'https://www.petpoisonhelpline.com'
+      name: 'Blue Cross of India (Chennai)',
+      phone: 'See website',
+      description: 'Animal rescue, ambulance and shelter services in Chennai',
+      hours: 'See website',
+      website: 'https://bluecrossofindia.org/'
     },
     {
-      name: 'ASPCA Animal Poison Control',
-      phone: '(888) 426-4435',
-      description: '24/7 poison control hotline (fee may apply)',
-      hours: '24/7',
-      website: 'https://www.aspca.org/pet-care/animal-poison-control'
+      name: 'RESQ Charitable Trust (Pune)',
+      phone: 'See website',
+      description: 'Emergency rescue and wildlife response in Pune district',
+      hours: 'See website',
+      website: 'https://www.resqct.org/'
     },
     {
-      name: 'City Animal Emergency Hospital',
-      phone: '(123) 456-7890',
-      description: '24-hour emergency veterinary care',
-      hours: 'Open 24 hours',
-      website: 'https://example.com/city-animal-emergency'
+      name: 'Friendicoes SECA (Delhi NCR)',
+      phone: 'See website',
+      description: 'Helpline for injured/abandoned animals, shelter and clinic in Delhi NCR',
+      hours: 'See website',
+      website: 'https://friendicoes.org/'
     },
     {
-      name: 'Dog Rescue Mission Helpline',
-      phone: '(123) 456-7000',
-      description: 'For questions about your adopted dog',
-      hours: 'Mon-Fri: 9am-5pm, Sat: 10am-2pm',
-      website: 'https://example.com/dog-rescue-helpline'
+      name: 'Bombay SPCA (Mumbai)',
+      phone: 'See website',
+      description: 'BSPCA Bai Sakarbai Dinshaw Petit Hospital for Animals, Mumbai',
+      hours: 'See website',
+      website: 'https://www.bombayspca.org/'
     },
   ];
 
@@ -853,7 +853,7 @@ const ResourcesPage = () => {
         </Box>
           </motion.div>
 
-        {/* Additional Resources */}
+        {/* Additional Resources - India specific */}
         <Box>
           <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 4 }}>
             Recommended Resources
@@ -865,32 +865,32 @@ const ResourcesPage = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                       <LibraryBooksIcon sx={{ mr: 1, color: 'primary.main' }} />
                     <Typography variant="h6" component="div">
-                      Books & Publications
+                      National NGOs & Directories
                     </Typography>
                   </Box>
                   <List>
-                    <ListItem>
+                    <ListItem component={Link} href="https://peopleforanimalsindia.org/" target="_blank" rel="noopener">
                       <ListItemText 
-                        primary="The Art of Raising a Puppy" 
-                        secondary="by Monks of New Skete"
+                        primary="People For Animals (PFA)" 
+                        secondary="Nationwide units, shelters and resources"
                       />
                     </ListItem>
-                    <ListItem>
+                    <ListItem component={Link} href="https://www.fiapo.org/" target="_blank" rel="noopener">
                       <ListItemText 
-                        primary="How to Be Your Dog's Best Friend" 
-                        secondary="by Monks of New Skete"
+                        primary="FIAPO Animal Protection Directory" 
+                        secondary="Find nearby animal help across India"
                       />
                     </ListItem>
-                    <ListItem>
+                    <ListItem component={Link} href="https://idaindia.org/" target="_blank" rel="noopener">
                       <ListItemText 
-                        primary="Inside of a Dog" 
-                        secondary="by Alexandra Horowitz"
+                        primary="IDA India (In Defense of Animals)" 
+                        secondary="Rescues, shelter and helplines"
                       />
                     </ListItem>
-                    <ListItem>
+                    <ListItem component={Link} href="https://www.petaindia.com/" target="_blank" rel="noopener">
                       <ListItemText 
-                        primary="Don't Shoot the Dog" 
-                        secondary="by Karen Pryor"
+                        primary="PETA India" 
+                        secondary="Report cruelty, animal laws and advocacy"
                       />
                     </ListItem>
                   </List>
@@ -903,32 +903,38 @@ const ResourcesPage = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                       <AllInclusiveIcon sx={{ mr: 1, color: 'primary.main' }} />
                     <Typography variant="h6" component="div">
-                      Online Resources
+                      City/Regional Organizations
                     </Typography>
                   </Box>
                   <List>
-                    <ListItem>
+                    <ListItem component={Link} href="https://bluecrossofindia.org/" target="_blank" rel="noopener">
                       <ListItemText 
-                        primary="American Kennel Club (AKC)" 
-                        secondary="Training resources, breed information, and health articles"
+                        primary="Blue Cross of India (Chennai)"
+                        secondary="Rescue, ABC, adoption and education"
                       />
                     </ListItem>
-                    <ListItem>
+                    <ListItem component={Link} href="https://friendicoes.org/" target="_blank" rel="noopener">
                       <ListItemText 
-                        primary="ASPCA Pet Care" 
-                        secondary="Comprehensive guides on dog care, behavior, and training"
+                        primary="Friendicoes SECA (Delhi NCR)"
+                        secondary="Helpline, rescues, hospital and sanctuary"
                       />
                     </ListItem>
-                    <ListItem>
+                    <ListItem component={Link} href="https://www.bombayspca.org/" target="_blank" rel="noopener">
                       <ListItemText 
-                        primary="Whole Dog Journal" 
-                        secondary="In-depth articles on natural dog care, training, and nutrition"
+                        primary="Bombay SPCA (Mumbai)"
+                        secondary="Animal hospital and shelter"
                       />
                     </ListItem>
-                    <ListItem>
+                    <ListItem component={Link} href="https://www.resqct.org/" target="_blank" rel="noopener">
                       <ListItemText 
-                        primary="Fear Free Happy Homes" 
-                        secondary="Resources for reducing fear, anxiety, and stress in pets"
+                        primary="RESQ Charitable Trust (Pune)"
+                        secondary="Emergency response, wildlife and community animal care"
+                      />
+                    </ListItem>
+                    <ListItem component={Link} href="https://www.cupabangalore.org/" target="_blank" rel="noopener">
+                      <ListItemText 
+                        primary="CUPA Bangalore (Bengaluru)"
+                        secondary="Rescue, adoption, ABC and veterinary services"
                       />
                     </ListItem>
                   </List>

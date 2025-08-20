@@ -576,6 +576,7 @@ const Dashboard = ({ showNotification, onTabChange }: {
                     py: 1.5, 
                     borderRadius: 2,
                   }}
+                  onClick={() => onTabChange && onTabChange(0)}
                 >
                   Add New Dog
                 </Button>
@@ -590,6 +591,7 @@ const Dashboard = ({ showNotification, onTabChange }: {
                     borderColor: theme.palette.primary.main,
                     color: theme.palette.primary.main,
                   }}
+                  onClick={() => onTabChange && onTabChange(1)}
                 >
                   Add New Volunteer
                 </Button>
@@ -604,6 +606,7 @@ const Dashboard = ({ showNotification, onTabChange }: {
                     borderColor: theme.palette.secondary.main,
                     color: theme.palette.secondary.main,
                   }}
+                  onClick={() => onTabChange && onTabChange(3)}
                 >
                   Review Applications
                 </Button>

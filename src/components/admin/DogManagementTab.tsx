@@ -42,7 +42,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
 
-import { dogApi, DogData } from '../../services/api';
+import { dogApi, DogData, uploadApi } from '../../services/api';
 
 interface DogManagementTabProps {
   showNotification: (message: string, severity: 'success' | 'error') => void;
@@ -96,6 +96,9 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
   
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Fetch dogs on component mount
   useEffect(() => {
@@ -742,10 +745,56 @@ const DogManagementTab: React.FC<DogManagementTabProps> = ({ showNotification })
                 value={formData.image}
                 onChange={handleInputChange}
                 error={formErrors.image}
-                helperText={formErrors.image ? 'Image URL is required' : 'Direct link to dog image'}
+                helperText={formErrors.image ? 'Image URL is required' : 'Direct link to dog image or upload a file below'}
                 required
                 size="small"
               />
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  size="small"
+                  sx={{ borderRadius: 2 }}
+                >
+                  Choose File
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={(e) => {
+                      const file = e.target.files && e.target.files[0];
+                      if (file) {
+                        setImageFile(file);
+                      }
+                    }}
+                  />
+                </Button>
+                <Typography variant="body2" color="text.secondary">
+                  {imageFile ? imageFile.name : 'No file selected'}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  disabled={!imageFile || isUploadingImage}
+                  onClick={async () => {
+                    if (!imageFile) return;
+                    try {
+                      setIsUploadingImage(true);
+                      const { url } = await uploadApi.uploadImage(imageFile);
+                      setFormData({ ...formData, image: url });
+                    } catch (err) {
+                      console.error('Image upload failed', err);
+                      showNotification('Image upload failed. Please try again.', 'error');
+                    } finally {
+                      setIsUploadingImage(false);
+                    }
+                  }}
+                  sx={{ borderRadius: 2 }}
+                >
+                  {isUploadingImage ? 'Uploading...' : 'Upload'}
+                </Button>
+              </Box>
             </Grid>
             <Grid item xs={12}>
               <TextField
