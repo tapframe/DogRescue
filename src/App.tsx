@@ -77,12 +77,8 @@ function App() {
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/contact" element={<ContactPage />} />
           
-          {/* Protected routes that require user authentication */}
-          <Route path="/rescue" element={
-            <UserProtectedRoute>
-              <RescueSubmissionPage />
-            </UserProtectedRoute>
-          } />
+          {/* Rescue page is public to allow unregistered users to submit */}
+          <Route path="/rescue" element={<RescueSubmissionPage />} />
           <Route path="/user-dashboard" element={
             <UserProtectedRoute>
               <UserDashboardPage />
